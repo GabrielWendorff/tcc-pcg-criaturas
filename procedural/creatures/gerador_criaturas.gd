@@ -51,9 +51,15 @@ func _gerar_uma(world_seed: int, seed_individual: int, id: int) -> Criatura:
 	c.matiz = _amostrar_categorico(rng, tabelas.dist_matiz(c.elemento))
 
 	c.morfologia = {}
+	c.variantes = {}
 	for feature in tabelas.features_morfologia():
 		var p: float = tabelas.prob_feature(c.animal_base, c.elemento, feature)
-		c.morfologia[feature] = _bernoulli(rng, p)
+		var presente: bool = _bernoulli(rng, p)
+		c.morfologia[feature] = presente
+		if presente:
+			# QUAL modelo tambem e condicionado ao elemento (RF04 na camada visual).
+			var pesos: Array = tabelas.vies_variante(feature, c.elemento)
+			c.variantes[feature] = _amostrar_indice_ponderado(rng, pesos)
 
 	return c
 
@@ -78,3 +84,17 @@ func _amostrar_categorico(rng: RandomNumberGenerator, dist: Dictionary) -> Strin
 ## Evento de Bernoulli: true com probabilidade p.
 func _bernoulli(rng: RandomNumberGenerator, p: float) -> bool:
 	return rng.randf() < p
+
+
+## Amostra um indice em [0, pesos.size()) proporcional a pesos (nao normalizados).
+func _amostrar_indice_ponderado(rng: RandomNumberGenerator, pesos: Array) -> int:
+	var total: float = 0.0
+	for w in pesos:
+		total += w
+	var alvo: float = rng.randf() * total
+	var acumulado: float = 0.0
+	for i in pesos.size():
+		acumulado += pesos[i]
+		if alvo <= acumulado:
+			return i
+	return pesos.size() - 1

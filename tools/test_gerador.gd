@@ -58,6 +58,7 @@ func _initialize() -> void:
 	print("  morfologia : %5.1f%%" % (m["morfologia_pct"] * 100.0))
 	for f in m["por_feature"]:
 		print("      %-11s: %5.1f%%" % [f, m["por_feature"][f] * 100.0])
+	print("  variante   : %5.1f%%  (qual modelo, entre features presentes)" % (m["variante_pct"] * 100.0))
 	print("  GERAL      : %5.1f%%" % (m["geral_pct"] * 100.0))
 
 	# --- Amostra visual (5 primeiras criaturas) ---
@@ -85,5 +86,7 @@ func _bestiarios_iguais(a: Array, b: Array) -> bool:
 		if x.paleta != y.paleta or x.matiz != y.matiz:
 			return false
 		if x.morfologia != y.morfologia:
+			return false
+		if x.variantes != y.variantes:
 			return false
 	return true

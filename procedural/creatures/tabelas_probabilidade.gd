@@ -12,6 +12,7 @@ var priors: Dictionary = {}
 var palette: Dictionary = {}      # P(paleta | elemento)
 var hue: Dictionary = {}          # P(matiz  | elemento)
 var morphology: Dictionary = {}   # base_por_animal + modificador_por_elemento
+var variants: Dictionary = {}     # modelos de cada feature + vies por elemento
 
 var _ok: bool = false
 var erro: String = ""
@@ -37,13 +38,15 @@ func _carregar_tudo() -> void:
 	var pal: Variant = _ler_json("conditional_palette.json")
 	var hu: Variant = _ler_json("conditional_hue.json")
 	var mor: Variant = _ler_json("conditional_morphology.json")
-	if voc == null or pri == null or pal == null or hu == null or mor == null:
+	var var_: Variant = _ler_json("feature_variants.json")
+	if voc == null or pri == null or pal == null or hu == null or mor == null or var_ == null:
 		return
 	vocabulary = voc
 	priors = pri
 	palette = pal["tabela"]
 	hue = hu["tabela"]
 	morphology = mor
+	variants = var_
 	_ok = true
 
 
@@ -96,3 +99,18 @@ func prob_feature(animal: String, elemento: String, feature: String) -> float:
 	var modif: float = morphology["modificador_por_elemento"][elemento][feature]
 	var meta: Dictionary = morphology["_meta"]
 	return clampf(base + modif, meta["clamp_min"], meta["clamp_max"])
+
+
+# --- Variantes (modelos) das features -------------------------------------
+
+## Pesos (nao normalizados) de escolha de modelo da feature, dado o elemento.
+func vies_variante(feature: String, elemento: String) -> Array:
+	return variants[feature]["vies_por_elemento"][elemento]
+
+
+func num_modelos(feature: String) -> int:
+	return variants[feature]["num_modelos"]
+
+
+func nome_modelo(feature: String, indice: int) -> String:
+	return variants[feature]["modelos"][indice]

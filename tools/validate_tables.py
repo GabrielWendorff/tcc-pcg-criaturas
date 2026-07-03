@@ -63,6 +63,26 @@ for e in ELEM:
 def p_feature(animal, elem, feat):
     return max(cmin, min(cmax, base[animal][feat] + mod[elem][feat]))
 
+# --- variantes (modelos) das features ---
+variants = load("feature_variants.json")
+for feat in MORPH:
+    if feat not in variants:
+        errors.append(f"variantes: feature '{feat}' ausente"); continue
+    n = variants[feat]["num_modelos"]
+    modelos = variants[feat]["modelos"]
+    if len(modelos) != n:
+        errors.append(f"variantes[{feat}]: len(modelos)={len(modelos)} != num_modelos={n}")
+    vies = variants[feat]["vies_por_elemento"]
+    for e in ELEM:
+        if e not in vies:
+            errors.append(f"variantes[{feat}]: elemento '{e}' ausente"); continue
+        if len(vies[e]) != n:
+            errors.append(f"variantes[{feat}][{e}]: len(pesos)={len(vies[e])} != {n}")
+        if any((not isinstance(w, (int, float))) or w < 0 for w in vies[e]):
+            errors.append(f"variantes[{feat}][{e}]: pesos invalidos (negativos/nao-numericos)")
+        if sum(vies[e]) <= 0:
+            errors.append(f"variantes[{feat}][{e}]: soma de pesos <= 0")
+
 print("=" * 64)
 print("VALIDACAO DAS TABELAS DE PROBABILIDADE CONDICIONADA")
 print("=" * 64)
@@ -76,10 +96,12 @@ def perfil(elem, animal):
     print(f"  {elem.upper()} + {animal.upper()}")
     print(f"    paleta provavel : {top_pal} ({pal[elem][top_pal]:.0%})")
     print(f"    matiz provavel  : {top_mat} ({hue[elem][top_mat]:.0%})")
-    print("    morfologia P(presenca):")
+    print("    morfologia P(presenca) [modelo mais provavel p/ o elemento]:")
     for f in MORPH:
         bar = "#" * round(feats[f] * 20)
-        print(f"      {f:<11}{feats[f]:>5.0%} |{bar}")
+        vies = variants[f]["vies_por_elemento"][elem]
+        modelo = variants[f]["modelos"][vies.index(max(vies))]
+        print(f"      {f:<11}{feats[f]:>5.0%} |{bar:<20}| {modelo}")
     print()
 
 print("PERFIS-CANONICOS:")

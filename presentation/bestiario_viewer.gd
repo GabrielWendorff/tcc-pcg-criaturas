@@ -1,9 +1,8 @@
 extends Control
 
-## Visualizador do bestiario (primeira versao de RF07). Ferramenta de demo/depuracao:
-## digite uma seed, gere e veja as ~100 criaturas com cor, atributos, morfologia
-## e as metricas de coerencia (RF08) no topo. Sem sprites ainda — o "visual" e a
-## cor derivada (matiz) + a familia de paleta.
+## Visualizador do bestiario (RF07). Digite uma seed, gere e veja as ~100
+## criaturas DESENHADAS (corpo + features no modelo escolhido) com miniaturas na
+## lista e um painel de detalhe. No topo, as metricas de coerencia (RF08).
 
 const N_PADRAO := 100
 
@@ -13,20 +12,8 @@ var _gerador: GeradorCriaturas
 var _seed_input: LineEdit
 var _header: RichTextLabel
 var _lista: VBoxContainer
-
-# matiz (categorico) -> cor concreta para o swatch.
-const CORES_MATIZ := {
-	"vermelho": Color("e14b4b"),
-	"laranja":  Color("e8863a"),
-	"amarelo":  Color("e8cf4b"),
-	"verde":    Color("5bbf5b"),
-	"ciano":    Color("4bd6d6"),
-	"azul":     Color("4b6ee8"),
-	"roxo":     Color("9b5be8"),
-	"marrom":   Color("8a5a3c"),
-	"cinza":    Color("8a909c"),
-	"branco":   Color("e8ecf2"),
-}
+var _detalhe_render: CreatureRenderer
+var _detalhe_texto: RichTextLabel
 
 
 func _ready() -> void:
@@ -88,17 +75,58 @@ func _construir_ui() -> void:
 	_header.size_flags_horizontal = SIZE_EXPAND_FILL
 	col.add_child(_header)
 
-	# --- lista rolavel de criaturas ---
+	# --- corpo: detalhe (esq) + lista (dir) ---
+	var linha := HBoxContainer.new()
+	linha.add_theme_constant_override("separation", 14)
+	linha.size_flags_vertical = SIZE_EXPAND_FILL
+	col.add_child(linha)
+
+	linha.add_child(_construir_painel_detalhe())
+
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = SIZE_EXPAND_FILL
 	scroll.size_flags_horizontal = SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	col.add_child(scroll)
+	linha.add_child(scroll)
 
 	_lista = VBoxContainer.new()
 	_lista.size_flags_horizontal = SIZE_EXPAND_FILL
 	_lista.add_theme_constant_override("separation", 4)
 	scroll.add_child(_lista)
+
+
+func _construir_painel_detalhe() -> Control:
+	var painel := PanelContainer.new()
+	painel.custom_minimum_size = Vector2(300, 0)
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color("222633")
+	estilo.set_corner_radius_all(8)
+	estilo.set_content_margin_all(12)
+	painel.add_theme_stylebox_override("panel", estilo)
+
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 10)
+	painel.add_child(v)
+
+	var moldura := PanelContainer.new()
+	var molst := StyleBoxFlat.new()
+	molst.bg_color = Color("15171e")
+	molst.set_corner_radius_all(6)
+	moldura.add_theme_stylebox_override("panel", molst)
+	moldura.size_flags_horizontal = SIZE_SHRINK_CENTER
+	v.add_child(moldura)
+
+	_detalhe_render = CreatureRenderer.new()
+	_detalhe_render.custom_minimum_size = Vector2(260, 260)
+	moldura.add_child(_detalhe_render)
+
+	_detalhe_texto = RichTextLabel.new()
+	_detalhe_texto.bbcode_enabled = true
+	_detalhe_texto.fit_content = true
+	_detalhe_texto.size_flags_horizontal = SIZE_EXPAND_FILL
+	v.add_child(_detalhe_texto)
+
+	return painel
 
 
 func _on_gerar() -> void:
@@ -126,6 +154,8 @@ func _gerar(world_seed: int) -> void:
 	var m := MetricasCoerencia.avaliar(bestiario, _tabelas)
 	_atualizar_header(world_seed, dt_ms, m)
 	_popular_lista(bestiario)
+	if not bestiario.is_empty():
+		_selecionar(bestiario[0])
 
 
 func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
@@ -134,9 +164,9 @@ func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
 	linhas.append("[b]Seed:[/b] %d    [b]Criaturas:[/b] %d    [b]Tempo:[/b] [color=%s]%.2f ms[/color]" % [
 		world_seed, m["total"], meta_cor, dt_ms
 	])
-	linhas.append("[b]Coerência (RF08):[/b]  paleta %.0f%%   matiz %.0f%%   morfologia %.0f%%   [b]geral %.0f%%[/b]" % [
-		m["paleta_pct"] * 100.0, m["matiz_pct"] * 100.0,
-		m["morfologia_pct"] * 100.0, m["geral_pct"] * 100.0
+	linhas.append("[b]Coerência (RF08):[/b]  paleta %.0f%%   matiz %.0f%%   morfologia %.0f%%   variante %.0f%%   [b]geral %.0f%%[/b]" % [
+		m["paleta_pct"] * 100.0, m["matiz_pct"] * 100.0, m["morfologia_pct"] * 100.0,
+		m["variante_pct"] * 100.0, m["geral_pct"] * 100.0
 	])
 	_header.text = "\n".join(linhas)
 
@@ -154,45 +184,88 @@ func _card(c: Criatura) -> Control:
 	estilo.bg_color = Color("242833")
 	estilo.set_corner_radius_all(6)
 	estilo.set_content_margin_all(8)
-	# borda esquerda tingida pela cor da criatura
-	estilo.border_color = _cor_matiz(c.matiz)
+	estilo.border_color = CreatureRenderer.cor_de_matiz(c.matiz, c.paleta)
 	estilo.border_width_left = 4
 	panel.add_theme_stylebox_override("panel", estilo)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.gui_input.connect(func(ev): _on_card_input(ev, c))
 
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 12)
 	panel.add_child(h)
 
-	var swatch := ColorRect.new()
-	swatch.color = _cor_matiz(c.matiz)
-	swatch.custom_minimum_size = Vector2(44, 44)
-	swatch.size_flags_vertical = SIZE_SHRINK_CENTER
-	h.add_child(swatch)
+	var thumb := CreatureRenderer.new()
+	thumb.custom_minimum_size = Vector2(72, 72)
+	thumb.size_flags_vertical = SIZE_SHRINK_CENTER
+	thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(thumb)
+	thumb.configurar(c)
 
 	var texto := RichTextLabel.new()
 	texto.bbcode_enabled = true
 	texto.fit_content = true
 	texto.size_flags_horizontal = SIZE_EXPAND_FILL
-	texto.text = _descricao_bbcode(c)
+	texto.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texto.text = _descricao_card(c)
 	h.add_child(texto)
 
 	return panel
 
 
-func _descricao_bbcode(c: Criatura) -> String:
-	var feats := c.features_presentes()
-	var feats_txt := ", ".join(feats) if not feats.is_empty() else "[color=6a7080](nenhuma)[/color]"
-	# marcador de coerencia por criatura (paleta e matiz na moda do elemento)
-	var coerente := (c.paleta == _moda(_tabelas.dist_paleta(c.elemento))) \
-		and (c.matiz == _moda(_tabelas.dist_matiz(c.elemento)))
+func _on_card_input(ev: InputEvent, c: Criatura) -> void:
+	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+		_selecionar(c)
+
+
+func _selecionar(c: Criatura) -> void:
+	_detalhe_render.configurar(c)
+	_detalhe_texto.text = _descricao_detalhe(c)
+
+
+func _descricao_card(c: Criatura) -> String:
+	var coerente := _coerente(c)
 	var tag := "[color=5bbf5b]● coerente[/color]" if coerente else "[color=8a909c]○ atípica[/color]"
-	return "[b]%s[/b]   %s\n[color=b0b6c0]%s + %s[/color]   ·   paleta [b]%s[/b]   ·   matiz [b]%s[/b]\nmorfologia: %s" % [
-		c.nome(), tag, c.elemento, c.animal_base, c.paleta, c.matiz, feats_txt
+	return "[b]%s[/b]   %s\n[color=b0b6c0]%s + %s[/color]  ·  paleta [b]%s[/b]  ·  matiz [b]%s[/b]\n%s" % [
+		c.nome(), tag, c.elemento, c.animal_base, c.paleta, c.matiz, _lista_partes(c)
 	]
 
 
-func _cor_matiz(matiz: String) -> Color:
-	return CORES_MATIZ.get(matiz, Color("8a909c"))
+func _descricao_detalhe(c: Criatura) -> String:
+	var linhas := PackedStringArray()
+	linhas.append("[b][font_size=18]%s[/font_size][/b]" % c.nome())
+	linhas.append("[color=b0b6c0]Primários:[/color]  elemento [b]%s[/b]  ·  animal [b]%s[/b]" % [c.elemento, c.animal_base])
+	linhas.append("[color=b0b6c0]Cor:[/color]  paleta [b]%s[/b]  ·  matiz [b]%s[/b]" % [c.paleta, c.matiz])
+	linhas.append("[color=b0b6c0]Morfologia (modelo):[/color]")
+	var achou := false
+	for f in _tabelas.features_morfologia():
+		if c.morfologia.get(f, false):
+			achou = true
+			var idx: int = c.variantes[f]
+			linhas.append("   • %s: [b]%s[/b] [color=6a7080](modelo %d/%d)[/color]" % [
+				f, _tabelas.nome_modelo(f, idx), idx + 1, _tabelas.num_modelos(f)
+			])
+	if not achou:
+		linhas.append("   [color=6a7080](nenhuma)[/color]")
+	var tag := "[color=5bbf5b]● coerente[/color]" if _coerente(c) else "[color=e8a83a]○ atípica[/color]"
+	linhas.append("[color=b0b6c0]Coerência:[/color] %s   [color=6a7080](seed ind. %d)[/color]" % [tag, c.seed_individual])
+	return "\n".join(linhas)
+
+
+## Lista textual das features presentes com seus modelos (para o card).
+func _lista_partes(c: Criatura) -> String:
+	var partes := PackedStringArray()
+	for f in _tabelas.features_morfologia():
+		if c.morfologia.get(f, false):
+			partes.append("%s:%s" % [f, _tabelas.nome_modelo(f, c.variantes[f])])
+	if partes.is_empty():
+		return "[color=6a7080](sem apêndices)[/color]"
+	return "[color=9aa0aa]" + "  ·  ".join(partes) + "[/color]"
+
+
+## Criatura "coerente" = paleta e matiz na moda do elemento.
+func _coerente(c: Criatura) -> bool:
+	return (c.paleta == _moda(_tabelas.dist_paleta(c.elemento))) \
+		and (c.matiz == _moda(_tabelas.dist_matiz(c.elemento)))
 
 
 func _moda(dist: Dictionary) -> String:

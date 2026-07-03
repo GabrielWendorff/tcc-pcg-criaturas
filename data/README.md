@@ -14,8 +14,15 @@ Seed
  ├─ animal_base   ~ prior                         (primary_priors.json)
  ├─ paleta        ~ P(paleta | elemento)          (conditional_palette.json)
  ├─ matiz (cor)   ~ P(matiz  | elemento)          (conditional_hue.json)
- └─ morfologia    ~ P(feature | animal, elemento) (conditional_morphology.json)
+ ├─ morfologia    ~ P(feature | animal, elemento) (conditional_morphology.json)
+ └─ p/ cada feature presente:
+     modelo       ~ P(modelo | elemento)          (feature_variants.json)
 ```
+
+A criatura visual e montada de partes: corpo (por `animal_base`) + cada feature
+presente no seu **modelo** escolhido. Nao so *se* tem garras, mas *qual* garra
+tambem e condicionado ao elemento (Fogo -> garras agressivas) — a coerencia
+semantica alcanca a camada visual (RF07).
 
 Os **derivados nunca são sorteados de forma independente** — todos dependem
 de pelo menos um primário. É essa dependência que produz a coerência
@@ -31,6 +38,7 @@ escala sem coerência).
 | `conditional_palette.json` | P(paleta \| elemento) | categórica condicional (linha soma 1) |
 | `conditional_hue.json` | P(matiz \| elemento) | categórica condicional (linha soma 1) |
 | `conditional_morphology.json` | P(garras/escamas/asas/nadadeiras \| animal, elemento) | Bernoulli aditivo com clamp |
+| `feature_variants.json` | P(modelo da feature \| elemento) — qual das N variantes | pesos inteiros (o gerador normaliza) |
 
 ### Categóricas (`_meta.tipo` = `categorica` / `condicional`)
 Cada linha é uma distribuição que **soma 1.0**. Chaves omitidas valem 0.

@@ -23,6 +23,10 @@ static func avaliar(bestiario: Array, tabelas: TabelasProbabilidade) -> Dictiona
 	var feature_ok: Dictionary = {}
 	for f in features:
 		feature_ok[f] = 0
+	# Coerencia da variante: qual modelo, entre as features presentes, caiu na
+	# escolha mais provavel do vies do elemento (RF04 na camada visual).
+	var variante_ok: int = 0
+	var variante_total: int = 0
 
 	for c in bestiario:
 		if c.paleta == _moda(tabelas.dist_paleta(c.elemento)):
@@ -33,6 +37,10 @@ static func avaliar(bestiario: Array, tabelas: TabelasProbabilidade) -> Dictiona
 			var esperado: bool = tabelas.prob_feature(c.animal_base, c.elemento, f) >= 0.5
 			if c.morfologia[f] == esperado:
 				feature_ok[f] += 1
+		for f in c.variantes:
+			variante_total += 1
+			if c.variantes[f] == _indice_moda(tabelas.vies_variante(f, c.elemento)):
+				variante_ok += 1
 
 	var por_feature: Dictionary = {}
 	var soma_morf: float = 0.0
@@ -44,6 +52,7 @@ static func avaliar(bestiario: Array, tabelas: TabelasProbabilidade) -> Dictiona
 
 	var paleta_pct: float = float(paleta_ok) / total
 	var matiz_pct: float = float(matiz_ok) / total
+	var variante_pct: float = (float(variante_ok) / variante_total) if variante_total > 0 else 0.0
 	# Coerencia geral: media das 3 dimensoes derivadas (paleta, matiz, morfologia).
 	var geral_pct: float = (paleta_pct + matiz_pct + morfologia_pct) / 3.0
 
@@ -53,6 +62,7 @@ static func avaliar(bestiario: Array, tabelas: TabelasProbabilidade) -> Dictiona
 		"matiz_pct": matiz_pct,
 		"morfologia_pct": morfologia_pct,
 		"por_feature": por_feature,
+		"variante_pct": variante_pct,
 		"geral_pct": geral_pct,
 	}
 
@@ -65,4 +75,13 @@ static func _moda(dist: Dictionary) -> String:
 		if dist[valor] > melhor_p:
 			melhor_p = dist[valor]
 			melhor = valor
+	return melhor
+
+
+## Indice de maior peso num vetor de pesos (moda de variante).
+static func _indice_moda(pesos: Array) -> int:
+	var melhor: int = 0
+	for i in pesos.size():
+		if pesos[i] > pesos[melhor]:
+			melhor = i
 	return melhor

@@ -16,7 +16,8 @@ var animal_base: String = ""
 # Atributos derivados (condicionados aos primarios) — RF04
 var paleta: String = ""
 var matiz: String = ""
-var morfologia: Dictionary = {}  # ex.: {"garras": true, "escamas": false, ...}
+var morfologia: Dictionary = {}  # presenca: {"garras": true, "escamas": false, ...}
+var variantes: Dictionary = {}   # modelo escolhido p/ features presentes: {"garras": 2, ...}
 
 
 ## Lista das features morfologicas presentes (para exibicao / metricas).
