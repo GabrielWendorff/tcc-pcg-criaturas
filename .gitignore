@@ -1,0 +1,37 @@
+# Godot 4+ — arquivos gerados pela engine
+.godot/
+/android/
+/build/
+
+# Cache de importação (Godot 3 legado, por segurança)
+.import/
+*.import
+
+# Configurações de exportação / builds
+export.cfg
+export_presets.cfg
+*.translation
+
+# Binários exportados do jogo
+/exports/
+*.exe
+*.pck
+*.zip
+*.apk
+*.aab
+*.x86_64
+*.dmg
+
+# Mono / .NET (caso venha a ser usado)
+.mono/
+data_*/
+mono_crash.*.json
+
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
