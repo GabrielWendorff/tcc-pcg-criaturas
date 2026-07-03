@@ -1,0 +1,15 @@
+{
+  "_meta": {
+    "descricao": "Vocabulario canonico de todos os atributos categoricos. Fonte unica de verdade: qualquer tabela condicional deve usar exatamente estas chaves. Alterar aqui exige revisar as tabelas conditional_*.json.",
+    "versao": 1
+  },
+  "primarios": {
+    "elemento": ["fogo", "agua", "terra", "ar", "planta", "eletrico", "gelo", "sombra"],
+    "animal_base": ["gato", "peixe", "ave", "reptil", "roedor", "inseto", "anfibio", "canino"]
+  },
+  "derivados": {
+    "paleta": ["quente", "fria", "terrosa", "vibrante", "neutra"],
+    "matiz": ["vermelho", "laranja", "amarelo", "verde", "ciano", "azul", "roxo", "marrom", "cinza", "branco"],
+    "morfologia": ["garras", "escamas", "asas", "nadadeiras"]
+  }
+}

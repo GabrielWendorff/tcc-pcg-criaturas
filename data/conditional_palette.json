@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "descricao": "P(paleta | elemento). Familia de cor condicionada ao elemento primario. Cada linha (elemento) soma 1.0. Chaves de paleta omitidas valem 0. Origem da coerencia 'Fogo -> cores quentes'.",
+    "tipo": "condicional",
+    "condicionado_a": ["elemento"],
+    "alvo": "paleta",
+    "versao": 1
+  },
+  "tabela": {
+    "fogo":     { "quente": 0.65, "vibrante": 0.20, "terrosa": 0.08, "neutra": 0.04, "fria": 0.03 },
+    "agua":     { "fria": 0.68, "neutra": 0.15, "vibrante": 0.10, "quente": 0.04, "terrosa": 0.03 },
+    "terra":    { "terrosa": 0.60, "neutra": 0.18, "quente": 0.12, "fria": 0.05, "vibrante": 0.05 },
+    "ar":       { "neutra": 0.40, "fria": 0.25, "vibrante": 0.20, "quente": 0.08, "terrosa": 0.07 },
+    "planta":   { "vibrante": 0.35, "terrosa": 0.30, "fria": 0.18, "neutra": 0.12, "quente": 0.05 },
+    "eletrico": { "vibrante": 0.55, "quente": 0.18, "neutra": 0.15, "fria": 0.10, "terrosa": 0.02 },
+    "gelo":     { "fria": 0.70, "neutra": 0.18, "vibrante": 0.07, "terrosa": 0.03, "quente": 0.02 },
+    "sombra":   { "neutra": 0.45, "fria": 0.25, "terrosa": 0.15, "vibrante": 0.10, "quente": 0.05 }
+  }
+}

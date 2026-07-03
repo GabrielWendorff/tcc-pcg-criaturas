@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "descricao": "Modelo de presenca de atributos morfologicos derivados (garras, escamas, asas, nadadeiras). NAO e uma distribuicao que soma 1: cada atributo e um evento de Bernoulli independente cuja probabilidade e P(feature | animal, elemento) = clamp(base_animal[feature] + modificador_elemento[feature], clamp_min, clamp_max). O clamp mantem a geracao estocastica (nunca 0% nem 100%), preservando variedade procedural.",
+    "tipo": "condicional_bernoulli",
+    "condicionado_a": ["animal_base", "elemento"],
+    "alvo": "morfologia",
+    "combinacao": "aditiva_com_clamp",
+    "clamp_min": 0.02,
+    "clamp_max": 0.98,
+    "versao": 1
+  },
+  "base_por_animal": {
+    "gato":    { "garras": 0.85, "escamas": 0.05, "asas": 0.05, "nadadeiras": 0.03 },
+    "peixe":   { "garras": 0.02, "escamas": 0.90, "asas": 0.02, "nadadeiras": 0.92 },
+    "ave":     { "garras": 0.55, "escamas": 0.10, "asas": 0.95, "nadadeiras": 0.02 },
+    "reptil":  { "garras": 0.60, "escamas": 0.85, "asas": 0.10, "nadadeiras": 0.08 },
+    "roedor":  { "garras": 0.45, "escamas": 0.03, "asas": 0.04, "nadadeiras": 0.02 },
+    "inseto":  { "garras": 0.30, "escamas": 0.10, "asas": 0.70, "nadadeiras": 0.02 },
+    "anfibio": { "garras": 0.20, "escamas": 0.25, "asas": 0.03, "nadadeiras": 0.55 },
+    "canino":  { "garras": 0.80, "escamas": 0.05, "asas": 0.04, "nadadeiras": 0.03 }
+  },
+  "modificador_por_elemento": {
+    "fogo":     { "garras": 0.10, "escamas": -0.05, "asas": 0.02, "nadadeiras": -0.15 },
+    "agua":     { "garras": -0.08, "escamas": 0.10, "asas": -0.05, "nadadeiras": 0.20 },
+    "terra":    { "garras": 0.08, "escamas": 0.12, "asas": -0.08, "nadadeiras": -0.10 },
+    "ar":       { "garras": -0.02, "escamas": -0.05, "asas": 0.20, "nadadeiras": -0.08 },
+    "planta":   { "garras": -0.05, "escamas": 0.05, "asas": 0.02, "nadadeiras": 0.02 },
+    "eletrico": { "garras": 0.05, "escamas": -0.02, "asas": 0.08, "nadadeiras": -0.05 },
+    "gelo":     { "garras": 0.05, "escamas": 0.08, "asas": -0.03, "nadadeiras": 0.05 },
+    "sombra":   { "garras": 0.08, "escamas": 0.00, "asas": 0.05, "nadadeiras": -0.03 }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "descricao": "P(matiz | elemento). Matiz dominante condicionado ao elemento primario. Cada linha soma 1.0. Matizes omitidos valem 0. Alimenta a geracao algoritmica do ramp de cores (paletas dinamicas).",
+    "tipo": "condicional",
+    "condicionado_a": ["elemento"],
+    "alvo": "matiz",
+    "versao": 1
+  },
+  "tabela": {
+    "fogo":     { "vermelho": 0.40, "laranja": 0.35, "amarelo": 0.15, "marrom": 0.05, "roxo": 0.03, "cinza": 0.02 },
+    "agua":     { "azul": 0.45, "ciano": 0.30, "branco": 0.10, "roxo": 0.07, "cinza": 0.05, "verde": 0.03 },
+    "terra":    { "marrom": 0.50, "amarelo": 0.18, "verde": 0.12, "laranja": 0.10, "cinza": 0.10 },
+    "ar":       { "branco": 0.35, "cinza": 0.28, "ciano": 0.18, "amarelo": 0.10, "azul": 0.09 },
+    "planta":   { "verde": 0.55, "marrom": 0.18, "amarelo": 0.12, "laranja": 0.08, "ciano": 0.07 },
+    "eletrico": { "amarelo": 0.45, "branco": 0.18, "roxo": 0.15, "ciano": 0.12, "laranja": 0.10 },
+    "gelo":     { "ciano": 0.40, "branco": 0.30, "azul": 0.22, "cinza": 0.08 },
+    "sombra":   { "roxo": 0.38, "cinza": 0.30, "marrom": 0.15, "azul": 0.12, "vermelho": 0.05 }
+  }
+}

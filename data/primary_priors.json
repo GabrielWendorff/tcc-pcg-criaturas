@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "descricao": "Distribuicoes base (priors) dos atributos primarios. Sorteados diretamente da seed, sem condicionamento. Cada distribuicao soma 1.0.",
+    "tipo": "categorica",
+    "versao": 1
+  },
+  "elemento": {
+    "fogo": 0.14,
+    "agua": 0.14,
+    "terra": 0.13,
+    "ar": 0.12,
+    "planta": 0.13,
+    "eletrico": 0.12,
+    "gelo": 0.11,
+    "sombra": 0.11
+  },
+  "animal_base": {
+    "gato": 0.14,
+    "peixe": 0.13,
+    "ave": 0.13,
+    "reptil": 0.13,
+    "roedor": 0.12,
+    "inseto": 0.12,
+    "anfibio": 0.11,
+    "canino": 0.12
+  }
+}
