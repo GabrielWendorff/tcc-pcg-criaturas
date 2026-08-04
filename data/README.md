@@ -12,11 +12,34 @@ calibração sem recompilar a lógica. JSON foi escolhido em vez de
 Seed
  ├─ elemento      ~ prior                         (primary_priors.json)
  ├─ animal_base   ~ prior                         (primary_priors.json)
+ ├─ corpo         ~ P(corpo  | animal)            (part_library.tres)
  ├─ paleta        ~ P(paleta | elemento)          (conditional_palette.json)
  ├─ matiz (cor)   ~ P(matiz  | elemento)          (conditional_hue.json)
  ├─ morfologia    ~ P(feature | animal, elemento) (conditional_morphology.json)
  └─ p/ cada feature presente:
      modelo       ~ P(modelo | elemento)          (feature_variants.json)
+```
+
+O corpo é resolvido **antes** dos demais derivados: é dele que dependem as
+posições e a viabilidade anatômica dos apêndices.
+
+## `part_library.tres` — biblioteca de corpos
+
+Único recurso em formato `.tres` e não JSON, porque guarda `Vector2` e
+`PackedVector2Array` — geometria, que o `ResourceSaver` serializa nativamente e
+que não teria por que ser validada fora da engine.
+
+Contém 14 corpos em 6 arquétipos (quadrúpede, avial, serpentiforme, aquático,
+insetoide, bípede), cada um com sua silhueta, os pontos de ancoragem de cada
+apêndice e a lista de slots anatomicamente impossíveis.
+
+Regenerado por `tools/gerar_part_library.gd`, que é a fonte de calibração — o
+`.tres` é o dado versionado. **Editar silhueta é mexer no gerador e regerar**,
+nunca escrever geometria no renderer:
+
+```bash
+godot --headless -s res://tools/gerar_part_library.gd   # regera o .tres
+godot -s res://tools/folha_corpos.gd                    # folha de contato p/ conferir
 ```
 
 A criatura visual e montada de partes: corpo (por `animal_base`) + cada feature

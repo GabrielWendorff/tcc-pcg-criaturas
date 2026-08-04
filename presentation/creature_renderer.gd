@@ -10,6 +10,16 @@ extends Control
 ## mantendo o mesmo modelo de dados (criatura.variantes -> qual PNG carregar).
 
 var criatura: Criatura
+var library: CreaturePartLibrary
+
+## Fracao do quadro que a silhueta ocupa. A sobra acomoda os apendices, que se
+## projetam para fora do corpo (asas acima, garras abaixo).
+const OCUPACAO := 0.68
+
+# Enquadramento resolvido a cada _draw e reaproveitado pelas ancoras, para que
+# corpo e apendices compartilhem exatamente a mesma transformacao.
+var _escala: float = 1.0
+var _origem: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -17,8 +27,10 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 
 
-func configurar(c: Criatura) -> void:
+func configurar(c: Criatura, lib: CreaturePartLibrary = null) -> void:
 	criatura = c
+	if lib != null:
+		library = lib
 	queue_redraw()
 
 
@@ -46,141 +58,138 @@ static func cor_de_matiz(matiz: String, paleta: String) -> Color:
 func _draw() -> void:
 	if criatura == null:
 		return
+	if library == null:
+		library = CreaturePartLibrary.carregar()
 	var unit: float = minf(size.x, size.y)
 	var centro := size * 0.5
 	var corpo := cor_de_matiz(criatura.matiz, criatura.paleta)
 	var escuro := corpo.darkened(0.45)
 	var claro := corpo.lightened(0.35)
+	var body: BodyDef = library.corpo_por_id(criatura.body_id) if library != null else null
+	_enquadrar(body, centro, unit)
 
-	# Ordem de pintura: partes de tras -> corpo -> partes da frente.
+	# Ordem de pintura: partes de tras -> corpo -> partes da frente. Cada apendice
+	# nasce na ancora do SEU corpo, nao numa fracao fixa do quadro.
 	if _tem("asas"):
-		_desenhar_asas(centro, unit, criatura.variantes["asas"], corpo, escuro, claro)
+		_desenhar_asas(_ancora("asas", centro), unit, criatura.variantes["asas"],
+			corpo, escuro, claro)
 	if _tem("nadadeiras"):
-		_desenhar_nadadeiras(centro, unit, criatura.variantes["nadadeiras"], corpo, escuro, claro)
-	_desenhar_corpo(centro, unit, corpo, escuro)
+		_desenhar_nadadeiras(_ancora("nadadeiras", centro), unit,
+			criatura.variantes["nadadeiras"], corpo, escuro, claro)
+	_desenhar_corpo(body, corpo, escuro, claro)
 	if _tem("escamas"):
-		_desenhar_escamas(centro, unit, criatura.variantes["escamas"], escuro, claro)
+		_desenhar_escamas(_ancora("escamas", centro), unit,
+			criatura.variantes["escamas"], escuro, claro)
 	if _tem("garras"):
-		_desenhar_garras(centro, unit, criatura.variantes["garras"], escuro)
-	_desenhar_olhos(centro, unit)
+		_desenhar_garras(_ancora("garras", centro), unit,
+			criatura.variantes["garras"], escuro)
+	_desenhar_olhos(_ancora("olhos", centro), unit)
+
+
+## Resolve escala e origem para que a silhueta caiba no quadro ocupando OCUPACAO
+## dele, seja qual for a extensao do arquetipo, e fique centrada pela sua propria
+## caixa envolvente — nao pelo ponto (0,0) do espaco normalizado, que em corpos
+## assimetricos como a serpente nem fica no meio da forma.
+func _enquadrar(body: BodyDef, centro: Vector2, unit: float) -> void:
+	if body == null:
+		_escala = unit
+		_origem = centro
+		return
+	var caixa := body.limites()
+	var extensao := maxf(caixa.size.x, caixa.size.y)
+	_escala = (unit * OCUPACAO / extensao) if extensao > 0.0 else unit
+	_origem = centro - (caixa.position + caixa.size * 0.5) * _escala
+
+
+## Ponto do espaco normalizado do corpo -> pixels.
+func _ponto(p: Vector2) -> Vector2:
+	return _origem + p * _escala
 
 
 func _tem(feature: String) -> bool:
 	return criatura.morfologia.get(feature, false)
 
 
-# --- Corpo (silhueta por animal) -----------------------------------------
-
-func _desenhar_corpo(centro: Vector2, unit: float, corpo: Color, escuro: Color) -> void:
-	var rx := unit * 0.24
-	var ry := unit * 0.26
-	match criatura.animal_base:
-		"peixe":   rx = unit * 0.34; ry = unit * 0.20
-		"reptil":  rx = unit * 0.33; ry = unit * 0.22
-		"anfibio": rx = unit * 0.32; ry = unit * 0.24
-		"ave":     rx = unit * 0.26; ry = unit * 0.28
-		"roedor":  rx = unit * 0.24; ry = unit * 0.24
-		"inseto":  rx = unit * 0.20; ry = unit * 0.24
-		"gato":    rx = unit * 0.25; ry = unit * 0.29
-		"canino":  rx = unit * 0.29; ry = unit * 0.26
-
-	# Extras atras do corpo (cauda) para peixe/reptil.
-	if criatura.animal_base == "peixe" or criatura.animal_base == "reptil":
-		var cauda := PackedVector2Array([
-			centro + Vector2(-rx * 0.9, 0),
-			centro + Vector2(-rx * 1.7, -ry * 0.7),
-			centro + Vector2(-rx * 1.7, ry * 0.7),
-		])
-		_poligono(cauda, escuro)
-
-	# Segundo segmento (abdomen) para inseto.
-	if criatura.animal_base == "inseto":
-		_elipse(centro + Vector2(-rx * 1.1, 0), rx * 0.9, ry * 0.85, corpo, escuro)
-
-	# Corpo principal.
-	_elipse(centro, rx, ry, corpo, escuro)
-
-	# Cabeca/focinho e orelhas por animal (na frente = +x).
-	match criatura.animal_base:
-		"gato":
-			_orelhas_pontudas(centro, rx, ry, corpo, escuro)
-		"canino":
-			_elipse(centro + Vector2(rx * 0.85, ry * 0.25), rx * 0.4, ry * 0.32, corpo, escuro)
-			_orelhas_caidas(centro, rx, ry, escuro)
-		"roedor":
-			_poligono(_circ(centro + Vector2(-rx * 0.2, -ry * 0.95), unit * 0.06), corpo, escuro)
-			_poligono(_circ(centro + Vector2(rx * 0.35, -ry * 0.95), unit * 0.06), corpo, escuro)
-		"ave":
-			var bico := PackedVector2Array([
-				centro + Vector2(rx * 0.95, -ry * 0.05),
-				centro + Vector2(rx * 1.4, ry * 0.05),
-				centro + Vector2(rx * 0.95, ry * 0.2),
-			])
-			_poligono(bico, Color("e8a83a"))
-		"reptil":
-			_poligono(_circ(centro + Vector2(rx * 0.8, -ry * 0.2), unit * 0.05), corpo, escuro)
-		"anfibio":
-			_poligono(_circ(centro + Vector2(rx * 0.45, -ry * 0.75), unit * 0.07), corpo, escuro)
-			_poligono(_circ(centro + Vector2(-rx * 0.1, -ry * 0.85), unit * 0.07), corpo, escuro)
-		"inseto":
-			_desenhar_antenas(centro, rx, ry, escuro)
+## Ancora do slot no corpo desta criatura, convertida para pixels.
+## Sem biblioteca ou sem ancora declarada, cai no centro — degradacao visivel,
+## nunca uma posicao plausivel por acidente.
+func _ancora(slot: String, centro: Vector2) -> Vector2:
+	if library == null or not library.tem_ancora(criatura.body_id, slot):
+		return centro
+	return _ponto(library.ancora(criatura.body_id, slot))
 
 
-func _orelhas_pontudas(centro: Vector2, rx: float, ry: float, corpo: Color, escuro: Color) -> void:
-	for lado in [-1.0, 1.0]:
-		var b := centro + Vector2(lado * rx * 0.55, -ry * 0.75)
-		_poligono(PackedVector2Array([
-			b + Vector2(-rx * 0.22, 0),
-			b + Vector2(lado * rx * 0.1, -ry * 0.6),
-			b + Vector2(rx * 0.22, 0),
-		]), corpo, escuro)
+# --- Corpo (silhueta vinda do BodyDef) ------------------------------------
+
+## Pinta a silhueta descrita pelo recurso, parte a parte, de tras para frente.
+## Nenhuma geometria mora aqui: trocar a forma de um arquetipo e editar o .tres
+## (via tools/gerar_part_library.gd), nunca este metodo.
+func _desenhar_corpo(body: BodyDef, corpo: Color, escuro: Color, claro: Color) -> void:
+	if body == null:
+		# Sem corpo resolvido, desenha um marcador obviamente errado em vez de uma
+		# silhueta plausivel — falha silenciosa aqui esconderia bug no gerador.
+		_elipse(_origem, _escala * 0.2, _escala * 0.2, Color("ff00ff"), escuro)
+		return
+	for parte in body.partes_ordenadas():
+		var cor := _tom(parte.get("tom", 0.0), corpo, escuro, claro)
+		match parte.get("tipo", ""):
+			"elipse":
+				var r: Vector2 = Vector2(parte["r"]) * _escala
+				_elipse(_ponto(parte["c"]), r.x, r.y, cor, escuro)
+			"poligono":
+				var pts := PackedVector2Array()
+				for p in parte["pts"]:
+					pts.append(_ponto(p))
+				_poligono(pts, cor, escuro)
 
 
-func _orelhas_caidas(centro: Vector2, rx: float, ry: float, escuro: Color) -> void:
-	for lado in [-1.0, 1.0]:
-		var b := centro + Vector2(lado * rx * 0.5, -ry * 0.7)
-		_poligono(PackedVector2Array([
-			b + Vector2(-rx * 0.18, 0),
-			b + Vector2(lado * rx * 0.3, ry * 0.7),
-			b + Vector2(rx * 0.18, 0),
-		]), escuro)
-
-
-func _desenhar_antenas(centro: Vector2, rx: float, ry: float, escuro: Color) -> void:
-	for lado in [-1.0, 1.0]:
-		var b := centro + Vector2(rx * 0.4 + lado * rx * 0.1, -ry * 0.8)
-		draw_line(b, b + Vector2(lado * rx * 0.5, -ry * 0.7), escuro, maxf(1.0, rx * 0.06))
+## tom em [-1, 1] -> cor concreta. A silhueta descreve profundidade relativa; a
+## cor concreta so e resolvida aqui, mantendo o recurso independente da paleta.
+func _tom(t: float, corpo: Color, escuro: Color, claro: Color) -> Color:
+	if t < 0.0:
+		return corpo.lerp(escuro, minf(-t, 1.0))
+	if t > 0.0:
+		return corpo.lerp(claro, minf(t, 1.0))
+	return corpo
 
 
 # --- Olhos ----------------------------------------------------------------
 
-func _desenhar_olhos(centro: Vector2, unit: float) -> void:
-	var r := unit * 0.045
-	var base := centro + Vector2(unit * 0.06, -unit * 0.03)
-	for dy in [-unit * 0.05, unit * 0.05]:
-		var o := base + Vector2(0, dy)
-		draw_circle(o, r, Color.WHITE)
-		draw_circle(o + Vector2(r * 0.35, 0), r * 0.5, Color("14161c"))
+## Os olhos vao na ancora "olhos" do corpo. Foi tentado inferi-los da geometria
+## (a parte mais a frente seria a cabeca), mas orelhas, bicos e mandibulas ocupam
+## camadas altas e a heuristica errava; a posicao do olho e decisao de autoria do
+## arquetipo, entao vive na biblioteca como qualquer outra ancora.
+## Um olho so: a criatura e vista de perfil (olhando para +x), entao o segundo
+## olho estaria do lado oculto. O par empilhado que existia antes so nao destoava
+## porque o corpo era um blob sem orientacao definida.
+func _desenhar_olhos(base: Vector2, unit: float) -> void:
+	var r := unit * 0.055
+	draw_circle(base, r, Color.WHITE)
+	draw_circle(base, r, Color("14161c"), false, maxf(1.0, unit * 0.01))
+	draw_circle(base + Vector2(r * 0.3, 0), r * 0.45, Color("14161c"))
 
 
 # --- Garras ---------------------------------------------------------------
 
-func _desenhar_garras(centro: Vector2, unit: float, modelo: int, escuro: Color) -> void:
+## 'base' e a ancora de garras do corpo — a extremidade das patas, que varia de
+## arquetipo para arquetipo (baixo do tronco num quadrupede, ponta das pernas num
+## avial). Todos os offsets aqui sao relativos a ela.
+func _desenhar_garras(base: Vector2, unit: float, modelo: int, escuro: Color) -> void:
 	var cor := Color("f2ead2")  # osso
-	var base_y := centro.y + unit * 0.16
-	var esp := unit * 0.11
+	var base_y := base.y
+	var esp := unit * 0.09
 	if modelo == 2:  # serrilhadas: pente de dentes ao longo da base
 		var pts := PackedVector2Array()
-		var x0 := centro.x - unit * 0.18
+		var x0 := base.x - unit * 0.15
 		var n := 7
 		for i in n + 1:
-			var x := x0 + (unit * 0.36) * i / float(n)
-			var y := base_y + (unit * 0.06 if i % 2 == 0 else 0.0)
+			var x := x0 + (unit * 0.30) * i / float(n)
+			var y := base_y + (unit * 0.05 if i % 2 == 0 else 0.0)
 			pts.append(Vector2(x, y))
 		draw_polyline(pts, cor, maxf(1.5, unit * 0.02))
 		return
 	for i in 3:
-		var cx := centro.x + (i - 1) * esp
+		var cx := base.x + (i - 1) * esp
 		match modelo:
 			0:  # curtas
 				_poligono(PackedVector2Array([
@@ -199,21 +208,24 @@ func _desenhar_garras(centro: Vector2, unit: float, modelo: int, escuro: Color) 
 
 # --- Escamas (padrao sobre o corpo) --------------------------------------
 
-func _desenhar_escamas(centro: Vector2, unit: float, modelo: int, escuro: Color, claro: Color) -> void:
-	var r := unit * 0.14  # regiao no corpo
+## 'centro_padrao' e a ancora de escamas: o meio do tronco daquele corpo, que num
+## insetoide fica bem atras do centro geometrico do quadro.
+func _desenhar_escamas(centro_padrao: Vector2, unit: float, modelo: int,
+		escuro: Color, claro: Color) -> void:
+	var r := unit * 0.13  # regiao no corpo
 	match modelo:
 		0:  # lisas: brilho suave (arco claro)
-			draw_arc(centro + Vector2(0, -unit * 0.04), r, PI * 1.15, PI * 1.85,
+			draw_arc(centro_padrao + Vector2(0, -unit * 0.04), r, PI * 1.15, PI * 1.85,
 				12, Color(claro, 0.6), maxf(1.5, unit * 0.02))
 		1:  # granuladas: pontos
-			for p in _grade(centro, r, unit * 0.055):
+			for p in _grade(centro_padrao, r, unit * 0.055):
 				draw_circle(p, unit * 0.012, Color(escuro, 0.7))
 		2:  # placas: tiles retangulares
-			for p in _grade(centro, r, unit * 0.06):
+			for p in _grade(centro_padrao, r, unit * 0.06):
 				var t := unit * 0.045
 				draw_rect(Rect2(p - Vector2(t, t) * 0.5, Vector2(t, t)), Color(escuro, 0.55), true)
 		3:  # cristalinas: losangos
-			for p in _grade(centro, r, unit * 0.06):
+			for p in _grade(centro_padrao, r, unit * 0.06):
 				var d := unit * 0.028
 				_poligono(PackedVector2Array([
 					p + Vector2(0, -d), p + Vector2(d, 0), p + Vector2(0, d), p + Vector2(-d, 0)]),
@@ -222,9 +234,11 @@ func _desenhar_escamas(centro: Vector2, unit: float, modelo: int, escuro: Color,
 
 # --- Asas (atras do corpo, dois lados) -----------------------------------
 
-func _desenhar_asas(centro: Vector2, unit: float, modelo: int, corpo: Color, escuro: Color, claro: Color) -> void:
+## 'insercao' e a ancora dorsal do corpo; as duas asas abrem simetricamente dela.
+func _desenhar_asas(insercao: Vector2, unit: float, modelo: int, corpo: Color,
+		escuro: Color, claro: Color) -> void:
 	for lado in [-1.0, 1.0]:
-		var base := centro + Vector2(lado * unit * 0.1, -unit * 0.05)
+		var base := insercao + Vector2(lado * unit * 0.07, 0.0)
 		var ponta := base + Vector2(lado * unit * 0.26, -unit * 0.24)
 		match modelo:
 			0:  # emplumadas: arcos em camadas
@@ -247,8 +261,9 @@ func _desenhar_asas(centro: Vector2, unit: float, modelo: int, corpo: Color, esc
 
 # --- Nadadeiras (dorsal + cauda) -----------------------------------------
 
-func _desenhar_nadadeiras(centro: Vector2, unit: float, modelo: int, corpo: Color, escuro: Color, claro: Color) -> void:
-	var topo := centro + Vector2(-unit * 0.02, -unit * 0.22)
+## 'topo' e a ancora da dorsal — no dorso de um aquatico, no lombo de um quadrupede.
+func _desenhar_nadadeiras(topo: Vector2, unit: float, modelo: int, corpo: Color,
+		escuro: Color, claro: Color) -> void:
 	match modelo:
 		0:  # curtas: dorsal pequena
 			_poligono(PackedVector2Array([

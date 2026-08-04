@@ -1,0 +1,915 @@
+[gd_resource type="Resource" script_class="CreaturePartLibrary" format=3]
+
+[ext_resource type="Script" path="res://procedural/creatures/body_def.gd" id="1_h83pe"]
+[ext_resource type="Script" path="res://procedural/creatures/creature_part_library.gd" id="2_wsa4l"]
+
+[sub_resource type="Resource" id="Resource_jcnhs"]
+script = ExtResource("1_h83pe")
+id = "quad_felino"
+arquetipo = "quadrupede"
+nome = "felino"
+partes = Array[Dictionary]([{
+"c": Vector2(-0.16, 0.2),
+"camada": -1,
+"r": Vector2(0.035, 0.1),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(-0.09, 0.2),
+"camada": 1,
+"r": Vector2(0.035, 0.1),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"c": Vector2(0.1, 0.2),
+"camada": -1,
+"r": Vector2(0.035, 0.1),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(0.17, 0.2),
+"camada": 1,
+"r": Vector2(0.035, 0.1),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.24, 0.02, -0.4, -0.16, -0.44, -0.1, -0.26, 0.1),
+"tipo": "poligono",
+"tom": -0.45
+}, {
+"c": Vector2(-0.02, 0.02),
+"camada": 0,
+"r": Vector2(0.24, 0.14),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.23, -0.08),
+"camada": 2,
+"r": Vector2(0.12, 0.11),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.14, -0.16, 0.17, -0.3, 0.23, -0.17),
+"tipo": "poligono",
+"tom": -0.25
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.26, -0.17, 0.32, -0.29, 0.33, -0.15),
+"tipo": "poligono",
+"tom": -0.25
+}])
+
+[sub_resource type="Resource" id="Resource_xuvpi"]
+script = ExtResource("1_h83pe")
+id = "quad_canino"
+arquetipo = "quadrupede"
+nome = "canino"
+partes = Array[Dictionary]([{
+"c": Vector2(-0.17, 0.21),
+"camada": -1,
+"r": Vector2(0.042, 0.11),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(-0.1, 0.21),
+"camada": 1,
+"r": Vector2(0.042, 0.11),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"c": Vector2(0.09, 0.21),
+"camada": -1,
+"r": Vector2(0.042, 0.11),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(0.16, 0.21),
+"camada": 1,
+"r": Vector2(0.042, 0.11),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.25, -0.02, -0.38, -0.14, -0.36, -0.02),
+"tipo": "poligono",
+"tom": -0.45
+}, {
+"c": Vector2(-0.02, 0.02),
+"camada": 0,
+"r": Vector2(0.26, 0.15),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.24, -0.07),
+"camada": 2,
+"r": Vector2(0.13, 0.12),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.36, 0),
+"camada": 2,
+"r": Vector2(0.07, 0.06),
+"tipo": "elipse",
+"tom": -0.15
+}, {
+"camada": 1,
+"pts": PackedVector2Array(0.15, -0.19, 0.11, -0.03, 0.22, -0.17),
+"tipo": "poligono",
+"tom": -0.5
+}, {
+"camada": 1,
+"pts": PackedVector2Array(0.27, -0.19, 0.32, -0.04, 0.34, -0.16),
+"tipo": "poligono",
+"tom": -0.5
+}])
+
+[sub_resource type="Resource" id="Resource_6jjbc"]
+script = ExtResource("1_h83pe")
+id = "quad_roedor"
+arquetipo = "quadrupede"
+nome = "roedor"
+partes = Array[Dictionary]([{
+"c": Vector2(-0.11, 0.19),
+"camada": -1,
+"r": Vector2(0.032, 0.08),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(-0.05, 0.19),
+"camada": 1,
+"r": Vector2(0.032, 0.08),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"c": Vector2(0.08, 0.19),
+"camada": -1,
+"r": Vector2(0.032, 0.08),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(0.13, 0.19),
+"camada": 1,
+"r": Vector2(0.032, 0.08),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.18, 0, -0.34, 0.06, -0.19, 0.08),
+"tipo": "poligono",
+"tom": -0.45
+}, {
+"c": Vector2(-0.01, 0.04),
+"camada": 0,
+"r": Vector2(0.2, 0.15),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.2, -0.04),
+"camada": 2,
+"r": Vector2(0.12, 0.11),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.14, -0.17),
+"camada": 1,
+"r": Vector2(0.065, 0.07),
+"tipo": "elipse",
+"tom": -0.3
+}, {
+"c": Vector2(0.28, -0.16),
+"camada": 1,
+"r": Vector2(0.065, 0.07),
+"tipo": "elipse",
+"tom": -0.3
+}])
+
+[sub_resource type="Resource" id="Resource_m07om"]
+script = ExtResource("1_h83pe")
+id = "bipede_roedor"
+arquetipo = "bipede"
+nome = "roedor bipede"
+peso = 0.6
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.14, 0.1, -0.4, 0.22, -0.36, 0.3, -0.1, 0.24),
+"tipo": "poligono",
+"tom": -0.45
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.13, 0.1, -0.17, 0.18, -0.13, 0.3, -0.02, 0.29),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.03, 0.1, 0.17, 0.18, 0.13, 0.3, 0.02, 0.29),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"c": Vector2(0, 0.04),
+"camada": 0,
+"r": Vector2(0.17, 0.21),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.1, -0.19),
+"camada": 1,
+"r": Vector2(0.14, 0.12),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.02, -0.31),
+"camada": 0,
+"r": Vector2(0.07, 0.075),
+"tipo": "elipse",
+"tom": -0.3
+}, {
+"c": Vector2(0.18, -0.3),
+"camada": 0,
+"r": Vector2(0.07, 0.075),
+"tipo": "elipse",
+"tom": -0.3
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.12, 0.02, 0.22, 0.1, 0.14, 0.12),
+"tipo": "poligono",
+"tom": -0.3
+}])
+
+[sub_resource type="Resource" id="Resource_8uxu5"]
+script = ExtResource("1_h83pe")
+id = "avial_passeriforme"
+arquetipo = "avial"
+nome = "passeriforme"
+peso = 1.2
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.14, 0.02, -0.4, -0.1, -0.38, 0.06, -0.16, 0.12),
+"tipo": "poligono",
+"tom": -0.45
+}, {
+"c": Vector2(0, 0.04),
+"camada": 0,
+"r": Vector2(0.19, 0.21),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.13, -0.19),
+"camada": 2,
+"r": Vector2(0.12, 0.11),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 3,
+"pts": PackedVector2Array(0.24, -0.21, 0.38, -0.16, 0.24, -0.12),
+"tipo": "poligono",
+"tom": -0.1
+}, {
+"camada": 1,
+"pts": PackedVector2Array(-0.03, 0.24, -0.05, 0.36, 0.02, 0.36, 0.02, 0.24),
+"tipo": "poligono",
+"tom": -0.5
+}, {
+"camada": 1,
+"pts": PackedVector2Array(0.08, 0.24, 0.07, 0.36, 0.14, 0.36, 0.13, 0.24),
+"tipo": "poligono",
+"tom": -0.5
+}])
+
+[sub_resource type="Resource" id="Resource_2niyq"]
+script = ExtResource("1_h83pe")
+id = "avial_rapina"
+arquetipo = "avial"
+nome = "rapina"
+peso = 0.8
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.16, -0.02, -0.42, -0.14, -0.44, 0.04, -0.18, 0.1),
+"tipo": "poligono",
+"tom": -0.45
+}, {
+"c": Vector2(-0.01, 0.02),
+"camada": 0,
+"r": Vector2(0.22, 0.23),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.16, -0.2),
+"camada": 2,
+"r": Vector2(0.13, 0.12),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 3,
+"pts": PackedVector2Array(0.27, -0.24, 0.42, -0.19, 0.36, -0.08, 0.27, -0.13),
+"tipo": "poligono",
+"tom": -0.1
+}, {
+"camada": 1,
+"pts": PackedVector2Array(-0.04, 0.24, -0.07, 0.36, 0.03, 0.36, 0.03, 0.24),
+"tipo": "poligono",
+"tom": -0.5
+}, {
+"camada": 1,
+"pts": PackedVector2Array(0.1, 0.24, 0.09, 0.36, 0.18, 0.36, 0.16, 0.24),
+"tipo": "poligono",
+"tom": -0.5
+}])
+
+[sub_resource type="Resource" id="Resource_jltjq"]
+script = ExtResource("1_h83pe")
+id = "serp_lagarto"
+arquetipo = "serpentiforme"
+nome = "lagarto"
+peso = 1.3
+partes = Array[Dictionary]([{
+"c": Vector2(-0.4, 0.06),
+"camada": 0,
+"r": Vector2(0.05175, 0.045),
+"tipo": "elipse",
+"tom": -0.1
+}, {
+"c": Vector2(-0.30666667, 0.09345653),
+"camada": 0,
+"r": Vector2(0.06804167, 0.059166666),
+"tipo": "elipse",
+"tom": -0.08333333333333334
+}, {
+"c": Vector2(-0.21333334, 0.10972609),
+"camada": 0,
+"r": Vector2(0.08433333, 0.07333333),
+"tipo": "elipse",
+"tom": -0.06666666666666668
+}, {
+"c": Vector2(-0.12, 0.10045085),
+"camada": 0,
+"r": Vector2(0.100625, 0.0875),
+"tipo": "elipse",
+"tom": -0.05
+}, {
+"c": Vector2(-0.026666667, 0.07039558),
+"camada": 0,
+"r": Vector2(0.116916664, 0.10166667),
+"tipo": "elipse",
+"tom": -0.03333333333333334
+}, {
+"c": Vector2(0.06666667, 0.035),
+"camada": 0,
+"r": Vector2(0.13320833, 0.115833335),
+"tipo": "elipse",
+"tom": -0.016666666666666663
+}, {
+"c": Vector2(0.16, 0.012447175),
+"camada": 0,
+"r": Vector2(0.1495, 0.13),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(-0.18, 0.2),
+"camada": -1,
+"r": Vector2(0.03, 0.075),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(-0.12, 0.2),
+"camada": 1,
+"r": Vector2(0.03, 0.075),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"c": Vector2(0.02, 0.2),
+"camada": -1,
+"r": Vector2(0.03, 0.075),
+"tipo": "elipse",
+"tom": -0.55
+}, {
+"c": Vector2(0.08, 0.2),
+"camada": 1,
+"r": Vector2(0.03, 0.075),
+"tipo": "elipse",
+"tom": -0.2
+}, {
+"c": Vector2(0.28, 0),
+"camada": 2,
+"r": Vector2(0.14, 0.1),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.36, 0.02, 0.44, 0.04, 0.36, 0.07),
+"tipo": "poligono",
+"tom": -0.2
+}])
+
+[sub_resource type="Resource" id="Resource_kab0c"]
+script = ExtResource("1_h83pe")
+id = "serp_serpente"
+arquetipo = "serpentiforme"
+nome = "serpente"
+peso = 0.7
+partes = Array[Dictionary]([{
+"c": Vector2(-0.42, 0),
+"camada": 0,
+"r": Vector2(0.055, 0.055),
+"tipo": "elipse",
+"tom": -0.12
+}, {
+"c": Vector2(-0.3723077, 0.060835183),
+"camada": 0,
+"r": Vector2(0.059615385, 0.059615385),
+"tipo": "elipse",
+"tom": -0.11076923076923077
+}, {
+"c": Vector2(-0.3246154, 0.10487616),
+"camada": 0,
+"r": Vector2(0.06423077, 0.06423077),
+"tipo": "elipse",
+"tom": -0.10153846153846154
+}, {
+"c": Vector2(-0.2769231, 0.119964965),
+"camada": 0,
+"r": Vector2(0.06884615, 0.06884615),
+"tipo": "elipse",
+"tom": -0.0923076923076923
+}, {
+"c": Vector2(-0.22923078, 0.101936154),
+"camada": 0,
+"r": Vector2(0.07346154, 0.07346154),
+"tipo": "elipse",
+"tom": -0.08307692307692308
+}, {
+"c": Vector2(-0.18153846, 0.05576678),
+"camada": 0,
+"r": Vector2(0.07807692, 0.07807692),
+"tipo": "elipse",
+"tom": -0.07384615384615385
+}, {
+"c": Vector2(-0.13384615, -0.0057976055),
+"camada": 0,
+"r": Vector2(0.08269231, 0.08269231),
+"tipo": "elipse",
+"tom": -0.06461538461538462
+}, {
+"c": Vector2(-0.08615384, -0.0657615),
+"camada": 0,
+"r": Vector2(0.08730769, 0.08730769),
+"tipo": "elipse",
+"tom": -0.055384615384615386
+}, {
+"c": Vector2(-0.03846154, -0.10757123),
+"camada": 0,
+"r": Vector2(0.09192308, 0.09192308),
+"tipo": "elipse",
+"tom": -0.04615384615384615
+}, {
+"c": Vector2(0.009230769, -0.11968478),
+"camada": 0,
+"r": Vector2(0.09653846, 0.09653846),
+"tipo": "elipse",
+"tom": -0.036923076923076927
+}, {
+"c": Vector2(0.056923077, -0.098758064),
+"camada": 0,
+"r": Vector2(0.10115384, 0.10115384),
+"tipo": "elipse",
+"tom": -0.027692307692307686
+}, {
+"c": Vector2(0.10461538, -0.050568134),
+"camada": 0,
+"r": Vector2(0.10576923, 0.10576923),
+"tipo": "elipse",
+"tom": -0.018461538461538463
+}, {
+"c": Vector2(0.15230769, 0.0115816705),
+"camada": 0,
+"r": Vector2(0.11038461, 0.11038461),
+"tipo": "elipse",
+"tom": -0.009230769230769225
+}, {
+"c": Vector2(0.2, 0.07053423),
+"camada": 0,
+"r": Vector2(0.115, 0.115),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.28, 0.07053423),
+"camada": 2,
+"r": Vector2(0.13, 0.095),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 1,
+"pts": PackedVector2Array(0.36, 0.01, 0.46, 0.03, 0.36, 0.05),
+"tipo": "poligono",
+"tom": -0.3
+}])
+
+[sub_resource type="Resource" id="Resource_gjo5v"]
+script = ExtResource("1_h83pe")
+id = "aqua_fusiforme"
+arquetipo = "aquatico"
+nome = "fusiforme"
+peso = 1.4
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.22, 0, -0.44, -0.16, -0.38, 0, -0.44, 0.16),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"camada": 0,
+"pts": PackedVector2Array(0.38, 0, 0.26, -0.13, 0.06, -0.19, -0.14, -0.15, -0.26, -0.05, -0.26, 0.05, -0.14, 0.15, 0.06, 0.19, 0.26, 0.13),
+"tipo": "poligono",
+"tom": 0.0
+}, {
+"camada": 1,
+"pts": PackedVector2Array(0.2, -0.1, 0.22, 0.1, 0.26, 0.09, 0.24, -0.09),
+"tipo": "poligono",
+"tom": -0.45
+}])
+
+[sub_resource type="Resource" id="Resource_tlvsk"]
+script = ExtResource("1_h83pe")
+id = "aqua_anguiliforme"
+arquetipo = "aquatico"
+nome = "anguiliforme"
+peso = 0.6
+partes = Array[Dictionary]([{
+"c": Vector2(-0.44, 0),
+"camada": 0,
+"r": Vector2(0.045, 0.05),
+"tipo": "elipse",
+"tom": -0.1
+}, {
+"c": Vector2(-0.3575, 0.0649448),
+"camada": 0,
+"r": Vector2(0.054, 0.06),
+"tipo": "elipse",
+"tom": -0.08750000000000001
+}, {
+"c": Vector2(-0.275, 0.09876884),
+"camada": 0,
+"r": Vector2(0.063, 0.07),
+"tipo": "elipse",
+"tom": -0.07500000000000001
+}, {
+"c": Vector2(-0.1925, 0.08526402),
+"camada": 0,
+"r": Vector2(0.072, 0.08),
+"tipo": "elipse",
+"tom": -0.0625
+}, {
+"c": Vector2(-0.11, 0.0309017),
+"camada": 0,
+"r": Vector2(0.081, 0.09),
+"tipo": "elipse",
+"tom": -0.05
+}, {
+"c": Vector2(-0.0275, -0.038268343),
+"camada": 0,
+"r": Vector2(0.09, 0.1),
+"tipo": "elipse",
+"tom": -0.037500000000000006
+}, {
+"c": Vector2(0.055, -0.08910065),
+"camada": 0,
+"r": Vector2(0.099, 0.11),
+"tipo": "elipse",
+"tom": -0.025
+}, {
+"c": Vector2(0.1375, -0.09723699),
+"camada": 0,
+"r": Vector2(0.108, 0.12),
+"tipo": "elipse",
+"tom": -0.0125
+}, {
+"c": Vector2(0.22, -0.058778524),
+"camada": 0,
+"r": Vector2(0.117, 0.13),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.4, -0.02, -0.5, -0.12, -0.5, 0.08, -0.4, 0.04),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"c": Vector2(0.28, -0.058778524),
+"camada": 2,
+"r": Vector2(0.12, 0.11),
+"tipo": "elipse",
+"tom": 0.0
+}])
+
+[sub_resource type="Resource" id="Resource_4ao1x"]
+script = ExtResource("1_h83pe")
+id = "bipede_anuro"
+arquetipo = "bipede"
+nome = "anuro"
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.22, 0.04, -0.26, 0.14, -0.22, 0.28, -0.08, 0.28, -0.18, 0.14),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.1, 0.04, 0.26, 0.14, 0.22, 0.28, 0.08, 0.28, 0.14, 0.14),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"c": Vector2(0, 0.06),
+"camada": 0,
+"r": Vector2(0.24, 0.2),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.1, -0.14),
+"camada": 1,
+"r": Vector2(0.21, 0.13),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.02, -0.24),
+"camada": 2,
+"r": Vector2(0.075, 0.07),
+"tipo": "elipse",
+"tom": 0.2
+}, {
+"c": Vector2(0.2, -0.24),
+"camada": 2,
+"r": Vector2(0.075, 0.07),
+"tipo": "elipse",
+"tom": 0.2
+}])
+
+[sub_resource type="Resource" id="Resource_t1fai"]
+script = ExtResource("1_h83pe")
+id = "aqua_girino"
+arquetipo = "aquatico"
+nome = "girino"
+peso = 0.5
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.1, 0, -0.4, -0.14, -0.34, 0, -0.4, 0.14),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"c": Vector2(0.06, 0),
+"camada": 0,
+"r": Vector2(0.24, 0.2),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.16, -0.06),
+"camada": 1,
+"r": Vector2(0.07, 0.06),
+"tipo": "elipse",
+"tom": 0.35
+}])
+
+[sub_resource type="Resource" id="Resource_swnrc"]
+script = ExtResource("1_h83pe")
+id = "inseto_alado"
+arquetipo = "insetoide"
+nome = "alado"
+peso = 1.2
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.1, 0.02, -0.07, 0.2, -0.08, 0.19),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.01, 0.02, 0.04, 0.22, 0.03, 0.21),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.12, 0.02, 0.15, 0.24, 0.14, 0.23),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.1, 0.02, -0.13, 0.2, -0.08, 0.19),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.01, 0.02, -0.02, 0.22, 0.03, 0.21),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.12, 0.02, 0.09, 0.24, 0.14, 0.23),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"c": Vector2(-0.26, 0.02),
+"camada": 0,
+"r": Vector2(0.16, 0.13),
+"tipo": "elipse",
+"tom": -0.15
+}, {
+"c": Vector2(-0.02, 0.02),
+"camada": 0,
+"r": Vector2(0.14, 0.12),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"c": Vector2(0.2, -0.02),
+"camada": 1,
+"r": Vector2(0.12, 0.11),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.24, -0.11, 0.34, -0.28, 0.28, -0.1),
+"tipo": "poligono",
+"tom": -0.4
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.16, -0.11, 0.18, -0.29, 0.21, -0.1),
+"tipo": "poligono",
+"tom": -0.4
+}])
+
+[sub_resource type="Resource" id="Resource_xociu"]
+script = ExtResource("1_h83pe")
+id = "inseto_terrestre"
+arquetipo = "insetoide"
+nome = "terrestre"
+peso = 0.8
+partes = Array[Dictionary]([{
+"camada": -1,
+"pts": PackedVector2Array(-0.12, 0.04, -0.07, 0.22, -0.1, 0.2),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0, 0.04, 0.05, 0.22, 0.02, 0.2),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.12, 0.04, 0.17, 0.22, 0.14, 0.2),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(-0.12, 0.04, -0.17, 0.22, -0.1, 0.2),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0, 0.04, -0.05, 0.22, 0.02, 0.2),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"camada": -1,
+"pts": PackedVector2Array(0.12, 0.04, 0.07, 0.22, 0.14, 0.2),
+"tipo": "poligono",
+"tom": -0.55
+}, {
+"c": Vector2(-0.16, 0.02),
+"camada": 0,
+"r": Vector2(0.22, 0.15),
+"tipo": "elipse",
+"tom": -0.1
+}, {
+"c": Vector2(0.16, 0),
+"camada": 1,
+"r": Vector2(0.16, 0.13),
+"tipo": "elipse",
+"tom": 0.0
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.28, -0.06, 0.42, -0.14, 0.3, -0.01),
+"tipo": "poligono",
+"tom": -0.35
+}, {
+"camada": 2,
+"pts": PackedVector2Array(0.28, 0.06, 0.42, 0.14, 0.3, 0.01),
+"tipo": "poligono",
+"tom": -0.35
+}])
+
+[resource]
+script = ExtResource("2_wsa4l")
+body_archetypes = {
+"anfibio": Array[ExtResource("1_h83pe")]([SubResource("Resource_4ao1x"), SubResource("Resource_t1fai")]),
+"ave": Array[ExtResource("1_h83pe")]([SubResource("Resource_8uxu5"), SubResource("Resource_2niyq")]),
+"canino": Array[ExtResource("1_h83pe")]([SubResource("Resource_xuvpi")]),
+"gato": Array[ExtResource("1_h83pe")]([SubResource("Resource_jcnhs")]),
+"inseto": Array[ExtResource("1_h83pe")]([SubResource("Resource_swnrc"), SubResource("Resource_xociu")]),
+"peixe": Array[ExtResource("1_h83pe")]([SubResource("Resource_gjo5v"), SubResource("Resource_tlvsk")]),
+"reptil": Array[ExtResource("1_h83pe")]([SubResource("Resource_jltjq"), SubResource("Resource_kab0c")]),
+"roedor": Array[ExtResource("1_h83pe")]([SubResource("Resource_6jjbc"), SubResource("Resource_m07om")])
+}
+slot_anchors = {
+"aqua_anguiliforme": {
+"asas": Vector2(-0.06, -0.08),
+"escamas": Vector2(0, 0),
+"garras": Vector2(0, 0.12),
+"nadadeiras": Vector2(-0.04, -0.14),
+"olhos": Vector2(0.31, 0)
+},
+"aqua_fusiforme": {
+"asas": Vector2(-0.04, -0.1),
+"escamas": Vector2(0.02, 0),
+"garras": Vector2(0.02, 0.18),
+"nadadeiras": Vector2(0, -0.19),
+"olhos": Vector2(0.24, -0.03)
+},
+"aqua_girino": {
+"asas": Vector2(-0.02, -0.12),
+"escamas": Vector2(0.06, 0),
+"garras": Vector2(0.04, 0.2),
+"nadadeiras": Vector2(0.02, -0.2),
+"olhos": Vector2(0.16, -0.04)
+},
+"avial_passeriforme": {
+"asas": Vector2(-0.02, -0.04),
+"escamas": Vector2(0, 0.06),
+"garras": Vector2(0.05, 0.36),
+"nadadeiras": Vector2(-0.1, 0.04),
+"olhos": Vector2(0.17, -0.21)
+},
+"avial_rapina": {
+"asas": Vector2(-0.03, -0.06),
+"escamas": Vector2(-0.01, 0.04),
+"garras": Vector2(0.06, 0.36),
+"nadadeiras": Vector2(-0.12, 0.02),
+"olhos": Vector2(0.2, -0.22)
+},
+"bipede_anuro": {
+"asas": Vector2(-0.06, -0.06),
+"escamas": Vector2(0, 0.06),
+"garras": Vector2(0, 0.3),
+"nadadeiras": Vector2(-0.1, -0.06),
+"olhos": Vector2(0.11, -0.24)
+},
+"bipede_roedor": {
+"asas": Vector2(-0.04, -0.08),
+"escamas": Vector2(0, 0.04),
+"garras": Vector2(0, 0.31),
+"nadadeiras": Vector2(-0.1, -0.08),
+"olhos": Vector2(0.13, -0.2)
+},
+"inseto_alado": {
+"asas": Vector2(-0.06, -0.08),
+"escamas": Vector2(-0.02, 0.02),
+"garras": Vector2(0, 0.24),
+"nadadeiras": Vector2(-0.2, -0.06),
+"olhos": Vector2(0.23, -0.03)
+},
+"inseto_terrestre": {
+"asas": Vector2(-0.1, -0.1),
+"escamas": Vector2(-0.14, 0.02),
+"garras": Vector2(-0.02, 0.24),
+"nadadeiras": Vector2(-0.24, -0.06),
+"olhos": Vector2(0.19, -0.01)
+},
+"quad_canino": {
+"asas": Vector2(-0.04, -0.11),
+"escamas": Vector2(-0.02, 0.02),
+"garras": Vector2(0.03, 0.3),
+"nadadeiras": Vector2(-0.06, -0.14),
+"olhos": Vector2(0.28, -0.08)
+},
+"quad_felino": {
+"asas": Vector2(-0.04, -0.1),
+"escamas": Vector2(-0.02, 0.02),
+"garras": Vector2(0.04, 0.28),
+"nadadeiras": Vector2(-0.06, -0.13),
+"olhos": Vector2(0.27, -0.09)
+},
+"quad_roedor": {
+"asas": Vector2(-0.03, -0.09),
+"escamas": Vector2(-0.01, 0.04),
+"garras": Vector2(0.02, 0.26),
+"nadadeiras": Vector2(-0.05, -0.12),
+"olhos": Vector2(0.24, -0.05)
+},
+"serp_lagarto": {
+"asas": Vector2(-0.06, -0.05),
+"escamas": Vector2(0.02, 0.05),
+"garras": Vector2(-0.05, 0.27),
+"nadadeiras": Vector2(-0.1, -0.04),
+"olhos": Vector2(0.31, -0.02)
+},
+"serp_serpente": {
+"asas": Vector2(-0.06, -0.06),
+"escamas": Vector2(0, 0.02),
+"garras": Vector2(0, 0.1),
+"nadadeiras": Vector2(-0.12, -0.06),
+"olhos": Vector2(0.3, -0.01)
+}
+}
+forbidden_slots = {
+"aqua_anguiliforme": ["asas", "garras"],
+"aqua_fusiforme": ["asas"],
+"aqua_girino": ["asas", "garras"],
+"avial_passeriforme": ["nadadeiras"],
+"avial_rapina": ["nadadeiras"],
+"serp_serpente": ["garras"]
+}

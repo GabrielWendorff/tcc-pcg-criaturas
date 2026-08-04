@@ -7,6 +7,7 @@ extends Control
 const N_PADRAO := 100
 
 var _tabelas: TabelasProbabilidade
+var _library: CreaturePartLibrary
 var _gerador: GeradorCriaturas
 
 var _seed_input: LineEdit
@@ -18,11 +19,14 @@ var _detalhe_texto: RichTextLabel
 
 func _ready() -> void:
 	_tabelas = TabelasProbabilidade.carregar()
+	# Carregada uma unica vez e repassada a cada renderer: sao ~100 miniaturas por
+	# bestiario, e cada uma buscando o recurso por conta propria seria desperdicio.
+	_library = CreaturePartLibrary.carregar()
 	_construir_ui()
-	if _tabelas == null:
-		_header.text = "[color=e14b4b]Erro: nao foi possivel carregar as tabelas de res://data/.[/color]"
+	if _tabelas == null or _library == null:
+		_header.text = "[color=e14b4b]Erro: nao foi possivel carregar os dados de res://data/.[/color]"
 		return
-	_gerador = GeradorCriaturas.new(_tabelas)
+	_gerador = GeradorCriaturas.new(_tabelas, _library)
 	_gerar(123456789)
 
 
@@ -217,7 +221,7 @@ func _card(c: Criatura) -> Control:
 	thumb.size_flags_vertical = SIZE_SHRINK_CENTER
 	thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	h.add_child(thumb)
-	thumb.configurar(c)
+	thumb.configurar(c, _library)
 
 	var texto := RichTextLabel.new()
 	texto.bbcode_enabled = true
@@ -236,7 +240,7 @@ func _on_card_input(ev: InputEvent, c: Criatura) -> void:
 
 
 func _selecionar(c: Criatura) -> void:
-	_detalhe_render.configurar(c)
+	_detalhe_render.configurar(c, _library)
 	_detalhe_texto.text = _descricao_detalhe(c)
 
 
@@ -252,6 +256,7 @@ func _descricao_detalhe(c: Criatura) -> String:
 	var linhas := PackedStringArray()
 	linhas.append("[b][font_size=18]%s[/font_size][/b]" % c.nome())
 	linhas.append("[color=b0b6c0]Primários:[/color]  elemento [b]%s[/b]  ·  animal [b]%s[/b]" % [c.elemento, c.animal_base])
+	linhas.append("[color=b0b6c0]Silhueta:[/color]  corpo [b]%s[/b]  ·  arquétipo [b]%s[/b]" % [c.body_id, c.arquetipo])
 	linhas.append("[color=b0b6c0]Cor:[/color]  paleta [b]%s[/b]  ·  matiz [b]%s[/b]" % [c.paleta, c.matiz])
 	linhas.append("[color=b0b6c0]Morfologia (modelo):[/color]")
 	var achou := false

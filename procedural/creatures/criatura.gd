@@ -14,6 +14,11 @@ var modo: String = "condicionado"  # "condicionado" (proposta) ou "independente"
 var elemento: String = ""
 var animal_base: String = ""
 
+# Silhueta: primeiro derivado, condicionado ao animal. Governa onde os apendices
+# nascem e quais deles sao anatomicamente possiveis.
+var body_id: String = ""
+var arquetipo: String = ""
+
 # Atributos derivados (condicionados aos primarios) — RF04
 var paleta: String = ""
 var matiz: String = ""
@@ -40,7 +45,7 @@ func nome() -> String:
 ## posicoes com "0"/"-", para que duas criaturas sejam sempre comparaveis posicao a
 ## posicao. A ordem de 'features' deve vir do vocabulario, nunca de um Dictionary.
 func vetor_atributos(features: Array) -> PackedStringArray:
-	var v := PackedStringArray([elemento, animal_base, paleta, matiz])
+	var v := PackedStringArray([elemento, animal_base, body_id, paleta, matiz])
 	for f in features:
 		var presente: bool = morfologia.get(f, false)
 		v.append("1" if presente else "0")
@@ -58,6 +63,8 @@ func to_dict() -> Dictionary:
 		"nome": nome(),
 		"elemento": elemento,
 		"animal_base": animal_base,
+		"body_id": body_id,
+		"arquetipo": arquetipo,
 		"paleta": paleta,
 		"matiz": matiz,
 		"morfologia": morfologia,
@@ -69,6 +76,6 @@ func _to_string() -> String:
 	var feats: String = ", ".join(features_presentes())
 	if feats == "":
 		feats = "(nenhuma)"
-	return "%s | %s/%s | paleta=%s matiz=%s | %s" % [
-		nome(), elemento, animal_base, paleta, matiz, feats
+	return "%s | %s/%s [%s] | paleta=%s matiz=%s | %s" % [
+		nome(), elemento, animal_base, body_id, paleta, matiz, feats
 	]

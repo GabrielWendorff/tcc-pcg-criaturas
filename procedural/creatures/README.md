@@ -16,6 +16,22 @@ Regras (obrigatório):
 - Tabelas de probabilidade vêm de `res://data/` (`.tres`/JSON), não hardcoded.
 - Saída determinística: mesma seed ⇒ mesmo bestiário.
 
+## Silhueta como atributo (Fase 1)
+
+O corpo é o **primeiro derivado a ser resolvido**, condicionado ao animal
+(`P(corpo | animal)`). Antes, `animal_base` apenas alterava os raios de uma mesma
+elipse e todas as criaturas compartilhavam a silhueta de um blob circular; os
+apêndices nasciam em frações fixas do quadro, iguais para os 8 animais — uma asa
+brotava no mesmo ponto num peixe e numa ave.
+
+Agora `data/part_library.tres` declara 14 corpos em 6 arquétipos, cada um com sua
+geometria, suas âncoras por slot e seus slots proibidos. A geometria é **dado**:
+`creature_renderer.gd` não contém nenhuma forma, só a transformação do espaço
+normalizado do `BodyDef` para pixels. Cada corpo é enquadrado pela sua própria
+caixa envolvente, porque os arquétipos têm extensões muito diferentes.
+
+`forbidden_slots` já está preenchido, mas só vira veto na Fase 2.
+
 ## Métricas (RF08)
 
 `metricas_coerencia.gd` reporta três famílias de medida, com propósitos distintos.

@@ -7,9 +7,16 @@ extends RefCounted
 ##
 ## Fluxo por criatura:
 ##   seed -> elemento, animal_base (priors)
+##        -> corpo  ~ P(corpo|animal)                 <- resolvido PRIMEIRO
 ##        -> paleta ~ P(paleta|elemento)
 ##        -> matiz  ~ P(matiz|elemento)
 ##        -> morfologia ~ P(feature|animal,elemento)  (Bernoulli)
+##
+## O corpo vem antes dos demais derivados porque e dele que dependem as posicoes e a
+## viabilidade dos apendices: uma asa nasce em lugar diferente num quadrupede e num
+## aquatico, e em alguns corpos nao nasce de forma alguma. Resolver a silhueta depois
+## dos apendices obrigaria a encaixa-los numa forma ja escolhida — que era exatamente
+## a origem das criaturas todas com o mesmo blob circular.
 ##
 ## O gerador opera em dois modos. CONDICIONADO e a proposta do trabalho. INDEPENDENTE
 ## e a hipotese nula usada como baseline nas metricas (RF08): amostra os derivados das
@@ -22,10 +29,12 @@ extends RefCounted
 enum Modo { CONDICIONADO, INDEPENDENTE }
 
 var tabelas: TabelasProbabilidade
+var library: CreaturePartLibrary
 
 
-func _init(tabelas_: TabelasProbabilidade) -> void:
+func _init(tabelas_: TabelasProbabilidade, library_: CreaturePartLibrary = null) -> void:
 	tabelas = tabelas_
+	library = library_ if library_ != null else CreaturePartLibrary.carregar()
 
 
 ## Gera o bestiario completo de um mundo. Mesma world_seed + mesmo n + mesmo modo
@@ -59,6 +68,15 @@ func _gerar_uma(world_seed: int, seed_individual: int, id: int, modo: Modo = Mod
 	c.elemento = _amostrar_categorico(rng, tabelas.prior_elemento())
 	c.animal_base = _amostrar_categorico(rng, tabelas.prior_animal())
 
+	# Corpo: primeiro derivado a ser resolvido. Condicionado ao animal nos DOIS
+	# modos — a silhueta e estrutural, nao um traco decorativo, e um "peixe" sem
+	# corpo de peixe descaracterizaria o proprio primario em vez de descorrelacionar
+	# um atributo. O baseline continua sendo a hipotese nula para cor e morfologia.
+	var corpo := _amostrar_corpo(rng, c.animal_base)
+	if corpo != null:
+		c.body_id = corpo.id
+		c.arquetipo = corpo.arquetipo
+
 	# Derivados condicionados aos primarios (RF04) — ou marginais, no baseline.
 	c.paleta = _amostrar_categorico(rng,
 		tabelas.dist_paleta(c.elemento) if condicionado else tabelas.marginal_paleta())
@@ -79,6 +97,17 @@ func _gerar_uma(world_seed: int, seed_individual: int, id: int, modo: Modo = Mod
 			c.variantes[feature] = _amostrar_indice_ponderado(rng, pesos)
 
 	return c
+
+
+## Amostra P(corpo | animal) entre as silhuetas mapeadas para o animal.
+func _amostrar_corpo(rng: RandomNumberGenerator, animal: String) -> BodyDef:
+	if library == null:
+		return null
+	var corpos: Array = library.corpos_de(animal)
+	if corpos.is_empty():
+		push_error("GeradorCriaturas: animal sem corpo mapeado — " + animal)
+		return null
+	return corpos[_amostrar_indice_ponderado(rng, library.pesos_de(animal))]
 
 
 static func nome_do_modo(modo: Modo) -> String:
