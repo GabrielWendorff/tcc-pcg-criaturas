@@ -14,6 +14,12 @@ var hue: Dictionary = {}          # P(matiz  | elemento)
 var morphology: Dictionary = {}   # base_por_animal + modificador_por_elemento
 var variants: Dictionary = {}     # modelos de cada feature + vies por elemento
 
+## Distribuicoes MARGINAIS, derivadas das condicionais pela lei da probabilidade
+## total (ex.: P(paleta) = sum_e P(elemento=e) * P(paleta|e)). Nao sao dados de
+## entrada: sao calculadas uma vez no carregamento e servem exclusivamente ao
+## baseline independente (hipotese nula) usado nas metricas — ver GeradorCriaturas.
+var marginais: Dictionary = {}
+
 var _ok: bool = false
 var erro: String = ""
 
@@ -47,6 +53,7 @@ func _carregar_tudo() -> void:
 	hue = hu["tabela"]
 	morphology = mor
 	variants = var_
+	_calcular_marginais()
 	_ok = true
 
 
@@ -114,3 +121,81 @@ func num_modelos(feature: String) -> int:
 
 func nome_modelo(feature: String, indice: int) -> String:
 	return variants[feature]["modelos"][indice]
+
+
+# --- Marginais (baseline independente) ------------------------------------
+#
+# Estas distribuicoes descrevem o MESMO bestiario visto sem condicionamento:
+# a frequencia com que cada valor derivado aparece no mundo, ignorando de qual
+# elemento/animal ele veio. Amostrar delas produz criaturas com as mesmas
+# proporcoes globais mas SEM correlacao entre primarios e derivados — que e
+# exatamente a hipotese nula contra a qual a contribuicao do trabalho (RF04) e
+# medida. Iteram o vocabulario canonico (arrays ordenados), nao os dicionarios,
+# para que a ordem de insercao — e portanto a amostragem — seja deterministica.
+
+func _calcular_marginais() -> void:
+	var pe: Dictionary = prior_elemento()
+	var pa: Dictionary = prior_animal()
+
+	var m_paleta: Dictionary = {}
+	for valor in vocabulary["derivados"]["paleta"]:
+		var acc: float = 0.0
+		for e in elementos():
+			acc += float(pe[e]) * float(palette[e].get(valor, 0.0))
+		m_paleta[valor] = acc
+
+	var m_matiz: Dictionary = {}
+	for valor in vocabulary["derivados"]["matiz"]:
+		var acc: float = 0.0
+		for e in elementos():
+			acc += float(pe[e]) * float(hue[e].get(valor, 0.0))
+		m_matiz[valor] = acc
+
+	var m_feature: Dictionary = {}
+	var m_variante: Dictionary = {}
+	for f in features_morfologia():
+		var acc: float = 0.0
+		for a in animais():
+			for e in elementos():
+				acc += float(pa[a]) * float(pe[e]) * prob_feature(a, e, f)
+		m_feature[f] = acc
+
+		# Media das distribuicoes de variante ponderada pelo prior do elemento.
+		# Normaliza cada linha antes de somar: os pesos do JSON nao sao
+		# normalizados e linhas com totais diferentes pesariam desigualmente.
+		var pesos: Array = []
+		pesos.resize(num_modelos(f))
+		pesos.fill(0.0)
+		for e in elementos():
+			var linha: Array = vies_variante(f, e)
+			var total: float = 0.0
+			for w in linha:
+				total += float(w)
+			for i in linha.size():
+				pesos[i] += float(pe[e]) * float(linha[i]) / total
+		m_variante[f] = pesos
+
+	marginais = {
+		"paleta": m_paleta,
+		"matiz": m_matiz,
+		"feature": m_feature,
+		"variante": m_variante,
+	}
+
+
+func marginal_paleta() -> Dictionary:
+	return marginais["paleta"]
+
+
+func marginal_matiz() -> Dictionary:
+	return marginais["matiz"]
+
+
+## P(feature presente) sem condicionar a animal nem elemento.
+func marginal_prob_feature(feature: String) -> float:
+	return marginais["feature"][feature]
+
+
+## Pesos de escolha de modelo sem condicionar ao elemento.
+func marginal_vies_variante(feature: String) -> Array:
+	return marginais["variante"][feature]

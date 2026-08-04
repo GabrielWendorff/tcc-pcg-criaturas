@@ -10,6 +10,16 @@ extends RefCounted
 ##        -> paleta ~ P(paleta|elemento)
 ##        -> matiz  ~ P(matiz|elemento)
 ##        -> morfologia ~ P(feature|animal,elemento)  (Bernoulli)
+##
+## O gerador opera em dois modos. CONDICIONADO e a proposta do trabalho. INDEPENDENTE
+## e a hipotese nula usada como baseline nas metricas (RF08): amostra os derivados das
+## distribuicoes MARGINAIS, produzindo um bestiario com as mesmas proporcoes globais
+## de cada valor, porem sem nenhuma correlacao com os primarios. Os dois modos
+## consomem o RNG na mesma ordem e na mesma quantidade, e partem dos MESMOS primarios
+## para uma dada seed — logo a comparacao entre eles e pareada e a unica diferenca
+## observavel e o condicionamento em si.
+
+enum Modo { CONDICIONADO, INDEPENDENTE }
 
 var tabelas: TabelasProbabilidade
 
@@ -18,9 +28,9 @@ func _init(tabelas_: TabelasProbabilidade) -> void:
 	tabelas = tabelas_
 
 
-## Gera o bestiario completo de um mundo. Mesma world_seed + mesmo n => mesmo
-## bestiario, criatura por criatura (RF03).
-func gerar_bestiario(world_seed: int, quantidade: int) -> Array:
+## Gera o bestiario completo de um mundo. Mesma world_seed + mesmo n + mesmo modo
+## => mesmo bestiario, criatura por criatura (RF03).
+func gerar_bestiario(world_seed: int, quantidade: int, modo: Modo = Modo.CONDICIONADO) -> Array:
 	var master := RandomNumberGenerator.new()
 	master.seed = world_seed
 	var bestiario: Array = []
@@ -28,40 +38,51 @@ func gerar_bestiario(world_seed: int, quantidade: int) -> Array:
 		# Cada criatura recebe uma seed propria, derivada deterministicamente da
 		# world_seed. Isola a amostragem de cada criatura das demais.
 		var seed_individual: int = master.randi()
-		bestiario.append(_gerar_uma(world_seed, seed_individual, i))
+		bestiario.append(_gerar_uma(world_seed, seed_individual, i, modo))
 	return bestiario
 
 
 ## Gera uma criatura isolada e reproduzivel a partir da sua seed individual.
-func _gerar_uma(world_seed: int, seed_individual: int, id: int) -> Criatura:
+func _gerar_uma(world_seed: int, seed_individual: int, id: int, modo: Modo = Modo.CONDICIONADO) -> Criatura:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_individual
+	var condicionado: bool = modo == Modo.CONDICIONADO
 
 	var c := Criatura.new()
 	c.id = id
 	c.world_seed = world_seed
 	c.seed_individual = seed_individual
+	c.modo = nome_do_modo(modo)
 
-	# Primarios (ordem fixa de amostragem = determinismo)
+	# Primarios (ordem fixa de amostragem = determinismo). Identicos nos dois
+	# modos: sao as raizes, nunca condicionadas a nada.
 	c.elemento = _amostrar_categorico(rng, tabelas.prior_elemento())
 	c.animal_base = _amostrar_categorico(rng, tabelas.prior_animal())
 
-	# Derivados condicionados aos primarios (RF04)
-	c.paleta = _amostrar_categorico(rng, tabelas.dist_paleta(c.elemento))
-	c.matiz = _amostrar_categorico(rng, tabelas.dist_matiz(c.elemento))
+	# Derivados condicionados aos primarios (RF04) — ou marginais, no baseline.
+	c.paleta = _amostrar_categorico(rng,
+		tabelas.dist_paleta(c.elemento) if condicionado else tabelas.marginal_paleta())
+	c.matiz = _amostrar_categorico(rng,
+		tabelas.dist_matiz(c.elemento) if condicionado else tabelas.marginal_matiz())
 
 	c.morfologia = {}
 	c.variantes = {}
 	for feature in tabelas.features_morfologia():
-		var p: float = tabelas.prob_feature(c.animal_base, c.elemento, feature)
+		var p: float = tabelas.prob_feature(c.animal_base, c.elemento, feature) if condicionado \
+			else tabelas.marginal_prob_feature(feature)
 		var presente: bool = _bernoulli(rng, p)
 		c.morfologia[feature] = presente
 		if presente:
 			# QUAL modelo tambem e condicionado ao elemento (RF04 na camada visual).
-			var pesos: Array = tabelas.vies_variante(feature, c.elemento)
+			var pesos: Array = tabelas.vies_variante(feature, c.elemento) if condicionado \
+				else tabelas.marginal_vies_variante(feature)
 			c.variantes[feature] = _amostrar_indice_ponderado(rng, pesos)
 
 	return c
+
+
+static func nome_do_modo(modo: Modo) -> String:
+	return "condicionado" if modo == Modo.CONDICIONADO else "independente"
 
 
 ## Amostra um valor de uma distribuicao categorica {valor: prob} via CDF.

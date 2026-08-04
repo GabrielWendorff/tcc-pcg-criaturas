@@ -158,15 +158,33 @@ func _gerar(world_seed: int) -> void:
 		_selecionar(bestiario[0])
 
 
+## Cabecalho de metricas (RF08). Cada dimensao aparece como observado / teto: o
+## teto e o maximo que as tabelas condicionais permitem, e nao 100% — exibir so o
+## observado sugeriria que o gerador esta errando quando ele esta correto.
 func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
 	var meta_cor := "5bbf5b" if dt_ms < 2000.0 else "e14b4b"
+	var moda: Dictionary = m["moda"]
 	var linhas := PackedStringArray()
 	linhas.append("[b]Seed:[/b] %d    [b]Criaturas:[/b] %d    [b]Tempo:[/b] [color=%s]%.2f ms[/color]" % [
 		world_seed, m["total"], meta_cor, dt_ms
 	])
-	linhas.append("[b]Coerência (RF08):[/b]  paleta %.0f%%   matiz %.0f%%   morfologia %.0f%%   variante %.0f%%   [b]geral %.0f%%[/b]" % [
-		m["paleta_pct"] * 100.0, m["matiz_pct"] * 100.0, m["morfologia_pct"] * 100.0,
-		m["variante_pct"] * 100.0, m["geral_pct"] * 100.0
+
+	var partes := PackedStringArray()
+	for dim in ["paleta", "matiz", "morfologia", "variante"]:
+		var d: Dictionary = moda[dim]
+		partes.append("%s %.0f%%[color=6a7080]/%.0f%%[/color]" % [
+			dim, d["obs"] * 100.0, d["teto"] * 100.0
+		])
+	linhas.append("[b]Coerência (RF08):[/b]  " + "   ".join(partes)
+		+ "   [b]fidelidade %.0f%%[/b] [color=6a7080](obs/teto)[/color]" % (
+			moda["eficiencia_pct"] * 100.0))
+
+	# I(elemento;cor) e a medida que testa a hipotese (RF04). Com n=100 o estimador
+	# e enviesado — o numero aqui e indicativo; use tools/analise.py com n>=5000.
+	var im: Dictionary = m["info_mutua"]["elemento->cor"]
+	var un: Dictionary = m["unicidade"]
+	linhas.append("[color=b0b6c0]I(elemento;cor) = %.2f bits  ·  explica %.0f%% da incerteza  ·  distintas (k=%d): %d/%d[/color]" % [
+		im["i_bits"], im["u"] * 100.0, un["k"], un["distintas"], m["total"]
 	])
 	_header.text = "\n".join(linhas)
 

@@ -8,6 +8,7 @@ extends RefCounted
 var id: int = 0
 var world_seed: int = 0
 var seed_individual: int = 0
+var modo: String = "condicionado"  # "condicionado" (proposta) ou "independente" (baseline)
 
 # Atributos primarios (raizes)
 var elemento: String = ""
@@ -32,6 +33,36 @@ func features_presentes() -> Array:
 ## Nome legivel derivado dos primarios (RF07). Determinístico.
 func nome() -> String:
 	return "%s-%s #%03d" % [elemento.capitalize(), animal_base.capitalize(), id]
+
+
+## Vetor categorico canonico da criatura, base da distancia de Hamming que define
+## operacionalmente "criatura unica". Tamanho FIXO: features ausentes ocupam suas
+## posicoes com "0"/"-", para que duas criaturas sejam sempre comparaveis posicao a
+## posicao. A ordem de 'features' deve vir do vocabulario, nunca de um Dictionary.
+func vetor_atributos(features: Array) -> PackedStringArray:
+	var v := PackedStringArray([elemento, animal_base, paleta, matiz])
+	for f in features:
+		var presente: bool = morfologia.get(f, false)
+		v.append("1" if presente else "0")
+		v.append(str(variantes[f]) if presente else "-")
+	return v
+
+
+## Representacao serializavel (exportacao JSON para analise externa — RF08).
+func to_dict() -> Dictionary:
+	return {
+		"id": id,
+		"world_seed": world_seed,
+		"seed_individual": seed_individual,
+		"modo": modo,
+		"nome": nome(),
+		"elemento": elemento,
+		"animal_base": animal_base,
+		"paleta": paleta,
+		"matiz": matiz,
+		"morfologia": morfologia,
+		"variantes": variantes,
+	}
 
 
 func _to_string() -> String:
