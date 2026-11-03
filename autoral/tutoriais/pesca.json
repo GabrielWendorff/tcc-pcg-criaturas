@@ -1,0 +1,62 @@
+{
+ "_meta": {
+  "descricao": "Licao de pesca do Anselmo como SEQUENCIA DE PASSOS em dado. Mudar a ordem, uma dica ou o que cada passo espera e editar este arquivo — o GerenciadorTutorial so executa. As falas do Anselmo moram em autoral/dialogos/anselmo_tutorial.json ('conversa' nomeia o no); dicas e textos de interface moram aqui. Os dois arquivos juntos sao tudo o que um tradutor precisa abrir.",
+  "passo": "id (unico) · conversa (no de anselmo_tutorial, aberto ao entrar no passo) · ao_iniciar (efeitos ao entrar) · dica (painel no topo enquanto espera) · esperar {evento, valor?} · se_falhar (id do passo para onde voltar quando chega 'falhou') · ao_concluir (efeitos ao sair). Passo sem 'esperar' conclui assim que a conversa acaba.",
+  "eventos": "item_equipado (valor = id do item; '' = mao vazia) · pesca_iniciada · arremessado · silhueta_surgiu · fisgado · falhou. 'falhou' num passo sem se_falhar e ignorado; com se_falhar, volta ao passo indicado mostrando a conversa 'tentar_de_novo' no lugar da conversa dele.",
+  "efeitos": "dar_itens {id: n} (Bolsa + nota 'Recebeu') · definir {bandeira: valor} · desequipar true · concluir true (marca bandeira_concluido).",
+  "aviso": "Conteudo AUTORAL (Camada 1). Textos ao jogador so com glifos da fonte pixel (sem reticencias unicode, aspas curvas ou setas cima/baixo) — tools/test_tutorial.gd confere letra por letra."
+ },
+ "id": "pesca",
+ "npc": "anselmo",
+ "arvore": "anselmo_tutorial",
+ "bandeira_concluido": "tutorial_pesca_concluido",
+ "textos": {
+  "titulo_dica": "LIÇÃO DE PESCA",
+  "aviso_pular": "[P] pular lição",
+  "pular_pergunta": "Pular a lição de pesca? Tem certeza?",
+  "pular_sim": "Sim, pular",
+  "pular_nao": "Não, continuar",
+  "recebeu": "Recebeu: %s ×%d"
+ },
+ "ao_pular": {
+  "conversa": "pulou",
+  "efeitos": {"dar_itens": {"vara_de_pesca": 1}, "concluir": true}
+ },
+ "passos": [
+  {
+   "id": "apresentacao",
+   "conversa": "apresentacao",
+   "ao_concluir": {"dar_itens": {"vara_de_pesca": 1}}
+  },
+  {
+   "id": "equipar",
+   "ao_iniciar": {"desequipar": true},
+   "conversa": "ensina_roda",
+   "dica": "Segure [Q] para abrir a roda de itens, aponte o mouse para a VARA DE PESCA e solte [Q].",
+   "esperar": {"evento": "item_equipado", "valor": "vara_de_pesca"}
+  },
+  {
+   "id": "arremesso",
+   "conversa": "ensina_arremesso",
+   "dica": "Na beira, de frente para a água, aperte [F]. Aperte [F] de novo para travar a força: VERDE fraco · AMARELO médio · VERMELHO máximo.",
+   "esperar": {"evento": "arremessado"}
+  },
+  {
+   "id": "recolher",
+   "dica": "Mouse à ESQUERDA recolhe rápido; à DIREITA, devagar. Mova o mouse para cima ou para baixo para mudar a altura da isca.",
+   "esperar": {"evento": "silhueta_surgiu"},
+   "se_falhar": "arremesso"
+  },
+  {
+   "id": "silhueta",
+   "dica": "Uma sombra! Deixe a isca na MESMA ALTURA e na MESMA VELOCIDADE dela até o interesse encher.",
+   "esperar": {"evento": "fisgado"},
+   "se_falhar": "arremesso"
+  },
+  {
+   "id": "despedida",
+   "conversa": "despedida",
+   "ao_concluir": {"dar_itens": {"minhoca": 5}, "concluir": true}
+  }
+ ]
+}

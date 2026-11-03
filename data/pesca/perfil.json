@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "descricao": "Perfil de PESCA de cada criatura, DERIVADO dos atributos que o gerador ja sorteou (animal_base, elemento, porte, tracos de morfologia). NAO e uma tabela por especie e NAO e modelo generativo: nao sorteia nenhuma criatura e nao consome o RNG do gerador. E a leitura, do lado da pesca, da coerencia que conditional_morphology.json e conditional_porte.json ja produziram — o mesmo espirito do fator de evasao em data/captura/balanceamento.json.",
+    "formula": "eixo = clamp(base + por_animal[a] + por_elemento[e] + por_porte[p] + soma(por_traco[t presente]) + j * variacao, minimo, maximo); chave ausente contribui 0. j1 (profundidade) e j2 (velocidade) = randf_range(-1, 1), nesta ordem, de um RNG semeado com seed_individual + 0x9E5CA (PerfilPesca.DESLOCAMENTO_RUIDO).",
+    "tolerancia": "max(minimo, base + soma(por_traco_*[t presente])), meia-largura na mesma escala normalizada do recolhimento.",
+    "peso": "base * por_porte[p] (1 se ausente) * por_elemento[e] (1 se ausente) * fator_por_traco ^ (numero de tracos presentes). Raridade = primeira faixa com peso <= peso_ate (faixas em ordem crescente).",
+    "coerencia": "RF04 virando mecanica: peixe nada FUNDO, anfibio RASO; gelo/sombra/terra puxam para o fundo, fogo/ar/eletrico para a superficie; nadadeiras = RAPIDO e com MENOS folga de velocidade (escorregadio); escamas = mais fundo e mais lento; asas = raso e rapido; compacto = fundo e lento; esbelto/alongado = rapido. O efeito dos TRACOS e o que emerge das tabelas condicionais; o contraste peixe fundo/rapido x anfibio raso/lento e sobretudo declarado em por_animal. Como 'agua + peixe' recebe escamas E nadadeiras com alta probabilidade, as escamas compensam as nadadeiras na folga: o mais escorregadio e quem tem nadadeiras SEM escamas (tipicamente o anfibio), e por PerfilPesca.dificuldade() o peixe nao sai mais dificil que o anfibio (tools/test_pesca.gd imprime a media por animal).",
+    "calibragem_velocidade": "A velocidade do monstro esta na escala do recolhimento: fisga-lo exige recolher NA velocidade dele por ~3.2 s, consumindo lerp(velocidade_min, velocidade_max, v) * 3.2 celulas de trajeto. Os trechos de agua do mapa tem mediana de 4-6 celulas, entao a escala e baixa (0.12..0.65): um anfibio (~0.2, ~2.4 celulas) cabe num arremesso medio, um peixe (~0.35, ~3.4 celulas) pede arremesso longo, e o peixe eletrico alongado (~0.55) so com a zona MAXIMA e a silhueta cedo. O teto garante que, com arremesso maximo e silhueta no 1o sorteio, todo perfil e fisgavel (verificado em tools/test_pesca.gd). O minimo (0.12) tira o monstro da faixa do 'recolher parado': igualar a velocidade continua sendo uma decisao.",
+    "chaves": "Todas as chaves de por_animal/por_elemento/por_porte/por_traco existem em data/vocabulary.json (TabelasPesca.validar confere).",
+    "versao": 1
+  },
+
+  "elegibilidade": {
+    "_descricao": "Aparece na pesca quem tem elemento listado OU animal listado: um peixe de fogo pesca-se, um gato de agua tambem.",
+    "elementos": ["agua"],
+    "animais": ["peixe", "anfibio"]
+  },
+
+  "profundidade": {
+    "base": 0.5,
+    "por_animal": {
+      "peixe": 0.14, "anfibio": -0.20, "reptil": 0.02, "ave": -0.12,
+      "inseto": -0.16, "gato": -0.06, "canino": -0.04, "roedor": -0.08
+    },
+    "por_elemento": {
+      "gelo": 0.12, "sombra": 0.14, "terra": 0.10, "agua": 0.04,
+      "planta": -0.04, "fogo": -0.12, "ar": -0.16, "eletrico": -0.10
+    },
+    "por_porte": { "compacto": 0.08, "medio": 0.0, "esbelto": -0.04, "alongado": 0.0 },
+    "por_traco": { "escamas": 0.08, "asas": -0.14, "nadadeiras": 0.03, "garras": 0.0 },
+    "variacao": 0.08,
+    "minimo": 0.08,
+    "maximo": 0.92
+  },
+
+  "velocidade": {
+    "base": 0.20,
+    "por_animal": {
+      "peixe": 0.08, "anfibio": -0.06, "reptil": -0.03, "ave": 0.06,
+      "inseto": 0.08, "gato": 0.02, "canino": 0.03, "roedor": 0.03
+    },
+    "por_elemento": {
+      "eletrico": 0.12, "ar": 0.08, "fogo": 0.06, "agua": 0.02,
+      "sombra": 0.03, "planta": -0.04, "terra": -0.05, "gelo": -0.05
+    },
+    "por_porte": { "compacto": -0.05, "medio": 0.0, "esbelto": 0.04, "alongado": 0.06 },
+    "por_traco": { "nadadeiras": 0.12, "escamas": -0.04, "asas": 0.04, "garras": 0.0 },
+    "variacao": 0.05,
+    "minimo": 0.12,
+    "maximo": 0.65
+  },
+
+  "tolerancia": {
+    "_descricao": "Folga do jogador. Nadadeiras ESTREITAM a de velocidade (escorregadio: muda de ritmo e larga a isca); asas estreitam a de altura (salta, nao fica num nivel); escamas alargam as duas (couraca pesada, nado constante).",
+    "profundidade_base": 0.12,
+    "velocidade_base": 0.14,
+    "por_traco_profundidade": { "asas": -0.03, "escamas": 0.02, "nadadeiras": 0.0, "garras": 0.0 },
+    "por_traco_velocidade": { "nadadeiras": -0.04, "asas": -0.02, "escamas": 0.02, "garras": 0.0 },
+    "minimo": 0.05
+  },
+
+  "peso": {
+    "_descricao": "Peso-base de surgimento (o ponto de pesca ainda multiplica pelo habitat). Cada traco presente torna a criatura um pouco mais rara (fator_por_traco): a criatura mais elaborada e a mais disputada. Agua e o elemento de casa; fogo n'agua e raridade. Faixas de raridade calibradas na seed 123456789 para ~55% comum, ~30% incomum, ~15% raro entre os elegiveis (tools/test_pesca.gd imprime a distribuicao).",
+    "base": 1.0,
+    "por_porte": { "compacto": 1.0, "medio": 1.1, "esbelto": 1.0, "alongado": 0.85 },
+    "por_elemento": {
+      "agua": 1.0, "planta": 0.85, "terra": 0.8, "gelo": 0.75,
+      "ar": 0.7, "eletrico": 0.65, "sombra": 0.6, "fogo": 0.5
+    },
+    "fator_por_traco": 0.9,
+    "raridade": [
+      { "id": "raro", "peso_ate": 0.58 },
+      { "id": "incomum", "peso_ate": 0.70 },
+      { "id": "comum", "peso_ate": 1000.0 }
+    ]
+  }
+}
