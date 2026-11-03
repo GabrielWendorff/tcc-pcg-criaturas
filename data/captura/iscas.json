@@ -1,0 +1,108 @@
+{
+  "_meta": {
+    "descricao": "Iscas. 'tipos_preferidos' nomeia valores de data/vocabulary.json -> primarios.animal_base: a preferencia e por ANIMAL BASE, que e um atributo primario da criatura — a isca conversa com a mesma raiz de que os derivados dependem. Oferecer a isca certa multiplica a chance por (1 + bonus); a errada, por (1 + bonus_incorreto) de balanceamento.json. Uma isca pode servir a varios tipos; acrescentar uma e acrescentar uma entrada aqui.",
+    "versao": 1
+  },
+  "iscas": [
+    {
+      "id": "osso",
+      "nome": "Osso",
+      "descricao": "Larga o que estiver fazendo.",
+      "forma": "osso",
+      "cor": "e8ecf2",
+      "tipos_preferidos": ["canino"],
+      "bonus": 0.45,
+      "quantidade_inicial": 4
+    },
+    {
+      "id": "carne_seca",
+      "nome": "Carne Seca",
+      "descricao": "Cheiro forte; agrada a mais de um focinho.",
+      "forma": "carne",
+      "cor": "e14b4b",
+      "tipos_preferidos": ["canino", "reptil", "gato"],
+      "bonus": 0.32,
+      "quantidade_inicial": 5
+    },
+    {
+      "id": "petisco_felino",
+      "nome": "Petisco Felino",
+      "descricao": "Feito para quem finge não se interessar.",
+      "forma": "petisco",
+      "cor": "e8cf4b",
+      "tipos_preferidos": ["gato"],
+      "bonus": 0.45,
+      "quantidade_inicial": 4
+    },
+    {
+      "id": "peixe_seco",
+      "nome": "Peixe Seco",
+      "descricao": "Isca de gato — e de anfíbio faminto.",
+      "forma": "peixe",
+      "cor": "4bd6d6",
+      "tipos_preferidos": ["gato", "anfibio"],
+      "bonus": 0.40,
+      "quantidade_inicial": 4
+    },
+    {
+      "id": "minhoca",
+      "nome": "Minhoca",
+      "descricao": "O que morde debaixo d'água morde isto.",
+      "forma": "minhoca",
+      "cor": "8a5a3c",
+      "tipos_preferidos": ["peixe", "anfibio", "ave"],
+      "bonus": 0.40,
+      "quantidade_inicial": 5
+    },
+    {
+      "id": "sementes",
+      "nome": "Punhado de Sementes",
+      "descricao": "Grãos: bico e dente pequeno.",
+      "forma": "sementes",
+      "cor": "e8cf4b",
+      "tipos_preferidos": ["ave", "roedor"],
+      "bonus": 0.45,
+      "quantidade_inicial": 5
+    },
+    {
+      "id": "queijo_curado",
+      "nome": "Queijo Curado",
+      "descricao": "Não há roedor que resista.",
+      "forma": "queijo",
+      "cor": "e8cf4b",
+      "tipos_preferidos": ["roedor"],
+      "bonus": 0.45,
+      "quantidade_inicial": 3
+    },
+    {
+      "id": "nectar_floral",
+      "nome": "Néctar Floral",
+      "descricao": "Doce o bastante para parar um voo.",
+      "forma": "nectar",
+      "cor": "9b5be8",
+      "tipos_preferidos": ["inseto"],
+      "bonus": 0.45,
+      "quantidade_inicial": 4
+    },
+    {
+      "id": "fruta_madura",
+      "nome": "Fruta Madura",
+      "descricao": "Atrai muita boca, nenhuma com fervor.",
+      "forma": "fruta",
+      "cor": "5bbf5b",
+      "tipos_preferidos": ["inseto", "roedor", "ave"],
+      "bonus": 0.28,
+      "quantidade_inicial": 5
+    },
+    {
+      "id": "larva_viva",
+      "nome": "Larva Viva",
+      "descricao": "Mexe. É o que importa para quem caça pelo movimento.",
+      "forma": "larva",
+      "cor": "e8863a",
+      "tipos_preferidos": ["reptil", "anfibio", "ave", "peixe"],
+      "bonus": 0.34,
+      "quantidade_inicial": 4
+    }
+  ]
+}

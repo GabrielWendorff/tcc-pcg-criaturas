@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "descricao": "Balanceamento central da captura. Nenhum destes numeros pode aparecer hardcoded em codigo: CalculoCaptura le tudo daqui. A chance final e um PRODUTO de multiplicadores independentes, na mesma logica das tabelas condicionais do gerador — cada fator responde por uma pergunta ('quao evasiva e a criatura?', 'o dispositivo serve para este traco?') e a formula apenas os combina.",
+    "formula": "p = clamp(base * mult_dispositivo * mult_afinidade * mult_isca * mult_estado, piso, teto)",
+    "versao": 1
+  },
+
+  "base": 0.45,
+  "piso": 0.03,
+  "teto": 0.85,
+
+  "afinidade": {
+    "_descricao": "Fator de EVASAO de cada traco morfologico, aplicado apenas quando a criatura POSSUI o traco (multiplicativo, <1 = mais dificil). Os tracos sao exatamente os de data/vocabulary.json -> derivados.morfologia, e e por eles que a captura herda a coerencia semantica do gerador: quem sorteia 'peixe + agua' recebe escamas e nadadeiras com alta probabilidade (conditional_morphology.json) e, por consequencia, uma criatura escorregadia e blindada. A afinidade NAO e uma tabela nova por especie — e a leitura, do lado da captura, da morfologia que ja foi sorteada.",
+    "fator_evasao": {
+      "garras":     0.78,
+      "escamas":    0.72,
+      "asas":       0.62,
+      "nadadeiras": 0.80
+    },
+    "motivo": {
+      "garras":     "reage e rasga o que a prende",
+      "escamas":    "blindagem: o dispositivo tem de vencer a couraca",
+      "asas":       "sai do alcance antes de o dispositivo fechar",
+      "nadadeiras": "escorrega de qualquer coisa que a segure"
+    }
+  },
+
+  "estado": {
+    "_descricao": "Multiplicador pelo estado da criatura no encontro. O vigor cai a cada ataque; as faixas sao lidas em ordem, da mais ferida para a mais intacta.",
+    "faixas": [
+      { "id": "exausta", "vigor_ate": 0.33, "multiplicador": 1.60, "rotulo": "exausta" },
+      { "id": "ferida",  "vigor_ate": 0.66, "multiplicador": 1.25, "rotulo": "ferida" },
+      { "id": "intacta", "vigor_ate": 1.01, "multiplicador": 1.00, "rotulo": "intacta" }
+    ]
+  },
+
+  "vigor": {
+    "_descricao": "Vigor maximo da criatura, funcao DETERMINISTICA dos seus atributos (RF03): mesma criatura, mesmo vigor. Nao ha sistema de batalha no projeto — este e o minimo necessario para que 'Atacar' tenha consequencia mecanica, e o lugar onde uma Camada de batalha futura entra sem tocar no resto.",
+    "base": 100.0,
+    "por_traco": 12.0,
+    "por_porte": { "compacto": 18.0, "medio": 8.0, "esbelto": 0.0, "alongado": -6.0 },
+    "dano_por_ataque": 26.0,
+    "variacao_do_dano": 0.35
+  },
+
+  "isca": {
+    "_descricao": "Isca CERTA multiplica por (1 + bonus da isca); isca errada por (1 + bonus_incorreto). O bonus incorreto e proposital e pequeno: a mecanica precisa recompensar o acerto sem punir o erro a ponto de o jogador nunca experimentar.",
+    "bonus_incorreto": 0.05
+  },
+
+  "fuga": {
+    "_descricao": "Chance de a criatura fugir apos uma tentativa de captura falha, contada a partir da SEGUNDA falha. Sem isto, um jogador com dispositivos de sobra captura tudo por repeticao e a formula deixa de importar.",
+    "chance_por_falha_extra": 0.12,
+    "chance_maxima": 0.45
+  }
+}
