@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "descricao": "Onde e como o item equipado fica na mao do jogador, por direcao encarada. Lido por PosesDaMao (presentation/equipamento/regras/poses_da_mao.gd), que tem os MESMOS valores embutidos como padrao: apagar este arquivo degrada a calibragem, nunca o jogo.",
+    "referencial": "Pixels do MUNDO, relativos a origem do Jogador — que e o PE dele. O sprite e um quadro 24x24 com offset (-12, -22): a mao fica em y ~ -4..-7 e o corpo em x ~ -8..+7.",
+    "item": "O item e desenhado com o CABO na origem e o corpo apontando para CIMA (-y). 'rotacao' em graus, sentido HORARIO (positivo = ponta para a direita). 'espelhar' = scale.x -1: vira o desenho (a linha da vara pende para o outro lado), mas NAO muda a rotacao — a ponta segue para onde 'rotacao' manda.",
+    "atras": "true = o item e desenhado ANTES do sprite do corpo (fica atras dele); false = depois. E ordem de filho, nao z_index: o jogador vive num container y-sorted, e z_index faria a vara passar por cima da arvore da frente.",
+    "pesca": "Sobrescreve campos da pose enquanto o jogador pesca (vara erguida). So o que for declarado muda.",
+    "arremesso": "Animacao do lance: recuo (vara para tras) e avanco (para a frente), em graus somados a pose de pesca. O sinal se inverte nas poses espelhadas — 'para tras' de quem olha para a esquerda e o sentido oposto de quem olha para a direita.",
+    "versao": 1
+  },
+  "poses": {
+    "baixo":    { "posicao": [-7, -5], "rotacao": -30, "atras": false, "espelhar": true },
+    "esquerda": { "posicao": [-6, -7], "rotacao": -35, "atras": false, "espelhar": true },
+    "direita":  { "posicao": [6, -7],  "rotacao": 35,  "atras": false, "espelhar": false },
+    "cima":     { "posicao": [5, -6],  "rotacao": 20,  "atras": true,  "espelhar": false }
+  },
+  "pesca": {
+    "baixo":    { "rotacao": -55 },
+    "esquerda": { "rotacao": -60 },
+    "direita":  { "rotacao": 60 },
+    "cima":     { "rotacao": 10 }
+  },
+  "arremesso": {
+    "recuo_graus": -70.0,
+    "avanco_graus": 25.0,
+    "duracao_recuo": 0.18,
+    "duracao_avanco": 0.12
+  }
+}
