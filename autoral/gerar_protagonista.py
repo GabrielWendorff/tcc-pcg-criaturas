@@ -2,12 +2,14 @@
 """
 gerar_protagonista.py — folha de caminhada do personagem principal.
 
-Formato identico ao da referencia: 4x4 celulas, ordem RPG Maker / Essentials
+Formato de folha: 4x4 celulas, ordem RPG Maker / Essentials
     linha 0 = baixo, 1 = esquerda, 2 = direita, 3 = cima
     coluna 0 e 2 = parado, 1 e 3 = passo (corpo desce 1px)
 
-Autorado em 1x (celula 24x24, folha 96x96) e ampliado 2x no final,
-porque a folha de referencia tambem e um upscale exato de 2x.
+Autorado em 1x (celula 24x24, folha 96x96) e ampliado 2x no final.
+
+Referencia de formato e proporcao: sprite de caminhada de Pokemon Emerald. A
+imagem nao e versionada; o personagem e desenhado pixel a pixel abaixo.
 
 Personagem: bone azul royal com aba escura, cabelo preto nas laterais,
 pele morena, camisa preta, mochila (tiras cinza + volume cinza escuro),

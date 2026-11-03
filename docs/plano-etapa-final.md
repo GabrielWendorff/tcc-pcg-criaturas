@@ -14,10 +14,10 @@ Faltam **27 dias** para a entrega de 30/11/2026 (segunda-feira).
 
 | Gate | Prazo | Estado | Ação |
 |---|---|---|---|
-| 2 orientações evidenciadas | 30/09/2026 | **a confirmar** | juntar as evidências |
-| Playtest com ≥ 10 pessoas | 30/10/2026 | **sem evidência no repositório; prazo vencido** | confirmar com o professor |
-| Relatório do playtest | 30/10/2026 | **sem evidência no repositório; prazo vencido** | confirmar com o professor |
-| 5 orientações evidenciadas | 30/11/2026 | **a confirmar** | agendar as restantes |
+| 2 orientações evidenciadas | 30/09/2026 | **não realizadas: não houve aula até agora; prazo vencido** | pedir nova data por escrito na aula de 06/11/2026 |
+| Playtest com ≥ 10 pessoas | 30/10/2026 | **não realizado; prazo vencido** | possivelmente na aula de 06/11/2026; levar build |
+| Relatório do playtest | 30/10/2026 | **não realizado; prazo vencido** | pedir nova data por escrito na aula de 06/11/2026 |
+| 5 orientações evidenciadas | 30/11/2026 | **nenhuma até agora** | agendar as 5 em 06/11/2026 |
 | Jogo do início ao fim, com vitória e derrota | 30/11/2026 | **não atende** | seção 3 |
 | Build pública (Itch.io, loja, WebGL, APK) | 30/11/2026 | não existe | CI + itch.io |
 | GDD (mínimo: visão, loop, mecânicas, tecnologias) | 30/11/2026 | não existe | template de 19 seções |
@@ -44,7 +44,7 @@ com os três professores.** O critério 5 é eliminatório.
 | 2. Documentação | READMEs por módulo, `mudancas-estruturais.md`, `pendencias.md` | README raiz, GDD, Wiki, diagrama C4 |
 | 3. Qualidade do código | regras puras em `regras/`, dados em JSON, testes de lógica | corrigir os testes da seção 2.1; PRs revisados; lint |
 | 4. Infra e engenharia | Git | CI/CD, deploy automatizado, monitoramento, ambientes dev/produção |
-| 5. Ética e autoria | arte gerada por scripts próprios | créditos, uso de IA declarado, domínio do código, origem das referências (D5) |
+| 5. Ética e autoria | arte gerada por scripts próprios | créditos e referências no GDD (seções 3 e 18), domínio do código |
 | 6. Apresentação | — | pôster, demo estável, vídeo, QR Code, ensaio |
 
 *Destaque* pede ainda polimento e **evidência de iteração a partir de playtests**;
@@ -74,9 +74,11 @@ executor precisa falhar quando um teste aborta.
 | RF07 stats e visual | parcial: mesma lacuna de arte; sem tela de coleção |
 | Camada 3 (ambientação pela seed) | **não implementada**: `procedural/ambiance/` só tem README; a vegetação atual é autoral |
 
-## 3. Proposta de jogo com começo, meio e fim
+## 3. Jogo com começo, meio e fim
 
-Sessão-alvo de 15 a 20 minutos, reaproveitando o que existe.
+Arco aprovado em 03/11/2026. **O ponto de interesse do jogo é o gerador de
+criaturas e o seu algoritmo:** o resto existe para o jogador usar e enxergar o que
+ele produz. Sessão-alvo de 15 a 20 minutos, reaproveitando o que existe.
 
 - **Início:** nova partida com seed → vila → Anselmo dá o objetivo e a primeira
   criatura. Objetivo sempre visível no HUD.
@@ -86,6 +88,12 @@ Sessão-alvo de 15 a 20 minutos, reaproveitando o que existe.
 - **Vitória:** com os 3 selos, o duelo final na vila → tela de encerramento com
   os dados da seed (capturas, coerência do bestiário).
 - **Derrota:** equipe inteira sem HP → tela de derrota, com retorno ao último save.
+
+**Vitrine do algoritmo (RF07, RF08):** bestiário dentro do jogo que mostra, para
+cada criatura, Seed → primários → probabilidades condicionadas → derivados, e
+marca se ela é coerente ou atípica. A tela final compara a coerência da seed com a
+baseline independente. Junto da arte de escamas, asas e nadadeiras, tem prioridade
+sobre Camada 3, áudio e polimento.
 
 **Batalha (RF06):** por turnos, 1×1, com tabela de elementos em
 `data/batalha/*.json`. Stats **derivados** da morfologia e do porte já sorteados,
@@ -110,11 +118,12 @@ registro lá e atualização da Seção 3.**
 
 | Até | Entrega |
 |---|---|
-| 04/11 | gates confirmados com o professor |
-| 05/11 | arco do jogo decidido |
+| 05/11 | build para a aula: batalha mínima, vitória e derrota simples |
+| 06/11 | primeira aula: novas datas por escrito, orientações agendadas, possível playtest |
 | 08/11 | testes corrigidos, CI com testes e `gdlint` |
-| 10/11 | batalha e equipe (RF06); GDD v0.5 |
+| 10/11 | batalha completa e equipe (RF06); GDD v0.5 |
 | 11/11 | build web no itch.io pelo CI, com log de erros |
+| 12/11 | vitrine do algoritmo no jogo |
 | 14/11 | arte de escamas, asas e nadadeiras |
 | 16/11 | guardiões, vitória e derrota: **jogável de ponta a ponta** |
 | 18/11 | Camada 3 mínima; nota da Seção 3 do artigo |
@@ -126,15 +135,17 @@ registro lá e atualização da Seção 3.**
 | 30/11 | **entrega** e prova de autoria |
 | 10, 15, 16/12 | Poster + Demo Day |
 
-## 5. Decisões pendentes
+## 5. Decisões
 
-- **D1. Playtest vencido.** Foi feito? Se não, o que o professor aceita agora?
-- **D2. Arco do jogo.** Aprovar ou ajustar a seção 3.
-- **D3. Repositório público?** O GitHub só oferece Wiki em repositório privado em
-  plano pago. Recomendação: tornar público, se a origem das referências (D5) estiver
-  esclarecida.
-- **D4. PAC VIII.** Modalidade (Parceiro ou Comunidade), squad e estado dos NPs.
-- **D5. Origem de `autoral/_ref_*.png`.** Ficaram fora do repositório; o gerador do
-  protagonista cita uma "folha de referência". Plágio é eliminatório: é preciso
-  saber a fonte e declará-la.
-- **D6. Artigo.** O `.tex` não está neste repositório: onde fica e qual o estado.
+Tomadas em 03/11/2026:
+
+- **Arco do jogo:** aprovado, com foco no gerador (seção 3).
+- **Repositório público:** a Wiki em repositório privado exige plano pago.
+- **Referência do protagonista:** sprite de Pokémon Emerald, usado para formato e
+  proporção. A imagem fica fora do repositório e entra como referência no GDD.
+- **Artigo:** será versionado neste repositório pelo autor.
+
+Pendentes, para a aula de 06/11/2026:
+
+- Novas datas de orientações, playtest e relatório, por escrito.
+- PAC VIII: modalidade (Parceiro ou Comunidade), squad e NPs.
