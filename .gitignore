@@ -35,3 +35,16 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+
+# Python (ferramentas de arte em tools/arte/)
+__pycache__/
+*.pyc
+
+# Capturas, prévias e referências locais (as prévias saem dos scripts de geração)
+/_shot.png
+/autoral/_*.png
+/autoral/npcs/retratos/_*.png
+/tools/arte/_preview/*
+!/tools/arte/_preview/.gdignore
+/tools/mapas/_preview/*
+!/tools/mapas/_preview/.gdignore
