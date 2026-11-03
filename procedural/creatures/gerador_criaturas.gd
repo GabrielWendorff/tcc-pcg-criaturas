@@ -7,16 +7,23 @@ extends RefCounted
 ##
 ## Fluxo por criatura:
 ##   seed -> elemento, animal_base (priors)
-##        -> corpo  ~ P(corpo|animal)                 <- resolvido PRIMEIRO
+##        -> porte  ~ P(porte|elemento)               <- resolvido PRIMEIRO
 ##        -> paleta ~ P(paleta|elemento)
 ##        -> matiz  ~ P(matiz|elemento)
 ##        -> morfologia ~ P(feature|animal,elemento)  (Bernoulli)
 ##
-## O corpo vem antes dos demais derivados porque e dele que dependem as posicoes e a
-## viabilidade dos apendices: uma asa nasce em lugar diferente num quadrupede e num
-## aquatico, e em alguns corpos nao nasce de forma alguma. Resolver a silhueta depois
-## dos apendices obrigaria a encaixa-los numa forma ja escolhida — que era exatamente
-## a origem das criaturas todas com o mesmo blob circular.
+## A silhueta e o par (animal_base, porte): o animal da a estrutura — quantas patas,
+## onde fica a cabeca, se ha cauda — e o porte a estica no eixo compacto -> alongado.
+## Juntos indexam uma das 32 mascaras de arte/corpos/ pelo body_id.
+##
+## O porte vem antes dos demais derivados porque e da silhueta que dependem as posicoes
+## e a viabilidade dos apendices: uma garra encosta na ponta da pata, e um corpo sem
+## patas nao a comporta de forma alguma. Resolver a silhueta depois dos apendices
+## obrigaria a encaixa-los numa forma ja escolhida.
+##
+## O porte tambem e o unico atributo derivado que muda a SILHUETA, e nao a superficie:
+## e por ele que o condicionamento (RF04) aparece na leitura mais imediata da criatura
+## — um monstro de terra e atarracado, um de ar e esguio, antes de qualquer cor.
 ##
 ## O gerador opera em dois modos. CONDICIONADO e a proposta do trabalho. INDEPENDENTE
 ## e a hipotese nula usada como baseline nas metricas (RF08): amostra os derivados das
@@ -29,12 +36,16 @@ extends RefCounted
 enum Modo { CONDICIONADO, INDEPENDENTE }
 
 var tabelas: TabelasProbabilidade
-var library: CreaturePartLibrary
+
+## Usado apenas para anotar o arquetipo estrutural do corpo escolhido (dado de
+## analise). O sorteio em si nao depende da arte: body_id e composto a partir dos
+## atributos, entao um bestiario continua reproduzivel sem nenhum PNG carregado.
+var catalogo: CatalogoCorpos
 
 
-func _init(tabelas_: TabelasProbabilidade, library_: CreaturePartLibrary = null) -> void:
+func _init(tabelas_: TabelasProbabilidade, catalogo_: CatalogoCorpos = null) -> void:
 	tabelas = tabelas_
-	library = library_ if library_ != null else CreaturePartLibrary.carregar()
+	catalogo = catalogo_ if catalogo_ != null else CatalogoCorpos.carregar(tabelas_)
 
 
 ## Gera o bestiario completo de um mundo. Mesma world_seed + mesmo n + mesmo modo
@@ -68,14 +79,16 @@ func _gerar_uma(world_seed: int, seed_individual: int, id: int, modo: Modo = Mod
 	c.elemento = _amostrar_categorico(rng, tabelas.prior_elemento())
 	c.animal_base = _amostrar_categorico(rng, tabelas.prior_animal())
 
-	# Corpo: primeiro derivado a ser resolvido. Condicionado ao animal nos DOIS
-	# modos — a silhueta e estrutural, nao um traco decorativo, e um "peixe" sem
-	# corpo de peixe descaracterizaria o proprio primario em vez de descorrelacionar
-	# um atributo. O baseline continua sendo a hipotese nula para cor e morfologia.
-	var corpo := _amostrar_corpo(rng, c.animal_base)
-	if corpo != null:
-		c.body_id = corpo.id
-		c.arquetipo = corpo.arquetipo
+	# Porte: primeiro derivado a ser resolvido. A ESTRUTURA da silhueta segue o animal
+	# nos dois modos (um "peixe" sem corpo de peixe descaracterizaria o proprio
+	# primario em vez de descorrelacionar um derivado); o que o baseline descorrelaciona
+	# e o porte, que e o grau de liberdade legitimamente condicionado ao elemento.
+	var i_porte: int = _amostrar_indice_ponderado(rng,
+		tabelas.vies_porte(c.elemento) if condicionado else tabelas.marginal_vies_porte())
+	c.porte = tabelas.portes()[i_porte]
+	c.body_id = CatalogoCorpos.montar_body_id(c.animal_base, i_porte, c.porte)
+	if catalogo != null:
+		c.arquetipo = catalogo.arquetipo(c.body_id)
 
 	# Derivados condicionados aos primarios (RF04) — ou marginais, no baseline.
 	c.paleta = _amostrar_categorico(rng,
@@ -97,17 +110,6 @@ func _gerar_uma(world_seed: int, seed_individual: int, id: int, modo: Modo = Mod
 			c.variantes[feature] = _amostrar_indice_ponderado(rng, pesos)
 
 	return c
-
-
-## Amostra P(corpo | animal) entre as silhuetas mapeadas para o animal.
-func _amostrar_corpo(rng: RandomNumberGenerator, animal: String) -> BodyDef:
-	if library == null:
-		return null
-	var corpos: Array = library.corpos_de(animal)
-	if corpos.is_empty():
-		push_error("GeradorCriaturas: animal sem corpo mapeado — " + animal)
-		return null
-	return corpos[_amostrar_indice_ponderado(rng, library.pesos_de(animal))]
 
 
 static func nome_do_modo(modo: Modo) -> String:

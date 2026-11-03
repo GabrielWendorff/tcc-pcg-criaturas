@@ -7,26 +7,30 @@ extends Control
 const N_PADRAO := 100
 
 var _tabelas: TabelasProbabilidade
-var _library: CreaturePartLibrary
+var _catalogo: CatalogoCorpos
 var _gerador: GeradorCriaturas
 
 var _seed_input: LineEdit
 var _header: RichTextLabel
 var _lista: VBoxContainer
-var _detalhe_render: CreatureRenderer
+var _detalhe_render: CreatureSpriteRenderer
 var _detalhe_texto: RichTextLabel
 
 
 func _ready() -> void:
 	_tabelas = TabelasProbabilidade.carregar()
-	# Carregada uma unica vez e repassada a cada renderer: sao ~100 miniaturas por
-	# bestiario, e cada uma buscando o recurso por conta propria seria desperdicio.
-	_library = CreaturePartLibrary.carregar()
+	# Carregado uma unica vez e repassado a cada renderer: sao ~100 miniaturas por
+	# bestiario, e cada uma lendo o JSON de ancoras por conta propria seria desperdicio.
+	_catalogo = CatalogoCorpos.carregar(_tabelas) if _tabelas != null else null
 	_construir_ui()
-	if _tabelas == null or _library == null:
-		_header.text = "[color=e14b4b]Erro: nao foi possivel carregar os dados de res://data/.[/color]"
+	if _tabelas == null or _catalogo == null:
+		_header.text = "[color=e14b4b]Erro: nao foi possivel carregar res://data/ ou res://arte/.[/color]"
 		return
-	_gerador = GeradorCriaturas.new(_tabelas, _library)
+	var faltando := _catalogo.validar(_tabelas)
+	if not faltando.is_empty():
+		_header.text = "[color=e14b4b]Arte ausente para: %s[/color]" % ", ".join(faltando)
+		return
+	_gerador = GeradorCriaturas.new(_tabelas, _catalogo)
 	_gerar(123456789)
 
 
@@ -120,7 +124,7 @@ func _construir_painel_detalhe() -> Control:
 	moldura.size_flags_horizontal = SIZE_SHRINK_CENTER
 	v.add_child(moldura)
 
-	_detalhe_render = CreatureRenderer.new()
+	_detalhe_render = CreatureSpriteRenderer.new()
 	_detalhe_render.custom_minimum_size = Vector2(260, 260)
 	moldura.add_child(_detalhe_render)
 
@@ -174,7 +178,7 @@ func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
 	])
 
 	var partes := PackedStringArray()
-	for dim in ["paleta", "matiz", "morfologia", "variante"]:
+	for dim in MetricasCoerencia.DIMENSOES_MODA:
 		var d: Dictionary = moda[dim]
 		partes.append("%s %.0f%%[color=6a7080]/%.0f%%[/color]" % [
 			dim, d["obs"] * 100.0, d["teto"] * 100.0
@@ -186,9 +190,10 @@ func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
 	# I(elemento;cor) e a medida que testa a hipotese (RF04). Com n=100 o estimador
 	# e enviesado — o numero aqui e indicativo; use tools/analise.py com n>=5000.
 	var im: Dictionary = m["info_mutua"]["elemento->cor"]
+	var ip: Dictionary = m["info_mutua"]["elemento->porte"]
 	var un: Dictionary = m["unicidade"]
-	linhas.append("[color=b0b6c0]I(elemento;cor) = %.2f bits  ·  explica %.0f%% da incerteza  ·  distintas (k=%d): %d/%d[/color]" % [
-		im["i_bits"], im["u"] * 100.0, un["k"], un["distintas"], m["total"]
+	linhas.append("[color=b0b6c0]I(elemento;cor) = %.2f bits (explica %.0f%%)  ·  I(elemento;porte) = %.2f bits  ·  distintas (k=%d): %d/%d[/color]" % [
+		im["i_bits"], im["u"] * 100.0, ip["i_bits"], un["k"], un["distintas"], m["total"]
 	])
 	_header.text = "\n".join(linhas)
 
@@ -206,7 +211,7 @@ func _card(c: Criatura) -> Control:
 	estilo.bg_color = Color("242833")
 	estilo.set_corner_radius_all(6)
 	estilo.set_content_margin_all(8)
-	estilo.border_color = CreatureRenderer.cor_de_matiz(c.matiz, c.paleta)
+	estilo.border_color = PaletaCriatura.cor_base(c.matiz, c.paleta)
 	estilo.border_width_left = 4
 	panel.add_theme_stylebox_override("panel", estilo)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -216,12 +221,12 @@ func _card(c: Criatura) -> Control:
 	h.add_theme_constant_override("separation", 12)
 	panel.add_child(h)
 
-	var thumb := CreatureRenderer.new()
+	var thumb := CreatureSpriteRenderer.new()
 	thumb.custom_minimum_size = Vector2(72, 72)
 	thumb.size_flags_vertical = SIZE_SHRINK_CENTER
 	thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	h.add_child(thumb)
-	thumb.configurar(c, _library)
+	thumb.configurar(c, _catalogo)
 
 	var texto := RichTextLabel.new()
 	texto.bbcode_enabled = true
@@ -240,15 +245,15 @@ func _on_card_input(ev: InputEvent, c: Criatura) -> void:
 
 
 func _selecionar(c: Criatura) -> void:
-	_detalhe_render.configurar(c, _library)
+	_detalhe_render.configurar(c, _catalogo)
 	_detalhe_texto.text = _descricao_detalhe(c)
 
 
 func _descricao_card(c: Criatura) -> String:
 	var coerente := _coerente(c)
 	var tag := "[color=5bbf5b]● coerente[/color]" if coerente else "[color=8a909c]○ atípica[/color]"
-	return "[b]%s[/b]   %s\n[color=b0b6c0]%s + %s[/color]  ·  paleta [b]%s[/b]  ·  matiz [b]%s[/b]\n%s" % [
-		c.nome(), tag, c.elemento, c.animal_base, c.paleta, c.matiz, _lista_partes(c)
+	return "[b]%s[/b]   %s\n[color=b0b6c0]%s + %s · %s[/color]  ·  paleta [b]%s[/b]  ·  matiz [b]%s[/b]\n%s" % [
+		c.nome(), tag, c.elemento, c.animal_base, c.porte, c.paleta, c.matiz, _lista_partes(c)
 	]
 
 
@@ -256,7 +261,8 @@ func _descricao_detalhe(c: Criatura) -> String:
 	var linhas := PackedStringArray()
 	linhas.append("[b][font_size=18]%s[/font_size][/b]" % c.nome())
 	linhas.append("[color=b0b6c0]Primários:[/color]  elemento [b]%s[/b]  ·  animal [b]%s[/b]" % [c.elemento, c.animal_base])
-	linhas.append("[color=b0b6c0]Silhueta:[/color]  corpo [b]%s[/b]  ·  arquétipo [b]%s[/b]" % [c.body_id, c.arquetipo])
+	linhas.append("[color=b0b6c0]Silhueta:[/color]  porte [b]%s[/b]  ·  arquétipo [b]%s[/b]  [color=6a7080](%s)[/color]" % [
+		c.porte, c.arquetipo, c.body_id])
 	linhas.append("[color=b0b6c0]Cor:[/color]  paleta [b]%s[/b]  ·  matiz [b]%s[/b]" % [c.paleta, c.matiz])
 	linhas.append("[color=b0b6c0]Morfologia (modelo):[/color]")
 	var achou := false
@@ -264,8 +270,11 @@ func _descricao_detalhe(c: Criatura) -> String:
 		if c.morfologia.get(f, false):
 			achou = true
 			var idx: int = c.variantes[f]
-			linhas.append("   • %s: [b]%s[/b] [color=6a7080](modelo %d/%d)[/color]" % [
-				f, _tabelas.nome_modelo(f, idx), idx + 1, _tabelas.num_modelos(f)
+			# Marca o que o gerador decidiu mas a arte ainda nao cobre, para que o
+			# quadro nunca contradiga a ficha sem explicacao.
+			var nota := "" if _catalogo.tem_arte(f) else "  [color=e8a83a](sem arte)[/color]"
+			linhas.append("   • %s: [b]%s[/b] [color=6a7080](modelo %d/%d)[/color]%s" % [
+				f, _tabelas.nome_modelo(f, idx), idx + 1, _tabelas.num_modelos(f), nota
 			])
 	if not achou:
 		linhas.append("   [color=6a7080](nenhuma)[/color]")

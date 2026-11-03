@@ -14,12 +14,15 @@ var modo: String = "condicionado"  # "condicionado" (proposta) ou "independente"
 var elemento: String = ""
 var animal_base: String = ""
 
-# Silhueta: primeiro derivado, condicionado ao animal. Governa onde os apendices
-# nascem e quais deles sao anatomicamente possiveis.
+# Atributos derivados (condicionados aos primarios) — RF04
+
+# Silhueta: primeiro derivado. O porte e condicionado ao elemento; combinado ao
+# animal_base ele resolve o body_id, que indexa a mascara em arte/corpos/ e governa
+# onde os apendices nascem e quais deles sao anatomicamente possiveis.
+var porte: String = ""
 var body_id: String = ""
 var arquetipo: String = ""
 
-# Atributos derivados (condicionados aos primarios) — RF04
 var paleta: String = ""
 var matiz: String = ""
 var morfologia: Dictionary = {}  # presenca: {"garras": true, "escamas": false, ...}
@@ -45,7 +48,10 @@ func nome() -> String:
 ## posicoes com "0"/"-", para que duas criaturas sejam sempre comparaveis posicao a
 ## posicao. A ordem de 'features' deve vir do vocabulario, nunca de um Dictionary.
 func vetor_atributos(features: Array) -> PackedStringArray:
-	var v := PackedStringArray([elemento, animal_base, body_id, paleta, matiz])
+	# Usa 'porte' e nao 'body_id': body_id e a concatenacao de animal_base com porte,
+	# e animal_base ja ocupa sua propria posicao — inclui-lo contaria a mesma
+	# diferenca duas vezes e inflaria artificialmente a distancia de Hamming.
+	var v := PackedStringArray([elemento, animal_base, porte, paleta, matiz])
 	for f in features:
 		var presente: bool = morfologia.get(f, false)
 		v.append("1" if presente else "0")
@@ -63,6 +69,7 @@ func to_dict() -> Dictionary:
 		"nome": nome(),
 		"elemento": elemento,
 		"animal_base": animal_base,
+		"porte": porte,
 		"body_id": body_id,
 		"arquetipo": arquetipo,
 		"paleta": paleta,
@@ -77,5 +84,5 @@ func _to_string() -> String:
 	if feats == "":
 		feats = "(nenhuma)"
 	return "%s | %s/%s [%s] | paleta=%s matiz=%s | %s" % [
-		nome(), elemento, animal_base, body_id, paleta, matiz, feats
+		nome(), elemento, animal_base, porte, paleta, matiz, feats
 	]

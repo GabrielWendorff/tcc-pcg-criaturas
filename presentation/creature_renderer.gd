@@ -34,25 +34,10 @@ func configurar(c: Criatura, lib: CreaturePartLibrary = null) -> void:
 	queue_redraw()
 
 
-# matiz (categorico) -> cor concreta.
-const CORES_MATIZ := {
-	"vermelho": Color("e14b4b"), "laranja": Color("e8863a"), "amarelo": Color("e8cf4b"),
-	"verde": Color("5bbf5b"), "ciano": Color("4bd6d6"), "azul": Color("4b6ee8"),
-	"roxo": Color("9b5be8"), "marrom": Color("8a5a3c"), "cinza": Color("8a909c"),
-	"branco": Color("e8ecf2"),
-}
-
-
-## Cor base do corpo: matiz ajustado pela familia de paleta. Estatico p/ reuso.
+## Mantido como atalho historico; o modelo de cor vive em PaletaCriatura, que e
+## compartilhado com o renderizador de sprites.
 static func cor_de_matiz(matiz: String, paleta: String) -> Color:
-	var c: Color = CORES_MATIZ.get(matiz, Color("8a909c"))
-	match paleta:
-		"vibrante": c.s = clampf(c.s * 1.35, 0.0, 1.0); c.v = clampf(c.v * 1.05, 0.0, 1.0)
-		"neutra":   c.s = c.s * 0.5
-		"terrosa":  c.s = c.s * 0.7; c.v = c.v * 0.82
-		"quente":   c.s = clampf(c.s * 1.15, 0.0, 1.0); c.v = clampf(c.v * 1.03, 0.0, 1.0)
-		"fria":     c.s = clampf(c.s * 1.1, 0.0, 1.0)
-	return c
+	return PaletaCriatura.cor_base(matiz, paleta)
 
 
 func _draw() -> void:

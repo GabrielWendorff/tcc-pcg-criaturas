@@ -29,6 +29,10 @@ const LN2 := 0.6931471805599453
 ## posicoes do vetor de atributos. Parametro exposto — ver avaliar_unicidade.
 const K_UNICIDADE_PADRAO := 3
 
+## Dimensoes derivadas agregadas na eficiencia por moda. Ordem fixa: e a mesma
+## usada nos relatorios (test_gerador, viewer).
+const DIMENSOES_MODA := ["porte", "paleta", "matiz", "morfologia", "variante"]
+
 
 ## Avalia um bestiario. Retorno:
 ## {
@@ -57,6 +61,8 @@ static func avaliar(bestiario: Array, tabelas: TabelasProbabilidade,
 static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
 		features: Array) -> Dictionary:
 	var total: int = bestiario.size()
+	var portes: Array = tabelas.portes()
+	var porte_ok: int = 0
 	var paleta_ok: int = 0
 	var matiz_ok: int = 0
 	var feature_ok: Dictionary = {}
@@ -66,6 +72,8 @@ static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
 	var variante_total: int = 0
 
 	for c in bestiario:
+		if c.porte == portes[_indice_moda(tabelas.vies_porte(c.elemento))]:
+			porte_ok += 1
 		if c.paleta == _moda(tabelas.dist_paleta(c.elemento)):
 			paleta_ok += 1
 		if c.matiz == _moda(tabelas.dist_matiz(c.elemento)):
@@ -89,6 +97,7 @@ static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
 		soma_morf += pct
 
 	var r: Dictionary = {
+		"porte": _dimensao(float(porte_ok) / total, tetos["porte"]),
 		"paleta": _dimensao(float(paleta_ok) / total, tetos["paleta"]),
 		"matiz": _dimensao(float(matiz_ok) / total, tetos["matiz"]),
 		"morfologia": _dimensao(soma_morf / features.size(), tetos["morfologia"]),
@@ -100,9 +109,9 @@ static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
 	# Eficiencia: quanto o gerador entrega do maximo que as tabelas permitem.
 	# ~100% significa amostragem fiel as condicionais; NAO significa "tudo igual".
 	var soma_razao: float = 0.0
-	for dim in ["paleta", "matiz", "morfologia", "variante"]:
+	for dim in DIMENSOES_MODA:
 		soma_razao += r[dim]["razao"]
-	r["eficiencia_pct"] = soma_razao / 4.0
+	r["eficiencia_pct"] = soma_razao / DIMENSOES_MODA.size()
 	return r
 
 
@@ -119,9 +128,11 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 	var elementos: Array = tabelas.elementos()
 	var animais: Array = tabelas.animais()
 
+	var t_porte: float = 0.0
 	var t_paleta: float = 0.0
 	var t_matiz: float = 0.0
 	for e in elementos:
+		t_porte += float(pe[e]) * _maior_peso_relativo(tabelas.vies_porte(e))
 		t_paleta += float(pe[e]) * _maior_prob(tabelas.dist_paleta(e))
 		t_matiz += float(pe[e]) * _maior_prob(tabelas.dist_matiz(e))
 
@@ -150,6 +161,7 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 		t_morf += acc
 
 	return {
+		"porte": t_porte,
 		"paleta": t_paleta,
 		"matiz": t_matiz,
 		"morfologia": t_morf / features.size(),
@@ -169,6 +181,7 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 ## que e O(n^2). Quem so precisa testar a hipotese chama esta funcao direto.
 static func avaliar_info_mutua(bestiario: Array, features: Array) -> Dictionary:
 	var r: Dictionary = {}
+	r["elemento->porte"] = _info_mutua(_pares(bestiario, "elemento", "porte"))
 	r["elemento->paleta"] = _info_mutua(_pares(bestiario, "elemento", "paleta"))
 	r["elemento->matiz"] = _info_mutua(_pares(bestiario, "elemento", "matiz"))
 	r["elemento->cor"] = _info_mutua(_pares_cor(bestiario))
@@ -355,6 +368,17 @@ static func _moda(dist: Dictionary) -> String:
 			melhor_p = dist[valor]
 			melhor = valor
 	return melhor
+
+
+## Maior peso de um vetor nao normalizado, como fracao do total — o equivalente de
+## _maior_prob para as tabelas de vies (porte, variantes).
+static func _maior_peso_relativo(pesos: Array) -> float:
+	var soma: float = 0.0
+	var maior: float = 0.0
+	for w in pesos:
+		soma += float(w)
+		maior = maxf(maior, float(w))
+	return (maior / soma) if soma > 0.0 else 0.0
 
 
 static func _maior_prob(dist: Dictionary) -> float:

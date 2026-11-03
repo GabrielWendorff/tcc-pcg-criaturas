@@ -27,6 +27,7 @@ import sys
 from collections import Counter
 
 PARES_PRINCIPAIS = [
+    "elemento->porte",
     "elemento->paleta",
     "elemento->matiz",
     "elemento->cor",
@@ -60,7 +61,7 @@ def tabela_moda(dados):
     print("    O teto e o maximo que as condicionais vigentes permitem, nao 100%.")
     print("    A eficiencia (obs/teto) responde: o gerador amostra fielmente?")
     print(f"    {'dimensao':<12}{'obs':>9}{'teto':>9}{'efic.':>9}{'baseline':>11}")
-    for dim in ("paleta", "matiz", "morfologia", "variante"):
+    for dim in ("porte", "paleta", "matiz", "morfologia", "variante"):
         d = m[dim]
         print(f"    {dim:<12}{d['obs']:>8.1%}{d['teto']:>9.1%}"
               f"{d['razao']:>9.1%}{b[dim]['obs']:>11.1%}")
@@ -175,13 +176,14 @@ def exportar_csv(dados, destino, nome_base):
     with open(caminho, "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
         features = dados["_meta"]["vocabulario"]["derivados"]["morfologia"]
-        w.writerow(["modo", "id", "elemento", "animal_base", "paleta", "matiz"]
+        w.writerow(["modo", "id", "elemento", "animal_base", "porte", "body_id",
+                    "paleta", "matiz"]
                    + features + [f"var_{f}" for f in features])
         for modo in ("condicionado", "independente"):
             for c in dados[modo]["criaturas"]:
                 w.writerow(
                     [modo, c["id"], c["elemento"], c["animal_base"],
-                     c["paleta"], c["matiz"]]
+                     c["porte"], c["body_id"], c["paleta"], c["matiz"]]
                     + [int(bool(c["morfologia"].get(f))) for f in features]
                     + [c["variantes"].get(f, "") for f in features]
                 )

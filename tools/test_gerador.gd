@@ -28,6 +28,7 @@ const RAZAO_MINIMA_IM := 10.0
 
 func _initialize() -> void:
 	var falhas: int = 0
+	print("== Gerador de Criaturas — teste headless ==")
 
 	var tabelas := TabelasProbabilidade.carregar()
 	if tabelas == null:
@@ -35,13 +36,26 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	var gerador := GeradorCriaturas.new(tabelas)
+	# --- Arte: toda combinacao animal x porte precisa de mascara ---
+	var catalogo := CatalogoCorpos.carregar(tabelas)
+	if catalogo == null:
+		print("FALHOU: nao foi possivel carregar o catalogo de arte de res://arte/.")
+		quit(1)
+		return
+	var faltando := catalogo.validar(tabelas)
+	if faltando.is_empty():
+		print("Cobertura da arte: OK (%d corpos x %d portes)" % [
+			tabelas.animais().size(), tabelas.portes().size()])
+	else:
+		print("Cobertura da arte: FALHOU — sem mascara para %s" % ", ".join(faltando))
+		falhas += 1
+
+	var gerador := GeradorCriaturas.new(tabelas, catalogo)
 
 	# --- Desempenho (meta: bestiario completo < 2s) ---
 	var t0 := Time.get_ticks_usec()
 	var best_a := gerador.gerar_bestiario(SEED_A, N)
 	var dt_ms := (Time.get_ticks_usec() - t0) / 1000.0
-	print("== Gerador de Criaturas — teste headless ==")
 	print("Geracao de %d criaturas: %.2f ms" % [N, dt_ms])
 	if dt_ms >= 2000.0:
 		print("  ! ACIMA da meta de 2000 ms")
@@ -117,7 +131,8 @@ func _testar_hipotese(gerador: GeradorCriaturas, tabelas: TabelasProbabilidade) 
 	print("    estimativa com n=%d (%.0f ms); exige I_cond >= %.0fx I_base" % [
 		N_ESTIMATIVA, dt_ms, RAZAO_MINIMA_IM])
 	var falhas: int = 0
-	for par in ["elemento->paleta", "elemento->matiz", "elemento->cor", "animal->morfologia"]:
+	for par in ["elemento->porte", "elemento->paleta", "elemento->matiz",
+			"elemento->cor", "animal->morfologia"]:
 		var ic: float = mi_c[par]["i_bits"]
 		var ib: float = mi_b[par]["i_bits"]
 		var razao: float = ic / ib if ib > 1e-9 else INF
@@ -137,7 +152,7 @@ func _relatorio(m: Dictionary, mb: Dictionary) -> void:
 	print("\n[1] COERENCIA POR MODA — observado / teto teorico das tabelas")
 	print("    O teto NAO e 100%: e o maximo que as condicionais vigentes permitem.")
 	print("    %-12s %8s %8s %8s   %8s" % ["dimensao", "obs", "teto", "efic.", "baseline"])
-	for dim in ["paleta", "matiz", "morfologia", "variante"]:
+	for dim in MetricasCoerencia.DIMENSOES_MODA:
 		var d: Dictionary = m["moda"][dim]
 		print("    %-12s %7.1f%% %7.1f%% %7.1f%%   %6.1f%%" % [
 			dim, d["obs"] * 100.0, d["teto"] * 100.0, d["razao"] * 100.0,
@@ -180,6 +195,8 @@ func _bestiarios_iguais(a: Array, b: Array) -> bool:
 		var x: Criatura = a[i]
 		var y: Criatura = b[i]
 		if x.elemento != y.elemento or x.animal_base != y.animal_base:
+			return false
+		if x.porte != y.porte or x.body_id != y.body_id:
 			return false
 		if x.paleta != y.paleta or x.matiz != y.matiz:
 			return false
