@@ -1,0 +1,89 @@
+{
+ "_meta": {
+  "descricao": "Pescador da ribeira — quem ensina a pescar. Na PRIMEIRA conversa (sem a bandeira tutorial_pesca_concluido) a regra de 'inicios' abre em 'licao', que pede o servico {tipo: tutorial, tutorial: pesca}: a cena entrega o pedido ao GerenciadorTutorial, que conduz a licao com as falas de anselmo_tutorial.json e os passos de autoral/tutoriais/pesca.json. Concluida ou pulada a licao, a conversa volta a abrir em 'raiz', e 'assuntos' oferece repeti-la. 'pescar_agora' pede {servico: pesca}, que a cena responde com a dica de como pescar.",
+  "aviso": "Conteudo AUTORAL (Camada 1). A bandeira de 'inicios' e a mesma 'bandeira_concluido' de autoral/tutoriais/pesca.json — tools/test_tutorial.gd confere as duas juntas."
+ },
+ "id": "anselmo",
+ "nome": "Anselmo",
+ "inicio": "raiz",
+ "inicios": [
+  {"se": {"nao": {"bandeira": "tutorial_pesca_concluido"}}, "no": "licao"}
+ ],
+ "nos": {
+  "licao": {
+   "falas": ["Você aí, longe da beira. Ninguém passa pela minha ribeira sem aprender a pescar."],
+   "variantes": [
+    {
+     "se": {"viu": ["anselmo", "licao"]},
+     "falas": ["Pescar se aprende em ordem. Vamos de onde a gente parou."]
+    }
+   ],
+   "efeitos": {
+    "definir": {"conheceu_anselmo": true},
+    "servico": {"tipo": "tutorial", "tutorial": "pesca"}
+   },
+   "fim": true
+  },
+  "raiz": {
+   "falas": ["Cuidado com a beira. O barranco aqui cede mais fácil do que parece."],
+   "variantes": [
+    {
+     "se": {"falou_com": "anselmo"},
+     "falas": ["Voltou. O rio faz isso com as pessoas."]
+    }
+   ],
+   "efeitos": {"definir": {"conheceu_anselmo": true}},
+   "seguinte": "assuntos"
+  },
+  "assuntos": {
+   "pergunta": "O que você quer perguntar?",
+   "escolhas": [
+    {"texto": "Me ensina a pescar de novo?", "destino": "repetir_licao",
+     "se": {"bandeira": "tutorial_pesca_concluido"}},
+    {"texto": "Sobre o rio", "destino": "rio"},
+    {"texto": "Sobre a pesca", "destino": "pesca"},
+    {"texto": "Sobre esta cabana", "destino": "cabana"},
+    {"texto": "Posso pescar agora?", "destino": "pescar_agora",
+     "se": {"bandeira": "sabe_da_pesca"}},
+    {"texto": "Vou seguir.", "destino": "despedida"}
+   ]
+  },
+  "repetir_licao": {
+   "falas": ["De novo? Bom sinal. Quem pede para repetir é quem prestou atenção."],
+   "efeitos": {"servico": {"tipo": "tutorial", "tutorial": "pesca"}},
+   "fim": true
+  },
+  "rio": {
+   "falas": [
+    "Desce do lago da vila e some no vale. A mesma água, o dia inteiro, e nunca a mesma.",
+    "Do lado de lá ele passa raspando na fábrica. Ali a água muda de cor, e não é por causa do céu."
+   ],
+   "efeitos": {"definir": {"ouviu_sobre_rio": true}},
+   "seguinte": "assuntos"
+  },
+  "pesca": {
+   "falas": [
+    "O que mora debaixo d'água não aparece no mato. Você só vê a sombra, e é a sombra que escolhe se morde.",
+    "Pescar não é jogar linha n'água. É saber a hora, e a hora não se aprende com pressa."
+   ],
+   "efeitos": {"definir": {"sabe_da_pesca": true}},
+   "seguinte": "assuntos"
+  },
+  "cabana": {
+   "falas": [
+    "Era do meu pai. O varal lá fora ainda é o mesmo, a rede é que já foi remendada três vezes.",
+    "Se um dia você vir o barco virado na areia, é porque eu estou do outro lado. Não mexa nele."
+   ],
+   "seguinte": "assuntos"
+  },
+  "pescar_agora": {
+   "falas": ["Pode. Vara na mão, pé firme na beira e paciência. O resto o rio ensina."],
+   "efeitos": {"servico": {"tipo": "pesca"}},
+   "seguinte": "assuntos"
+  },
+  "despedida": {
+   "falas": ["Vá. E pise pelo caminho de pedra, que o barranco cede."],
+   "fim": true
+  }
+ }
+}

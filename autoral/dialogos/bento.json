@@ -1,0 +1,64 @@
+{
+ "_meta": {
+  "descricao": "Padeiro do distrito — padaria e comida local. A LOJA NAO EXISTE: {servico: loja} e o gancho.",
+  "aviso": "Conteudo AUTORAL (Camada 1)."
+ },
+ "id": "bento",
+ "nome": "Bento",
+ "inicio": "raiz",
+ "nos": {
+  "raiz": {
+   "falas": ["Entra, entra. O forno está quente e a rua está fria."],
+   "variantes": [
+    {
+     "se": {"falou_com": "bento"},
+     "falas": ["De novo o cheiro te trouxe, foi?"]
+    }
+   ],
+   "efeitos": {"definir": {"conheceu_bento": true}},
+   "seguinte": "assuntos"
+  },
+  "assuntos": {
+   "pergunta": "O que você quer perguntar?",
+   "escolhas": [
+    {"texto": "Sobre a padaria", "destino": "padaria"},
+    {"texto": "Sobre a comida daqui", "destino": "comida"},
+    {"texto": "Sobre o distrito", "destino": "distrito"},
+    {"texto": "Ver o que está à venda", "destino": "loja"},
+    {"texto": "Até mais.", "destino": "despedida"}
+   ]
+  },
+  "padaria": {
+   "falas": [
+    "Meu avô abriu no ano em que a fábrica abriu. Ele dizia que padaria vive de turno, não de freguês.",
+    "A fábrica fechou e eu continuo assando. Alguém tem que dar cheiro bom para esta rua."
+   ],
+   "efeitos": {"definir": {"conhece_a_padaria": true}},
+   "seguinte": "assuntos"
+  },
+  "comida": {
+   "falas": [
+    "Pão de milho da fazenda da Dulce, peixe defumado que o Anselmo traz quando o rio deixa.",
+    "Nada aqui vem de longe. É por isso que é bom."
+   ],
+   "seguinte": "assuntos"
+  },
+  "distrito": {
+   "falas": [
+    "Rua estreita, telhado de zinco e ferrugem. Não se engane: já teve fila nesta calçada.",
+    "Fale com o Otávio, ali fora. Ele viu a coisa toda de dentro."
+   ],
+   "efeitos": {"definir": {"ouviu_sobre_fabrica": true}},
+   "seguinte": "assuntos"
+  },
+  "loja": {
+   "falas": ["Hoje não tem o que vender: a prateleira está vazia e a próxima fornada ainda é madrugada."],
+   "efeitos": {"servico": {"tipo": "loja", "loja": "padaria"}},
+   "seguinte": "assuntos"
+  },
+  "despedida": {
+   "falas": ["Leve o cheiro, que é de graça."],
+   "fim": true
+  }
+ }
+}

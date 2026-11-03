@@ -1,0 +1,63 @@
+{
+ "_meta": {
+  "descricao": "Fazendeira — lavoura, mantimentos e o campo. Loja e gancho, nao implementacao.",
+  "aviso": "Conteudo AUTORAL (Camada 1)."
+ },
+ "id": "dulce",
+ "nome": "Dulce",
+ "inicio": "raiz",
+ "nos": {
+  "raiz": {
+   "falas": ["Se veio pisar na lavoura, ande pela carreira. Se veio conversar, pode chegar."],
+   "variantes": [
+    {
+     "se": {"falou_com": "dulce"},
+     "falas": ["Voltou na hora certa: acabei de tirar a mão da terra."]
+    }
+   ],
+   "efeitos": {"definir": {"conheceu_dulce": true}},
+   "seguinte": "assuntos"
+  },
+  "assuntos": {
+   "pergunta": "O que você quer perguntar?",
+   "escolhas": [
+    {"texto": "Sobre a fazenda", "destino": "fazenda"},
+    {"texto": "Sobre a plantação", "destino": "plantacao"},
+    {"texto": "Sobre o campo em volta", "destino": "campo"},
+    {"texto": "Quero comprar mantimentos", "destino": "loja"},
+    {"texto": "Bom trabalho.", "destino": "despedida"}
+   ]
+  },
+  "fazenda": {
+   "falas": [
+    "Três talhões, um celeiro e um espantalho que só assusta a mim.",
+    "A vila come daqui. Quando a chuva atrasa, todo mundo descobre isso ao mesmo tempo."
+   ],
+   "efeitos": {"definir": {"conhece_a_fazenda": true}},
+   "seguinte": "assuntos"
+  },
+  "plantacao": {
+   "falas": [
+    "Milho na frente, raiz atrás, e a horta perto de casa porque horta precisa de olho.",
+    "Não pise entre as carreiras: o que parece atalho aí é o mês inteiro de alguém."
+   ],
+   "seguinte": "assuntos"
+  },
+  "campo": {
+   "falas": [
+    "Daqui até a estrada é tudo pasto e mato alto. De tardezinha aparece bicho na cerca.",
+    "Se for atrás deles, vá com o que precisa. Voltar correndo estraga a cerca e o bicho."
+   ],
+   "seguinte": "assuntos"
+  },
+  "loja": {
+   "falas": ["Por enquanto é só o que está no pé. Quando a colheita entrar, a gente conversa de preço."],
+   "efeitos": {"servico": {"tipo": "loja", "loja": "fazenda"}},
+   "seguinte": "assuntos"
+  },
+  "despedida": {
+   "falas": ["Feche a porteira ao sair, por favor."],
+   "fim": true
+  }
+ }
+}
