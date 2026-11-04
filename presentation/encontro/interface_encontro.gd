@@ -1,8 +1,9 @@
 class_name InterfaceEncontro
 extends CanvasLayer
 
-## Tela do encontro: a ficha da criatura de um lado, o menu de acoes do outro, a
-## roda de selecao por cima e a animacao do lance no meio.
+## Tela da batalha: a ficha do adversario de um lado; do outro, o cartao da criatura
+## do jogador, o menu de batalha e a mensagem do turno. A roda de selecao fica por
+## cima e a animacao do lance no meio. Serve ao encontro selvagem e ao duelo.
 ##
 ## PROFUNDIDADE — tres planos, e e o que organiza a leitura:
 ##   fundo      o mundo, escurecido pela transicao e fechado pela VINHETA
@@ -20,24 +21,33 @@ extends CanvasLayer
 ## do andar — mais ui_accept/ui_cancel, nativas da engine.
 ##
 ## Esta classe nao decide NADA de mecanica: nao sorteia, nao consome item, nao
-## calcula chance. Toda a regra vive em presentation/encontro/regras/.
+## calcula chance nem dano. A regra vive em presentation/encontro/regras/ e em
+## presentation/batalha/regras/.
 
-enum Acao { ABANDONAR, ISCA, ATACAR, CAPTURAR }
+enum Acao { GOLPES, CAPTURAR, ISCA, BOLSA, TROCAR, FUGIR }
 
 signal acao_escolhida(acao: Acao)
+## Escolha numa lista aberta por abrir_lista (golpes, itens, trocas). `valor` e o que
+## o gerenciador pos no item; esta classe nao o interpreta.
+signal lista_escolhida(valor: Variant)
+signal lista_cancelada()
 signal item_escolhido(item: ItemCaptura)
 signal roda_cancelada()
 
-## Opcoes do menu, na ordem em que aparecem. A ordem e deliberada: a saida fica no
-## topo (e onde o olho procura por ela) e a acao mais provavel, embaixo, onde a
-## selecao inicial ja esta. "Oferecer isca" e a quarta acao alem das tres do
-## roteiro: a camada de isca precisa de um gesto proprio, e cobrar uma isca por
-## arremesso a tornaria cara demais para ser usada.
-const OPCOES := [
-	{"acao": Acao.ABANDONAR, "rotulo": "ABANDONAR", "dica": "sair do encontro"},
-	{"acao": Acao.ISCA, "rotulo": "OFERECER ISCA", "dica": "atrai pelo animal base"},
-	{"acao": Acao.ATACAR, "rotulo": "ATACAR", "dica": "enfraquece, mas arrisca a fuga"},
-	{"acao": Acao.CAPTURAR, "rotulo": "TENTAR CAPTURAR", "dica": "escolhe o dispositivo"},
+## Opcoes do menu, na ordem em que aparecem. Golpes em cima, onde a selecao inicial ja
+## esta: e a acao mais comum, e fugir fica por ultimo para nao ser apertado sem querer.
+const OPCOES_SELVAGEM := [
+	{"acao": Acao.GOLPES, "rotulo": "GOLPES", "dica": "enfraquece, mas se zerar ela foge"},
+	{"acao": Acao.CAPTURAR, "rotulo": "CAPTURAR", "dica": "escolhe o dispositivo; falhar gasta o turno"},
+	{"acao": Acao.ISCA, "rotulo": "OFERECER ISCA", "dica": "atrai pelo animal base; gasta o turno"},
+	{"acao": Acao.BOLSA, "rotulo": "BOLSA", "dica": "poções; gasta o turno"},
+	{"acao": Acao.TROCAR, "rotulo": "TROCAR", "dica": "outra criatura; gasta o turno"},
+	{"acao": Acao.FUGIR, "rotulo": "FUGIR", "dica": "depende da velocidade"},
+]
+const OPCOES_DUELO := [
+	{"acao": Acao.GOLPES, "rotulo": "GOLPES", "dica": "o que o corpo dela sabe fazer"},
+	{"acao": Acao.BOLSA, "rotulo": "BOLSA", "dica": "poções; gasta o turno"},
+	{"acao": Acao.TROCAR, "rotulo": "TROCAR", "dica": "outra criatura; gasta o turno"},
 ]
 
 const CAMINHO_VINHETA := "res://arte/ui/vinheta.png"
@@ -45,6 +55,10 @@ const CAMINHO_VINHETA := "res://arte/ui/vinheta.png"
 const LARGURA_FICHA := 306.0
 const TAMANHO_RETRATO := 188.0
 const LARGURA_MENU := 348.0
+const TAMANHO_RETRATO_JOGADOR := 96.0
+## Altura reservada ao menu, para 6 opcoes. O menu muda de tamanho entre a raiz, os
+## golpes e as trocas; sem reservar, a tela inteira se recentra e a ficha pula.
+const ALTURA_MENU := 276.0
 
 ## Quanto o plano do meio recua quando a roda abre.
 const RECUO_MEIO := 0.34
@@ -69,12 +83,25 @@ var _rotulo_vigor: Label
 var _menu: VBoxContainer
 var _mensagem: RichTextLabel
 var _roda: RodaCaptura
+var _cartao_jogador: PanelContainer
+var _render_jogador: CreatureSpriteRenderer
+var _nome_jogador: Label
+var _medidor_jogador: MedidorChance
+var _vida_jogador: Label
+var _catalogo: CatalogoCorpos
+var _tabelas_captura: TabelasCaptura
 
 ## Dispositivo desenhado em voo/pousado no quadro. Vive entre animar_lancamento e
 ## o fim do encontro (ou o lance seguinte).
 var _icone_em_voo: Control
 
 var _opcoes: Array[Control] = []
+## O que o menu mostra agora: {rotulo, dica, acao} na raiz, {rotulo, dica, valor} numa lista.
+var _itens_menu: Array = []
+var _opcoes_raiz: Array = OPCOES_SELVAGEM
+var _em_lista: bool = false
+var _lista_cancelavel: bool = true
+var _modo_captura: bool = true
 var _indice: int = 0
 var _menu_ativo: bool = false
 
@@ -179,7 +206,7 @@ func _montar_vigor() -> Control:
 	caixa.add_theme_constant_override("separation", 2)
 	caixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	_rotulo_vigor = TemaEncontro.rotulo("VIGOR", TemaEncontro.PERG_E)
+	_rotulo_vigor = TemaEncontro.rotulo("VIDA", TemaEncontro.PERG_E)
 	caixa.add_child(_rotulo_vigor)
 
 	_medidor_vigor = MedidorChance.new(12, true)
@@ -195,36 +222,13 @@ func _montar_coluna_acoes() -> Control:
 	col.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	col.add_child(_montar_cartao_jogador())
+
 	_menu = VBoxContainer.new()
 	_menu.add_theme_constant_override("separation", 6)
 	_menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_menu.custom_minimum_size = Vector2(0, ALTURA_MENU)
 	col.add_child(_menu)
-
-	for i in OPCOES.size():
-		var painel := PanelContainer.new()
-		painel.add_theme_stylebox_override("panel", TemaEncontro.moldura("cartao"))
-		painel.mouse_filter = Control.MOUSE_FILTER_STOP
-		painel.gui_input.connect(_on_opcao_input.bind(i))
-		painel.mouse_entered.connect(func(): _selecionar(i))
-
-		var linha := VBoxContainer.new()
-		# Nomeado: sem nome explicito o no recebe "@VBoxContainer@NNN" e o
-		# get_node("Linhas/Nome") de _atualizar_menu nao acha nada.
-		linha.name = "Linhas"
-		linha.add_theme_constant_override("separation", 1)
-		linha.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		painel.add_child(linha)
-
-		var nome := TemaEncontro.rotulo("", TemaEncontro.PERG_C)
-		nome.name = "Nome"
-		linha.add_child(nome)
-
-		var dica := TemaEncontro.rotulo(String(OPCOES[i]["dica"]), TemaEncontro.TEXTO_FRACO)
-		dica.name = "Dica"
-		linha.add_child(dica)
-
-		_menu.add_child(painel)
-		_opcoes.append(painel)
 
 	# Caixa de mensagem em PERGAMINHO: e a voz do jogo, e precisa se distinguir
 	# das acoes (madeira escura) sem competir com a criatura (moldura dourada).
@@ -241,11 +245,49 @@ func _montar_coluna_acoes() -> Control:
 	return col
 
 
+## Cartao da criatura do jogador: retrato, nome e vida. Fica em cima do menu para a
+## vida estar a vista na hora de decidir.
+func _montar_cartao_jogador() -> Control:
+	_cartao_jogador = PanelContainer.new()
+	_cartao_jogador.name = "CartaoJogador"
+	_cartao_jogador.add_theme_stylebox_override("panel", TemaEncontro.moldura("painel"))
+	_cartao_jogador.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cartao_jogador.add_child(h)
+
+	_render_jogador = CreatureSpriteRenderer.new()
+	_render_jogador.custom_minimum_size = Vector2(TAMANHO_RETRATO_JOGADOR, TAMANHO_RETRATO_JOGADOR)
+	_render_jogador.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(_render_jogador)
+
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 3)
+	v.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(v)
+
+	_nome_jogador = TemaEncontro.rotulo("", TemaEncontro.OURO_C)
+	v.add_child(_nome_jogador)
+	_medidor_jogador = MedidorChance.new(16, false)
+	v.add_child(_medidor_jogador)
+	_vida_jogador = TemaEncontro.rotulo("", TemaEncontro.PERG_E)
+	v.add_child(_vida_jogador)
+	return _cartao_jogador
+
+
 # --- abertura / fechamento --------------------------------------------------
 
 func abrir(criatura: Criatura, catalogo: CatalogoCorpos, tabelas: TabelasCaptura,
-		duracao: float) -> void:
+		duracao: float, modo_captura: bool = true,
+		texto_abertura: String = "Uma criatura selvagem apareceu!") -> void:
 	_criatura = criatura
+	_catalogo = catalogo
+	_tabelas_captura = tabelas
+	_modo_captura = modo_captura
+	_opcoes_raiz = OPCOES_SELVAGEM if modo_captura else OPCOES_DUELO
 	# Reposiciona o retrato ANTES de configurar: uma captura bem-sucedida termina
 	# com o renderizador encolhido e transparente (a criatura entrou no
 	# dispositivo), e sem este reset o encontro seguinte abriria com o quadro vazio.
@@ -254,9 +296,8 @@ func abrir(criatura: Criatura, catalogo: CatalogoCorpos, tabelas: TabelasCaptura
 	_limpar_icone()
 	_render.configurar(criatura, catalogo)
 	_preencher_ficha(criatura, tabelas)
-	_indice = OPCOES.size() - 1     # "Tentar capturar": a acao esperada por padrao
-	_atualizar_menu()
-	mensagem("Uma criatura selvagem apareceu!", TemaEncontro.TINTA)
+	_mostrar_raiz()
+	mensagem(texto_abertura, TemaEncontro.TINTA)
 	visible = true
 	_meio.modulate = Color.WHITE
 	_raiz.modulate.a = 0.0
@@ -316,7 +357,36 @@ func _preencher_ficha(c: Criatura, tabelas: TabelasCaptura) -> void:
 	_atributos.text = "[color=%s]COR[/color]  paleta %s · matiz %s\n[color=%s]APÊNDICES[/color]  %s" % [
 		TemaEncontro.PERG_E.to_html(false), c.paleta, c.matiz,
 		TemaEncontro.PERG_E.to_html(false), _lista_de_tracos(c)]
-	_preencher_perfil(c, tabelas)
+	if _modo_captura:
+		_preencher_perfil(c, tabelas)
+	else:
+		_perfil.text = ""
+
+
+## Troca quem esta na ficha: o proximo do guardiao entrou em campo.
+func trocar_adversario(c: Combatente) -> void:
+	_criatura = c.criatura
+	_render.configurar(c.criatura, _catalogo)
+	_preencher_ficha(c.criatura, _tabelas_captura)
+	definir_stats(c.ficha)
+
+
+## Acrescenta os stats derivados a ficha do adversario: o que o corpo dele faz em
+## batalha, ao lado do que ele tem.
+func definir_stats(f: FichaCombate) -> void:
+	_atributos.text += "\n[color=%s]%s[/color]" % [TemaEncontro.PERG_E.to_html(false),
+			TextoBatalha.stats(f).replace("\n", "  ")]
+
+
+func mostrar_jogador(c: Combatente) -> void:
+	_render_jogador.configurar(c.criatura, _catalogo)
+	_nome_jogador.text = c.nome().to_upper()
+	atualizar_jogador(c)
+
+
+func atualizar_jogador(c: Combatente) -> void:
+	_medidor_jogador.valor = c.fracao()
+	_vida_jogador.text = "VIDA %d/%d" % [c.vida, c.ficha.vida]
 
 
 func _lista_de_tracos(c: Criatura) -> String:
@@ -350,10 +420,68 @@ func _preencher_perfil(c: Criatura, tabelas: TabelasCaptura) -> void:
 func atualizar_vigor(fracao: float, rotulo: String) -> void:
 	var f: float = clampf(fracao, 0.0, 1.0)
 	_medidor_vigor.valor = f
-	_rotulo_vigor.text = "VIGOR  ·  %s" % rotulo.to_upper()
+	_rotulo_vigor.text = "VIDA  ·  %s" % rotulo.to_upper()
 
 
 # --- menu -------------------------------------------------------------------
+
+## Refaz os cartoes para a lista dada. O menu muda de tamanho entre a raiz e os golpes,
+## entao os cartoes nao sao reaproveitados.
+func _construir_menu(itens: Array) -> void:
+	for painel: Control in _opcoes:
+		_menu.remove_child(painel)
+		painel.queue_free()
+	_opcoes.clear()
+	_itens_menu = itens
+	for i in itens.size():
+		var painel := PanelContainer.new()
+		painel.add_theme_stylebox_override("panel", TemaEncontro.moldura("cartao"))
+		painel.mouse_filter = Control.MOUSE_FILTER_STOP
+		painel.gui_input.connect(_on_opcao_input.bind(i))
+		painel.mouse_entered.connect(func(): _selecionar(i))
+
+		var linha := VBoxContainer.new()
+		# Nomeado: sem nome explicito o no recebe "@VBoxContainer@NNN" e o
+		# get_node("Linhas/Nome") de _atualizar_menu nao acha nada.
+		linha.name = "Linhas"
+		linha.add_theme_constant_override("separation", 1)
+		linha.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		painel.add_child(linha)
+
+		var nome := TemaEncontro.rotulo("", TemaEncontro.PERG_C)
+		nome.name = "Nome"
+		linha.add_child(nome)
+
+		var dica := TemaEncontro.rotulo(String(itens[i].get("dica", "")), TemaEncontro.TEXTO_FRACO)
+		dica.name = "Dica"
+		linha.add_child(dica)
+
+		_menu.add_child(painel)
+		_opcoes.append(painel)
+
+
+func _mostrar_raiz() -> void:
+	_em_lista = false
+	_construir_menu(_opcoes_raiz)
+	_indice = 0
+	_atualizar_menu()
+
+
+## Volta ao menu de batalha e devolve a entrada ao jogador.
+func voltar_ao_menu() -> void:
+	_mostrar_raiz()
+	menu_ativo(true)
+
+
+## Mostra uma lista no lugar do menu. `itens`: [{rotulo, dica, valor}]. Sem
+## `cancelavel`, o ESC nao sai dela: e a troca obrigatoria.
+func abrir_lista(itens: Array, cancelavel: bool = true) -> void:
+	_em_lista = true
+	_lista_cancelavel = cancelavel
+	_construir_menu(itens)
+	_indice = 0
+	menu_ativo(true)
+
 
 func _atualizar_menu() -> void:
 	for i in _opcoes.size():
@@ -362,7 +490,7 @@ func _atualizar_menu() -> void:
 				TemaEncontro.moldura("cartao_selecionado" if selecionada else "cartao"))
 		var nome: Label = _opcoes[i].get_node("Linhas/Nome")
 		var dica: Label = _opcoes[i].get_node("Linhas/Dica")
-		var op: Dictionary = OPCOES[i]
+		var op: Dictionary = _itens_menu[i]
 		nome.text = ("▶ " if selecionada else "   ") + String(op["rotulo"])
 		var cor: Color = TemaEncontro.TEXTO_FRACO
 		if _menu_ativo:
@@ -398,9 +526,12 @@ func _unhandled_input(evento: InputEvent) -> void:
 		_confirmar()
 	elif evento.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
-		# Esc no menu e abandonar: e a saida que o jogador procura primeiro.
-		_menu_ativo = false
-		acao_escolhida.emit(Acao.ABANDONAR)
+		# ESC sai da lista. No menu de batalha nao faz nada: fugir custa o turno e
+		# pode falhar, e nao e algo para acontecer por uma tecla de reflexo.
+		if _em_lista and _lista_cancelavel:
+			_mostrar_raiz()
+			menu_ativo(true)
+			lista_cancelada.emit()
 	elif evento.is_action_pressed("mover_baixo") or evento.is_action_pressed("mover_direita"):
 		get_viewport().set_input_as_handled()
 		_selecionar(posmod(_indice + 1, _opcoes.size()))
@@ -414,7 +545,10 @@ func _confirmar() -> void:
 		return
 	_menu_ativo = false      # trava ate o gerenciador devolver o controle
 	_atualizar_menu()
-	acao_escolhida.emit(OPCOES[_indice]["acao"])
+	if _em_lista:
+		lista_escolhida.emit(_itens_menu[_indice]["valor"])
+	else:
+		acao_escolhida.emit(_itens_menu[_indice]["acao"])
 
 
 # --- roda -------------------------------------------------------------------
@@ -553,12 +687,13 @@ func animar_reacao(positiva: bool) -> void:
 	await t.finished
 
 
-## Sacode a ficha da criatura — resposta visivel do golpe, sem sistema de batalha.
-func animar_ataque(intensidade: float) -> void:
-	var origem: Vector2 = _ficha.position
+## Sacode quem levou o golpe: a ficha do adversario ou o cartao do jogador.
+func animar_ataque(intensidade: float, no_jogador: bool = false) -> void:
+	var alvo: Control = _cartao_jogador if no_jogador else _ficha
+	var origem: Vector2 = alvo.position
 	var t := create_tween()
 	for i in 3:
 		var lado: float = intensidade if i % 2 == 0 else -intensidade
-		t.tween_property(_ficha, "position", origem + Vector2(lado, 0.0), 0.05)
-	t.tween_property(_ficha, "position", origem, 0.05)
+		t.tween_property(alvo, "position", origem + Vector2(lado, 0.0), 0.05)
+	t.tween_property(alvo, "position", origem, 0.05)
 	await t.finished

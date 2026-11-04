@@ -2,7 +2,11 @@ class_name GerenciadorEncontro
 extends Node
 
 ## Orquestra o encontro inteiro: deteccao na exploracao, roteiro de aviso e
-## transicao, menu, roda, lance e limpeza.
+## transicao, batalha, roda, lance e limpeza. O duelo contra um guardiao passa pelo
+## mesmo caminho, sem captura e sem fuga: ha um sistema de combate so.
+##
+## A REGRA DA BATALHA NAO ESTA AQUI. MotorBatalha resolve o turno e devolve os eventos;
+## este no so os mostra, um a um.
 ##
 ## E o UNICO no que conhece todas as partes; nenhuma delas conhece as outras. A
 ## interface nao sorteia, a roda nao consome item, o calculo nao anima. Isso e o
@@ -23,9 +27,9 @@ extends Node
 ## docs/mudancas-estruturais.md.
 ##
 ## DETERMINISMO (RF03) — todo sorteio daqui (encontro, criatura, captura, dano,
-## fuga) sai de UM RandomNumberGenerator semeado a partir da world_seed. Nenhuma
-## chamada a randi()/randf() globais. Mesma seed e mesma sequencia de acoes
-## reproduzem a partida lance a lance.
+## fuga) sai de um RandomNumberGenerator semeado a partir da world_seed, e a batalha
+## tem o seu, com outro deslocamento. Nenhuma chamada a randi()/randf() globais. Mesma
+## seed e mesma sequencia de acoes reproduzem a partida lance a lance.
 
 signal encontro_iniciado(criatura: Criatura)
 signal encontro_terminado(desfecho: String, criatura: Criatura)
@@ -40,6 +44,7 @@ const CAMADA_INTERFACE := 90
 ## encontros nao seja a mesma sequencia que gerou o bestiario a partir da mesma
 ## world_seed.
 const DESLOCAMENTO_SEED := 0x5E7A
+const DESLOCAMENTO_BATALHA := 0xBA7A
 
 var world_seed: int = 0
 var bestiario: Array = []
@@ -47,6 +52,10 @@ var bestiario: Array = []
 var tabelas: TabelasProbabilidade
 var catalogo: CatalogoCorpos
 var captura: TabelasCaptura
+var tabelas_batalha: TabelasBatalha
+var equipe: EquipeJogador
+## Batalha em curso; null fora de encontro.
+var motor: MotorBatalha
 var cfg: ConfiguracaoEncontro
 var inventario: InventarioJogador
 var estado := EstadoEncontro.new()
@@ -60,6 +69,7 @@ var _transicao: TransicaoEncontro
 var _interface: InterfaceEncontro
 
 var _rng := RandomNumberGenerator.new()
+var _rng_batalha := RandomNumberGenerator.new()
 
 # --- estado da deteccao ---
 var _zonas: Array = []
@@ -69,8 +79,8 @@ var _carencia: float = 0.0
 
 # --- estado do encontro corrente ---
 var _criatura: Criatura
-var _vigor: float = 0.0
-var _vigor_maximo: float = 1.0
+## Guardiao do duelo corrente; vazio em encontro selvagem.
+var _guardiao: Dictionary = {}
 var _isca_ativa: IscaCaptura
 var _falhas: int = 0
 
@@ -113,6 +123,17 @@ func preparar(mundo: MundoIso, jogador: Jogador, camera: CameraExploracao,
 		erro = "tabelas de captura incoerentes com o vocabulario: " + ", ".join(faltando)
 		return false
 
+	tabelas_batalha = TabelasBatalha.carregar()
+	if tabelas_batalha == null:
+		erro = "tabelas de batalha nao carregaram (res://data/batalha/)"
+		return false
+	faltando = tabelas_batalha.validar(tabelas)
+	if not faltando.is_empty():
+		erro = "tabelas de batalha incoerentes com o vocabulario: " + ", ".join(faltando)
+		return false
+	equipe = EquipeJogador.new(tabelas_batalha.maximo_da_equipe())
+	_rng_batalha.seed = semente + DESLOCAMENTO_BATALHA
+
 	cfg = ConfiguracaoEncontro.carregar()
 	inventario = inventario_ if inventario_ != null else InventarioJogador.inicial(captura)
 	_rng.seed = semente + DESLOCAMENTO_SEED
@@ -146,6 +167,7 @@ func _montar_nos() -> void:
 	_interface.acao_escolhida.connect(_on_acao)
 	_interface.item_escolhido.connect(_on_item)
 	_interface.roda_cancelada.connect(_on_roda_cancelada)
+	_interface.lista_escolhida.connect(_on_lista)
 	add_child(_interface)
 
 
@@ -191,6 +213,9 @@ func _process(delta: float) -> void:
 		return
 	if _zonas.is_empty():
 		return
+	# Sem criatura de pe nao ha encontro: o mato so vale depois da primeira escolha.
+	if not equipe.tem_vivos():
+		return
 	# A opcao desliga o SORTEIO, nunca a geracao. O bestiario de uma world_seed
 	# e o mesmo com a opcao ligada ou desligada (RF03); o que muda e se o jogo
 	# o apresenta sozinho. `iniciar()` continua publico — F4 e a pesca entram
@@ -211,20 +236,47 @@ func _process(delta: float) -> void:
 ## tecla de depuracao da vila — o roteiro nao pode depender de o jogador ter
 ## sorte no momento certo.
 func iniciar(ponto: PontoDeEncontro) -> void:
-	if estado.em_encontro():
+	if not pode_comecar():
 		return
+	_comecar([_sortear_criatura(ponto)], "selvagem", {})
+
+
+## Encontro com uma criatura ja definida: a que a pesca fisgou.
+func iniciar_com_criatura(c: Criatura) -> void:
+	if pode_comecar() and c != null:
+		_comecar([c], "selvagem", {})
+
+
+## Duelo contra um guardiao. As criaturas vem do bestiario (SelecaoBestiario).
+func iniciar_duelo(guardiao: Dictionary, criaturas: Array) -> void:
+	if pode_comecar() and not criaturas.is_empty():
+		_comecar(criaturas, "guardiao", guardiao)
+
+
+func pode_comecar() -> bool:
+	return not estado.em_encontro() and equipe != null and equipe.tem_vivos()
+
+
+func _comecar(criaturas: Array, tipo: String, guardiao: Dictionary) -> void:
 	if not estado.mudar_para(EstadoEncontro.Estado.DETECTADO):
 		return
 	_geracao += 1
-	_criatura = _sortear_criatura(ponto)
-	_vigor_maximo = AfinidadeCriatura.vigor_maximo(_criatura, captura.config_vigor())
-	_vigor = _vigor_maximo
+	_guardiao = guardiao
+	var adversarios: Array = []
+	for c: Criatura in criaturas:
+		adversarios.append(Combatente.de_criatura(c, tabelas_batalha))
+	motor = MotorBatalha.new(tabelas_batalha, _rng_batalha, equipe.ativos, adversarios, tipo)
+	_criatura = motor.inimigo().criatura
 	_isca_ativa = null
 	_falhas = 0
 	if _jogador != null:
 		_jogador.congelar(true)
 	encontro_iniciado.emit(_criatura)
 	await _roteiro_de_abertura(_geracao)
+
+
+func em_duelo() -> bool:
+	return not _guardiao.is_empty()
 
 
 ## Filtro com mistura (chance_fora_da_regiao) sobre o bestiario ja gerado:
@@ -262,7 +314,9 @@ func _roteiro_de_abertura(token: int) -> void:
 		return
 
 	estado.mudar_para(EstadoEncontro.Estado.APRESENTACAO)
-	await _transicao.apresentar(cfg.texto_criatura_encontrada, cfg.duracao_texto_encontro)
+	var cartaz: String = String(_guardiao.get("titulo", "")) if em_duelo() \
+			else cfg.texto_criatura_encontrada
+	await _transicao.apresentar(cartaz, cfg.duracao_texto_encontro)
 	if _abandonado(token):
 		return
 
@@ -270,11 +324,16 @@ func _roteiro_de_abertura(token: int) -> void:
 	# _devolver_menu: o estado tem de significar "o menu esta no ar e aceita
 	# entrada", nao "o menu comecou a aparecer". Trocar antes criaria uma janela em
 	# que a maquina diz INTERACAO enquanto a interface ainda esta subindo.
-	await _interface.abrir(_criatura, catalogo, captura, cfg.duracao_abertura_menu)
+	var abertura: String = "%s te desafia!" % String(_guardiao.get("nome", "")) if em_duelo() \
+			else "Uma criatura selvagem apareceu!"
+	await _interface.abrir(_criatura, catalogo, captura, cfg.duracao_abertura_menu,
+			not em_duelo(), abertura)
 	if _abandonado(token):
 		return
+	_interface.definir_stats(motor.inimigo().ficha)
+	_interface.mostrar_jogador(motor.jogador())
+	_atualizar_barras()
 	_devolver_menu("")
-	_interface.atualizar_vigor(1.0, _rotulo_do_estado())
 
 
 ## O encontro que iniciou esta rotina ainda e o encontro corrente?
@@ -291,21 +350,94 @@ func _devolver_menu(texto: String, cor: Color = TemaEncontro.TEXTO_APOIO) -> voi
 	if texto != "":
 		_interface.mensagem(texto, cor)
 		mensagem_registrada.emit(texto)
-	_interface.menu_ativo(true)
+	_interface.voltar_ao_menu()
 
 
 # --------------------------------------------------------------------- acoes
 
 func _on_acao(acao: InterfaceEncontro.Acao) -> void:
 	match acao:
-		InterfaceEncontro.Acao.ABANDONAR:
-			_encerrar("abandonado")
-		InterfaceEncontro.Acao.ISCA:
-			_abrir_roda_de_isca()
-		InterfaceEncontro.Acao.ATACAR:
-			_atacar()
+		InterfaceEncontro.Acao.GOLPES:
+			_abrir_lista_de_golpes()
 		InterfaceEncontro.Acao.CAPTURAR:
 			_abrir_roda_de_dispositivo()
+		InterfaceEncontro.Acao.ISCA:
+			_abrir_roda_de_isca()
+		InterfaceEncontro.Acao.BOLSA:
+			_abrir_lista_de_itens()
+		InterfaceEncontro.Acao.TROCAR:
+			_abrir_lista_de_trocas()
+		InterfaceEncontro.Acao.FUGIR:
+			_resolver_turno({"tipo": "fugir"})
+
+
+func _abrir_lista_de_golpes() -> void:
+	var itens: Array = []
+	for g: Golpe in motor.jogador().ficha.golpes:
+		itens.append({
+			"rotulo": g.nome.to_upper(),
+			"dica": TextoBatalha.dica_do_golpe(g, motor.jogador(), motor.inimigo(), tabelas_batalha),
+			"valor": {"tipo": "golpe", "golpe": g},
+		})
+	_interface.abrir_lista(itens)
+
+
+func _abrir_lista_de_trocas() -> void:
+	var itens := _itens_de_troca("trocar")
+	if itens.is_empty():
+		_devolver_menu("Ninguém mais de pé para entrar.", TemaEncontro.FALHA)
+		return
+	_interface.abrir_lista(itens)
+
+
+func _itens_de_troca(tipo: String) -> Array:
+	var itens: Array = []
+	for i: int in motor.trocas_possiveis():
+		var c: Combatente = motor.lado_jogador[i]
+		itens.append({
+			"rotulo": c.nome().to_upper(),
+			"dica": "VIDA %d/%d · %s" % [c.vida, c.ficha.vida, TextoBatalha.lista_de_golpes(c.ficha)],
+			"valor": {"tipo": tipo, "indice": i},
+		})
+	return itens
+
+
+## So o que faz algo agora e o jogador tem. Uma pocao vai para a criatura em campo; se
+## ela nao precisa, para a mais ferida da equipe.
+func _abrir_lista_de_itens() -> void:
+	var itens: Array = []
+	for item: ItemJogo in Bolsa.catalogo.da_categoria("consumiveis"):
+		if inventario.quantidade(item.id) <= 0:
+			continue
+		var alvo := motor.jogador()
+		if not CalculoBatalha.efeito_aplicavel(item.efeito, alvo):
+			alvo = equipe.alvo_de_efeito(item.efeito)
+		if alvo == null:
+			continue
+		itens.append({
+			"rotulo": "%s ×%d" % [item.nome.to_upper(), inventario.quantidade(item.id)],
+			"dica": "em %s" % alvo.nome(),
+			"valor": {"tipo": "item", "id": item.id, "nome": item.nome, "efeito": item.efeito,
+					"alvo": motor.lado_jogador.find(alvo)},
+		})
+	if itens.is_empty():
+		_devolver_menu("Nada na bolsa ajuda agora.", TemaEncontro.ATENCAO)
+		return
+	_interface.abrir_lista(itens)
+
+
+func _on_lista(valor: Variant) -> void:
+	var acao: Dictionary = valor
+	match String(acao.get("tipo", "")):
+		"trocar_forcada":
+			_resolver_troca_forcada(int(acao["indice"]))
+		"item":
+			if not inventario.consumir(String(acao["id"])):
+				_devolver_menu("Acabou: %s." % String(acao["nome"]), TemaEncontro.FALHA)
+				return
+			_resolver_turno(acao)
+		_:
+			_resolver_turno(acao)
 
 
 func _abrir_roda_de_dispositivo() -> void:
@@ -405,12 +537,18 @@ func _oferecer(isca: IscaCaptura) -> void:
 	# texto e a explicacao. Nesta ordem uma confirma a outra.
 	await _interface.animar_reacao(preferida)
 	if preferida:
-		_devolver_menu("%s! É exatamente o que um %s quer. (+%.0f%% na captura)"
+		_interface.mensagem("%s! É exatamente o que um %s quer. (+%.0f%% na captura)"
 				% [isca.nome, _criatura.animal_base, isca.bonus * 100.0], TemaEncontro.SUCESSO)
 	else:
-		_devolver_menu("%s. Um %s mal se interessa (+%.0f%%)."
+		_interface.mensagem("%s. Um %s mal se interessa (+%.0f%%)."
 				% [isca.nome, _criatura.animal_base,
 				captura.bonus_de_isca_incorreta() * 100.0], TemaEncontro.ATENCAO)
+	# Isca gasta o turno: a criatura come e revida.
+	var token := _geracao
+	await get_tree().create_timer(cfg.duracao_evento_batalha).timeout
+	if _abandonado(token):
+		return
+	_resolver_turno({"tipo": "passar"})
 
 
 func _lancar(dispositivo: DispositivoCaptura) -> void:
@@ -441,8 +579,13 @@ func _lancar(dispositivo: DispositivoCaptura) -> void:
 
 	if sucesso:
 		inventario.guardar_criatura(_criatura)
-		_interface.mensagem("Capturada! %s entrou na coleção. [chance %d%%]"
-				% [_criatura.nome(), roundi(float(r["p"]) * 100.0)], TemaEncontro.SUCESSO)
+		# Com a vida que tinha: o que apanhou na captura continua machucado.
+		var capturada: Combatente = motor.inimigo()
+		capturada.limpar_reforcos()
+		var na_equipe: bool = equipe.adicionar(capturada)
+		_interface.mensagem("Capturada! %s foi para %s. [chance %d%%]"
+				% [_criatura.nome(), "a equipe" if na_equipe else "o depósito",
+				roundi(float(r["p"]) * 100.0)], TemaEncontro.SUCESSO)
 		mensagem_registrada.emit("capturada: " + _criatura.nome())
 		await get_tree().create_timer(cfg.duracao_desfecho).timeout
 		_encerrar("capturada")
@@ -456,37 +599,118 @@ func _lancar(dispositivo: DispositivoCaptura) -> void:
 		await get_tree().create_timer(cfg.duracao_desfecho).timeout
 		_encerrar("fugiu")
 		return
-	_devolver_menu("Escapou do %s. [chance era %d%%]"
+	# Falhar gasta o turno: a criatura solta e revida.
+	_interface.mensagem("Escapou do %s. [chance era %d%%]"
 			% [dispositivo.nome, roundi(float(r["p"]) * 100.0)], TemaEncontro.ATENCAO)
+	await get_tree().create_timer(cfg.duracao_evento_batalha).timeout
+	if _abandonado(token):
+		return
+	_resolver_turno({"tipo": "passar"})
 
 
-## Ataque. O projeto nao tem sistema de batalha (docs/pendencias.md, item 7) e
-## este NAO e um: e o minimo para que "Atacar" tenha consequencia mecanica —
-## derruba o vigor, que e um dos fatores do CalculoCaptura. Quando a Camada de
-## batalha existir, ela substitui este metodo e o resto do encontro nao muda.
-func _atacar() -> void:
+# -------------------------------------------------------------------- batalha
+
+func _resolver_turno(acao: Dictionary) -> void:
 	if not estado.mudar_para(EstadoEncontro.Estado.ATACANDO):
 		return
 	var token := _geracao
-	var vcfg := captura.config_vigor()
-	var base: float = float(vcfg.get("dano_por_ataque", 25.0))
-	var variacao: float = float(vcfg.get("variacao_do_dano", 0.0))
-	var dano: float = base * (1.0 + variacao * (_rng.randf() * 2.0 - 1.0))
-	_vigor = maxf(0.0, _vigor - dano)
-
-	await _interface.animar_ataque(6.0)
+	await _mostrar_eventos(motor.resolver_turno(acao), token)
 	if _abandonado(token):
 		return
-	_interface.atualizar_vigor(_fracao_vigor(), _rotulo_do_estado())
+	await _apos_o_turno(token)
 
-	if _vigor <= 0.0:
-		_interface.mensagem("A criatura cedeu e fugiu antes de ser capturada.",
-				TemaEncontro.FALHA)
-		await get_tree().create_timer(cfg.duracao_desfecho).timeout
-		_encerrar("derrotada")
+
+func _resolver_troca_forcada(indice: int) -> void:
+	if not estado.mudar_para(EstadoEncontro.Estado.ATACANDO):
 		return
-	_devolver_menu("Golpe certeiro (-%d de vigor). Agora está %s."
-			% [roundi(dano), _rotulo_do_estado()], TemaEncontro.SUCESSO)
+	var token := _geracao
+	await _mostrar_eventos(motor.trocar_forcada(indice), token)
+	if _abandonado(token):
+		return
+	await _apos_o_turno(token)
+
+
+## Mostra os eventos do turno, um por vez. A regra ja aconteceu: o desenho so conta.
+## As barras sao lidas do estado final de cada evento, e nao recalculadas aqui.
+func _mostrar_eventos(eventos: Array, token: int) -> void:
+	for ev: Dictionary in eventos:
+		_interface.mensagem(String(ev.get("texto", "")), _cor_do_evento(ev))
+		mensagem_registrada.emit(String(ev.get("texto", "")))
+		var lado := String(ev.get("lado", ""))
+		match String(ev.get("tipo", "")):
+			"golpe":
+				_atualizar_barras()
+				if ev.get("acertou", false):
+					await _interface.animar_ataque(6.0, lado == MotorBatalha.INIMIGO)
+					if _abandonado(token):
+						return
+			"entrou":
+				if lado == MotorBatalha.INIMIGO:
+					_criatura = motor.inimigo().criatura
+					_interface.trocar_adversario(motor.inimigo())
+				else:
+					_interface.mostrar_jogador(motor.jogador())
+				_atualizar_barras()
+			_:
+				_atualizar_barras()
+		await get_tree().create_timer(cfg.duracao_evento_batalha).timeout
+		if _abandonado(token):
+			return
+
+
+func _cor_do_evento(ev: Dictionary) -> Color:
+	match String(ev.get("tipo", "")):
+		"golpe":
+			if not ev.get("acertou", false):
+				return TemaEncontro.ATENCAO
+			return TemaEncontro.FALHA if String(ev.get("lado", "")) == MotorBatalha.INIMIGO \
+					else TemaEncontro.SUCESSO
+		"caiu":
+			return TemaEncontro.FALHA if String(ev.get("lado", "")) == MotorBatalha.JOGADOR \
+					else TemaEncontro.SUCESSO
+		"item":
+			return TemaEncontro.SUCESSO
+		"fuga":
+			return TemaEncontro.ATENCAO
+	return TemaEncontro.TINTA
+
+
+func _atualizar_barras() -> void:
+	if motor == null:
+		return
+	_interface.atualizar_jogador(motor.jogador())
+	var rotulo := "%d/%d" % [motor.inimigo().vida, motor.inimigo().ficha.vida]
+	if not em_duelo():
+		rotulo += " · " + _rotulo_do_estado()
+	_interface.atualizar_vigor(motor.inimigo().fracao(), rotulo)
+
+
+## O que vem depois dos eventos: fim, troca obrigatoria ou o menu de novo.
+func _apos_o_turno(_token: int) -> void:
+	if motor.terminou():
+		match motor.desfecho:
+			MotorBatalha.VITORIA:
+				if em_duelo():
+					_encerrar("duelo_vencido")
+				else:
+					# Zerar a vida perde a criatura: e o risco de bater demais antes
+					# de tentar capturar.
+					_interface.mensagem("A criatura cedeu e fugiu antes de ser capturada.",
+							TemaEncontro.ATENCAO)
+					await get_tree().create_timer(cfg.duracao_desfecho).timeout
+					_encerrar("derrotada")
+			MotorBatalha.DERROTA:
+				_encerrar("derrota")
+			MotorBatalha.FUGIU:
+				_encerrar("abandonado")
+		return
+	if motor.precisa_trocar():
+		estado.mudar_para(EstadoEncontro.Estado.TROCA_OBRIGATORIA)
+		_interface.mensagem("%s caiu. Quem entra agora?" % motor.jogador().nome(),
+				TemaEncontro.FALHA)
+		_interface.abrir_lista(_itens_de_troca("trocar_forcada"), false)
+		return
+	_devolver_menu("")
 
 
 # ------------------------------------------------------------------- limpeza
@@ -495,6 +719,8 @@ func _encerrar(desfecho: String) -> void:
 	var criatura := _criatura
 	# Invalida qualquer rotina do encontro que ainda esteja num await.
 	_geracao += 1
+	if motor != null:
+		motor.encerrar()
 	if not estado.mudar_para(EstadoEncontro.Estado.ENCERRANDO):
 		estado.reiniciar()
 	_interface.menu_ativo(false)
@@ -504,11 +730,12 @@ func _encerrar(desfecho: String) -> void:
 	_aviso.esconder()
 
 	# A limpeza e completa de proposito: nada do encontro anterior pode vazar
-	# para o proximo (isca ativa, contagem de falhas, vigor, distancia andada).
+	# para o proximo (isca ativa, contagem de falhas, batalha, distancia andada).
 	_criatura = null
 	_isca_ativa = null
 	_falhas = 0
-	_vigor = 0.0
+	motor = null
+	_guardiao = {}
 	_distancia = 0.0
 	_carencia = cfg.carencia_segundos
 	if _jogador != null:
@@ -521,7 +748,7 @@ func _encerrar(desfecho: String) -> void:
 # -------------------------------------------------------------------- apoio
 
 func _fracao_vigor() -> float:
-	return clampf(_vigor / maxf(_vigor_maximo, 1.0), 0.0, 1.0)
+	return motor.inimigo().fracao() if motor != null else 1.0
 
 
 func _rotulo_do_estado() -> String:

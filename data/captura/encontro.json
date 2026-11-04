@@ -26,7 +26,8 @@
     "duracao_balanco": 0.55,
     "balancos": 3,
     "duracao_desfecho": 1.20,
-    "duracao_encerramento": 0.40
+    "duracao_encerramento": 0.40,
+    "duracao_evento_batalha": 0.95
   },
 
   "texto": {

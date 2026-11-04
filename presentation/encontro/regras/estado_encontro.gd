@@ -21,13 +21,14 @@ enum Estado {
 	AVISO,              ## "!" sobre a cabeca + tremor de camera
 	TRANSICAO,          ## escurecimento da tela
 	APRESENTACAO,       ## cartao "CRIATURA ENCONTRADA"
-	INTERACAO,          ## menu: abandonar / isca / atacar / capturar
+	INTERACAO,          ## menu de batalha: golpes / capturar / isca / bolsa / trocar / fugir
 	RODA_DISPOSITIVO,   ## roda radial escolhendo o dispositivo
 	RODA_ISCA,          ## a MESMA roda, escolhendo isca
 	LANCANDO,           ## dispositivo no ar; nenhuma entrada e aceita
 	SUCESSO,            ## capturada
 	FALHA,              ## escapou do dispositivo
-	ATACANDO,           ## golpe resolvendo
+	ATACANDO,           ## turno resolvendo: os eventos do motor estao sendo mostrados
+	TROCA_OBRIGATORIA,  ## a criatura do jogador caiu: nada acontece ate ele escolher outra
 	ENCERRANDO,         ## desmontando a interface e devolvendo o controle
 }
 
@@ -40,11 +41,12 @@ const TRANSICOES := {
 	Estado.INTERACAO:        [Estado.RODA_DISPOSITIVO, Estado.RODA_ISCA,
 			Estado.ATACANDO, Estado.ENCERRANDO],
 	Estado.RODA_DISPOSITIVO: [Estado.LANCANDO, Estado.INTERACAO],
-	Estado.RODA_ISCA:        [Estado.INTERACAO],
+	Estado.RODA_ISCA:        [Estado.INTERACAO, Estado.ATACANDO],
 	Estado.LANCANDO:         [Estado.SUCESSO, Estado.FALHA],
 	Estado.SUCESSO:          [Estado.ENCERRANDO],
-	Estado.FALHA:            [Estado.INTERACAO, Estado.ENCERRANDO],
-	Estado.ATACANDO:         [Estado.INTERACAO, Estado.ENCERRANDO],
+	Estado.FALHA:            [Estado.INTERACAO, Estado.ATACANDO, Estado.ENCERRANDO],
+	Estado.ATACANDO:         [Estado.INTERACAO, Estado.TROCA_OBRIGATORIA, Estado.ENCERRANDO],
+	Estado.TROCA_OBRIGATORIA: [Estado.ATACANDO, Estado.ENCERRANDO],
 	Estado.ENCERRANDO:       [Estado.INATIVO],
 }
 
@@ -55,6 +57,7 @@ const NOMES := {
 	Estado.RODA_DISPOSITIVO: "RODA_DISPOSITIVO", Estado.RODA_ISCA: "RODA_ISCA",
 	Estado.LANCANDO: "LANCANDO", Estado.SUCESSO: "SUCESSO",
 	Estado.FALHA: "FALHA", Estado.ATACANDO: "ATACANDO",
+	Estado.TROCA_OBRIGATORIA: "TROCA_OBRIGATORIA",
 	Estado.ENCERRANDO: "ENCERRANDO",
 }
 
@@ -77,7 +80,8 @@ func em_encontro() -> bool:
 ## (transicao, lancamento, desfecho) e intocavel de proposito: e o que impede
 ## dois lances simultaneos com um segundo confirmar apressado.
 func aceita_entrada() -> bool:
-	return atual in [Estado.INTERACAO, Estado.RODA_DISPOSITIVO, Estado.RODA_ISCA]
+	return atual in [Estado.INTERACAO, Estado.RODA_DISPOSITIVO, Estado.RODA_ISCA,
+			Estado.TROCA_OBRIGATORIA]
 
 
 func pode_ir_para(novo: Estado) -> bool:

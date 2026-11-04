@@ -41,6 +41,8 @@ var duracao_balanco: float = 0.55
 var balancos: int = 3
 var duracao_desfecho: float = 1.20
 var duracao_encerramento: float = 0.40
+## Quanto cada evento do turno fica na tela antes do proximo.
+var duracao_evento_batalha: float = 0.95
 
 # --- texto ------------------------------------------------------------------
 ## Cartao da transicao. Em portugues como o resto da interface (ver
@@ -83,6 +85,7 @@ func _aplicar(d: Dictionary) -> void:
 	balancos = int(r.get("balancos", balancos))
 	duracao_desfecho = float(r.get("duracao_desfecho", duracao_desfecho))
 	duracao_encerramento = float(r.get("duracao_encerramento", duracao_encerramento))
+	duracao_evento_batalha = float(r.get("duracao_evento_batalha", duracao_evento_batalha))
 
 	var t: Dictionary = d.get("texto", {})
 	texto_criatura_encontrada = String(t.get("criatura_encontrada", texto_criatura_encontrada))

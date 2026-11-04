@@ -26,7 +26,7 @@
   },
 
   "estado": {
-    "_descricao": "Multiplicador pelo estado da criatura no encontro. O vigor cai a cada ataque; as faixas sao lidas em ordem, da mais ferida para a mais intacta.",
+    "_descricao": "Multiplicador pelo estado da criatura no encontro. A vida cai a cada golpe; as faixas sao lidas em ordem, da mais ferida para a mais intacta.",
     "faixas": [
       { "id": "exausta", "vigor_ate": 0.33, "multiplicador": 1.60, "rotulo": "exausta" },
       { "id": "ferida",  "vigor_ate": 0.66, "multiplicador": 1.25, "rotulo": "ferida" },
@@ -35,12 +35,10 @@
   },
 
   "vigor": {
-    "_descricao": "Vigor maximo da criatura, funcao DETERMINISTICA dos seus atributos (RF03): mesma criatura, mesmo vigor. Nao ha sistema de batalha no projeto — este e o minimo necessario para que 'Atacar' tenha consequencia mecanica, e o lugar onde uma Camada de batalha futura entra sem tocar no resto.",
+    "_descricao": "Vigor maximo da criatura, funcao DETERMINISTICA dos seus atributos (RF03): mesma criatura, mesmo vigor. E a VIDA da batalha (presentation/batalha/regras/ficha_combate.gd); o dano dos golpes vive em data/batalha/.",
     "base": 100.0,
     "por_traco": 12.0,
-    "por_porte": { "compacto": 18.0, "medio": 8.0, "esbelto": 0.0, "alongado": -6.0 },
-    "dano_por_ataque": 26.0,
-    "variacao_do_dano": 0.35
+    "por_porte": { "compacto": 18.0, "medio": 8.0, "esbelto": 0.0, "alongado": -6.0 }
   },
 
   "isca": {

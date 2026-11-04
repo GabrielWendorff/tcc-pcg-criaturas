@@ -38,6 +38,9 @@ func _initialize() -> void:
 		camera.reset_smoothing()
 	await process_frame
 
+	# Sem criatura de pe nao ha encontro.
+	if g.equipe.vazia():
+		g.equipe.adicionar(Combatente.de_criatura(g.bestiario[0], g.tabelas_batalha))
 	g.iniciar(zona)
 	await _capturar("01_exclamacao", 0.25)
 	await _capturar("02_escurecendo", g.cfg.duracao_aviso)

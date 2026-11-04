@@ -32,12 +32,8 @@ static func multiplicador_evasao(criatura: Criatura, fatores: Dictionary) -> flo
 	return m
 
 
-## Vigor maximo — funcao deterministica dos atributos (RF03).
-##
-## Nao ha sistema de batalha no projeto (ver docs/pendencias.md, item 7). Este e o
-## minimo para que "Atacar" tenha consequencia: um recurso que cai e devolve a
-## criatura enfraquecida ao calculo de captura. Uma camada de batalha futura
-## substitui o vigor por seus proprios pontos de vida sem tocar no resto.
+## Vigor maximo — funcao deterministica dos atributos (RF03). E a VIDA da batalha
+## (FichaCombate), e a fracao restante dela volta ao calculo de captura.
 static func vigor_maximo(criatura: Criatura, cfg: Dictionary) -> float:
 	if criatura == null:
 		return float(cfg.get("base", 100.0))

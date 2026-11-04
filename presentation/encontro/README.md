@@ -6,10 +6,13 @@ com ela.
 
 ```bash
 godot --path .                                                # F4 força um encontro
-godot --headless --path . -s res://tools/test_encontro.gd     # regra + fluxo
+godot --headless --path . res://tools/test_encontro.tscn      # regra + fluxo (como cena)
 DISPLAY=:0 SHOT_DIR="user://" godot --display-driver x11 \
   --rendering-driver opengl3 --path . -s res://tools/screenshot_encontro.gd
 ```
+
+A batalha em si (stats, golpes, turno) está em [`presentation/batalha/`](../batalha/README.md).
+Este módulo continua sendo o dono do roteiro, da captura e da tela.
 
 ## Roteiro
 
@@ -22,12 +25,15 @@ andar dentro de uma zona
         ↓
    CRIATURA ENCONTRADA
         ↓
-      menu ──── Abandonar
-        ├────── Oferecer isca ──→ roda radial (iscas)
-        ├────── Atacar          → derruba o vigor
-        └────── Tentar capturar → roda radial (dispositivos)
-                                        ↓
-                                  lance → sucesso / falha
+      menu ──── Golpes  → lista com o dano e a vantagem contra este adversário
+        ├────── Capturar → roda radial (dispositivos) → lance → sucesso / falha
+        ├────── Oferecer isca → roda radial (iscas)
+        ├────── Bolsa    → poções
+        ├────── Trocar   → outra criatura da equipe
+        └────── Fugir    → depende da velocidade
+
+Tudo isso, menos abrir um menu, gasta o turno: a criatura revida. Contra guardião só há
+Golpes, Bolsa e Trocar.
 ```
 
 ## Arquivos
@@ -159,7 +165,7 @@ Todos os números vivem em `data/captura/balanceamento.json`.
 | `dispositivo` | `dispositivos.json` | o aparelho serve contra os traços **desta** criatura? |
 | `afinidade` | `conditional_morphology.json`, via `balanceamento.json` | o que ela tem para se defender? |
 | `isca` | `iscas.json` | a comida casa com o `animal_base`? |
-| `estado` | vigor corrente | ela já está machucada? |
+| `estado` | fração de vida | ela já está machucada? |
 
 O teto (0,85) impede captura garantida mesmo com tudo certo; o piso (0,03)
 impede criatura impossível. São os mesmos clamps que `conditional_morphology.json`
@@ -206,8 +212,7 @@ métricas de RF04/RF08 são exatamente os mesmos de antes. Ver
 
 ## Batalha
 
-`Atacar` derruba um valor de vigor e nada mais — não é um sistema de combate. É o
-mínimo para que a ação tenha consequência mecânica (vigor é um dos fatores da
-fórmula) e para que exista uma decisão real: enfraquecer melhora a chance, mas
-zerar o vigor perde a criatura. Quando `presentation/batalha/` (RF06) existir, ele
-substitui `GerenciadorEncontro._atacar()` e o resto do encontro não muda.
+`_atacar()` deixou de existir. O menu do encontro agora é o menu de batalha, e a fração de
+vida do adversário entra na fórmula de captura no lugar do antigo vigor: `CalculoCaptura`
+recebe só a fração e não precisou mudar. A decisão continua a mesma, agora com golpes de
+verdade: enfraquecer melhora a chance, mas zerar a vida perde a criatura.

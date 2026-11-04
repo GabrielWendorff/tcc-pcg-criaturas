@@ -1,7 +1,12 @@
-extends SceneTree
+extends Node
 
-## Teste headless do sistema de encontro e captura — roda SEM abrir janela:
-##   godot --headless --path . -s res://tools/test_encontro.gd
+## Teste headless do sistema de encontro e captura. Roda como CENA:
+##   godot --headless --path . res://tools/test_encontro.tscn
+##
+## Nao sob -s: o mundo cita os autoloads (Opcoes pela camera, Bolsa), e sob -s eles nao
+## existem no Godot 4.7. A versao antiga, sob -s, abortava no fluxo completo e ainda
+## assim imprimia que tinha passado: o resultado agora so e positivo se a ultima linha
+## de cada etapa for alcancada (ver ETAPAS).
 ##
 ## Cobre as tres camadas separadamente, porque elas falham por motivos diferentes:
 ##
@@ -24,24 +29,31 @@ const N := 100
 ## tempo do roteiro e configuravel.
 const RITMO_DE_TESTE := 0.01
 
+## Quantas funcoes _testar_* existem. Um erro de script dentro de uma delas devolve null
+## ao chamador e a execucao segue: so a ultima linha de cada etapa prova que ela rodou.
+const ETAPAS := 9
+
 var _falhas: int = 0
 var _verificacoes: int = 0
+var _etapas: int = 0
 
 
-func _initialize() -> void:
+func _ready() -> void:
+	# A raiz ainda esta montando os filhos neste quadro, e o teste acrescenta nos a ela.
+	await get_tree().process_frame
 	print("== Encontro e captura — teste headless ==")
 	await _rodar()
 	print("\n==")
-	if _verificacoes < 45:
-		print("RESULTADO: so %d verificacoes rodaram — o teste abortou no meio"
-				% _verificacoes)
-		quit(1)
+	if _etapas != ETAPAS:
+		print("RESULTADO: O TESTE ABORTOU NO MEIO (%d de %d etapas, %d verificacoes)"
+				% [_etapas, ETAPAS, _verificacoes])
+		get_tree().quit(1)
 	elif _falhas > 0:
 		print("RESULTADO: %d VERIFICACAO(OES) FALHARAM" % _falhas)
-		quit(1)
+		get_tree().quit(1)
 	else:
-		print("RESULTADO: TODOS OS TESTES PASSARAM")
-		quit(0)
+		print("RESULTADO: TODOS OS TESTES PASSARAM (%d)" % _verificacoes)
+		get_tree().quit(0)
 
 
 func _ok(condicao: bool, rotulo: String, detalhe: String = "") -> bool:
@@ -119,6 +131,7 @@ func _testar_tabelas(tabelas: TabelasProbabilidade, captura: TabelasCaptura) -> 
 			faltando_glifo.append(c)
 	_ok(faltando_glifo.is_empty(), "a fonte cobre o texto da interface",
 			"".join(faltando_glifo))
+	_etapas += 1
 
 
 func _testar_afinidade(tabelas: TabelasProbabilidade, captura: TabelasCaptura) -> void:
@@ -159,6 +172,7 @@ func _testar_afinidade(tabelas: TabelasProbabilidade, captura: TabelasCaptura) -
 	_ok(fatores.size() == tabelas.features_morfologia().size(),
 			"todo traco do vocabulario tem fator de evasao",
 			"%d de %d" % [fatores.size(), tabelas.features_morfologia().size()])
+	_etapas += 1
 
 
 # --------------------------------------------------------------- 2. a formula
@@ -207,6 +221,7 @@ func _testar_formula(captura: TabelasCaptura) -> void:
 	var detalhe := CalculoCaptura.avaliar(peixe, redoma, osso, 1.0, captura)
 	_ok(detalhe["fatores"].size() == 4, "a avaliacao devolve os 4 fatores",
 			"%d" % detalhe["fatores"].size())
+	_etapas += 1
 
 
 func _testar_iscas(captura: TabelasCaptura) -> void:
@@ -237,6 +252,7 @@ func _testar_iscas(captura: TabelasCaptura) -> void:
 			acertos += 1
 	_ok(acertos == larva.tipos_preferidos.size(),
 			"isca multi-tipo vale para todos os tipos que declara")
+	_etapas += 1
 
 
 # ----------------------------------------------------------- 3. estado e bolsa
@@ -268,6 +284,7 @@ func _testar_inventario(captura: TabelasCaptura) -> void:
 	inv.guardar_criatura(c)
 	_ok(inv.colecao.size() == 1 and inv.ja_capturou(c), "criatura entra na colecao")
 	_ok(inv.total_de(captura.dispositivos) > 0, "total_de soma o estoque de uma lista")
+	_etapas += 1
 
 
 func _testar_maquina_de_estados() -> void:
@@ -302,6 +319,7 @@ func _testar_maquina_de_estados() -> void:
 	_ok(e.pode_ir_para(E.ENCERRANDO), "falha tambem pode encerrar (fuga)")
 	e.reiniciar()
 	_ok(e.e(E.INATIVO), "reiniciar limpa de qualquer estado")
+	_etapas += 1
 
 
 func _testar_determinismo(captura: TabelasCaptura) -> void:
@@ -313,6 +331,7 @@ func _testar_determinismo(captura: TabelasCaptura) -> void:
 	var outra := _sequencia_de_lances(SEED + 1, c, d, captura)
 	_ok(a == b, "mesma seed, mesma sequencia de resultados")
 	_ok(a != outra, "seed diferente, sequencia diferente")
+	_etapas += 1
 
 
 func _sequencia_de_lances(semente: int, c: Criatura, d: DispositivoCaptura,
@@ -330,7 +349,7 @@ func _sequencia_de_lances(semente: int, c: Criatura, d: DispositivoCaptura,
 func _testar_fluxo_completo() -> void:
 	print("\nFluxo completo na vila (cena e fisica reais)")
 	var mundo := MundoIso.new()
-	root.add_child(mundo)
+	get_tree().root.add_child(mundo)
 	mundo.carregar()
 	if not _ok(mundo.erro == "", "vila carregou", mundo.erro):
 		return
@@ -339,13 +358,13 @@ func _testar_fluxo_completo() -> void:
 	jogador.position = mundo.spawn_do_jogador()
 	mundo.entidades.add_child(jogador)
 	var camera := CameraExploracao.new()
-	root.add_child(camera)
+	get_tree().root.add_child(camera)
 	camera.seguir(jogador)
-	await process_frame
+	await get_tree().process_frame
 
 	var t0 := Time.get_ticks_usec()
 	var g := GerenciadorEncontro.new()
-	root.add_child(g)
+	get_tree().root.add_child(g)
 	var pronto := g.preparar(mundo, jogador, camera, SEED, N)
 	var ms := (Time.get_ticks_usec() - t0) / 1000.0
 	if not _ok(pronto, "gerenciador montou", g.erro):
@@ -353,7 +372,13 @@ func _testar_fluxo_completo() -> void:
 	_ok(g.bestiario.size() == N, "bestiario da partida gerado", "%d criaturas" % N)
 	_ok(ms < 2000.0, "montagem dentro da meta de desempenho", "%.0f ms" % ms)
 	_acelerar(g)
-	await process_frame
+	await get_tree().process_frame
+
+	# Sem criatura de pe nao ha encontro.
+	_ok(not g.pode_comecar(), "sem equipe, o encontro nao comeca")
+	g.equipe.adicionar(Combatente.de_criatura(g.bestiario[0], g.tabelas_batalha))
+	g.equipe.adicionar(Combatente.de_criatura(g.bestiario[1], g.tabelas_batalha))
+	_ok(g.pode_comecar(), "com equipe, pode")
 
 	var zona := _zona(mundo, "margem_do_lago")
 	if not _ok(zona != null, "zona de teste encontrada"):
@@ -382,10 +407,14 @@ func _testar_fluxo_completo() -> void:
 	_ok(na_regiao > 20, "a zona favorece os elementos que declara",
 			"%d/40 em %s" % [na_regiao, ", ".join(zona.elementos_provaveis)])
 
-	# --- abandonar ---
-	g._on_acao(InterfaceEncontro.Acao.ABANDONAR)
+	# --- fugir, com a chance forcada: o sorteio e testado em test_batalha ---
+	var fuga: Dictionary = g.tabelas_batalha.fuga()
+	fuga["base"] = 1.0
+	fuga["piso"] = 1.0
+	fuga["teto"] = 1.0
+	g._on_acao(InterfaceEncontro.Acao.FUGIR)
 	await _ate_inativo(g)
-	_ok(g.estado.e(EstadoEncontro.Estado.INATIVO), "abandonar encerra o encontro")
+	_ok(g.estado.e(EstadoEncontro.Estado.INATIVO), "fugir encerra o encontro")
 	_ok(not jogador.congelado, "jogador volta a andar")
 	_ok(g.criatura_atual() == null, "estado do encontro foi limpo")
 
@@ -399,7 +428,7 @@ func _testar_fluxo_completo() -> void:
 	var isca := _isca_preferida(g, criatura)
 	var antes_isca := g.inventario.quantidade(isca.id)
 	g._on_acao(InterfaceEncontro.Acao.ISCA)
-	await process_frame
+	await get_tree().process_frame
 	_ok(g.estado.e(EstadoEncontro.Estado.RODA_ISCA), "menu abre a roda de iscas")
 	g._on_item(isca)
 	# Espera o estado assentar: desde que a roda se recolhe antes de resolver a
@@ -408,6 +437,7 @@ func _testar_fluxo_completo() -> void:
 	_ok(g.inventario.quantidade(isca.id) == antes_isca - 1, "a isca foi consumida")
 	_ok(g.isca_ativa() == isca, "a isca fica ativa pelo resto do encontro")
 	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO), "e o controle volta ao menu")
+	_ok(g.motor.turno == 1, "a isca gastou o turno", "turno %d" % g.motor.turno)
 
 	var chance_com_isca := CalculoCaptura.chance(criatura,
 			g.captura.dispositivo("esfera_simples"), g.isca_ativa(), 1.0, g.captura)
@@ -418,18 +448,57 @@ func _testar_fluxo_completo() -> void:
 
 	# --- cancelar a roda ---
 	g._on_acao(InterfaceEncontro.Acao.CAPTURAR)
-	await process_frame
+	await get_tree().process_frame
 	_ok(g.estado.e(EstadoEncontro.Estado.RODA_DISPOSITIVO), "roda de dispositivos abriu")
 	g._on_roda_cancelada()
 	await _ate_o_menu(g)
 	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO), "cancelar a roda volta ao menu")
 
-	# --- atacar ---
-	var vigor_antes := g._vigor
-	g._on_acao(InterfaceEncontro.Acao.ATACAR)
+	# --- golpe: pelo menu de batalha, ate o motor ---
+	_curar(g)
+	var vida_antes: int = g.motor.inimigo().vida
+	var jato := g.motor.jogador().ficha.golpes.filter(
+			func(x: Golpe) -> bool: return x.causa_dano() and x.precisao >= 0.9)
+	g.motor.inimigo().ficha.esquiva = 0.0
+	g.motor.inimigo().vida = 100000
+	vida_antes = 100000
+	g._on_acao(InterfaceEncontro.Acao.GOLPES)
+	await get_tree().process_frame
+	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO), "abrir os golpes nao gasta o turno")
+	var turno_antes: int = g.motor.turno
+	for tentativa in 10:
+		if g.motor.inimigo().vida < vida_antes:
+			break
+		_curar(g)
+		g._on_lista({"tipo": "golpe", "golpe": jato[0]})
+		await _ate_o_menu(g)
+	_ok(g.motor.inimigo().vida < vida_antes, "o golpe derruba a vida do adversario",
+			"%d -> %d" % [vida_antes, g.motor.inimigo().vida])
+	_ok(g.motor.turno > turno_antes, "e gasta o turno")
+	_ok(g._fracao_vigor() <= 1.0, "a captura le a fracao de vida do adversario")
+	g.motor.inimigo().vida = g.motor.inimigo().ficha.vida
+	_curar(g)
+
+	# --- bolsa em batalha, com a poção do catalogo ---
+	g.motor.jogador().vida = 1
+	var pocao := "pocao_simples"
+	g.inventario.adicionar(pocao, 1)
+	var pocoes: int = g.inventario.quantidade(pocao)
+	g._on_acao(InterfaceEncontro.Acao.BOLSA)
+	await get_tree().process_frame
+	g._on_lista({"tipo": "item", "id": pocao, "nome": "Poção", "alvo": g.motor.ativo_jogador,
+			"efeito": {"tipo": "curar", "valor": 30}})
 	await _ate_o_menu(g)
-	_ok(g._vigor < vigor_antes, "atacar derruba o vigor",
-			"%.0f -> %.0f" % [vigor_antes, g._vigor])
+	_ok(g.inventario.quantidade(pocao) == pocoes - 1, "a poção foi consumida na batalha")
+	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO) or g.motor.terminou(), "e o turno passou")
+	_curar(g)
+
+	# --- troca voluntaria ---
+	var quem_saiu := g.motor.jogador()
+	g._on_lista({"tipo": "trocar", "indice": 1 - g.motor.ativo_jogador})
+	await _ate_o_menu(g)
+	_ok(g.motor.jogador() != quem_saiu, "trocar poe outra criatura em campo")
+	_curar(g)
 
 	# --- lance com sucesso garantido (teto forcado) ---
 	var colecao_antes := g.inventario.colecao.size()
@@ -437,10 +506,12 @@ func _testar_fluxo_completo() -> void:
 	var estoque_antes := g.inventario.quantidade(dispositivo.id)
 	g.captura.balanceamento["base"] = 5.0        # forca sucesso dentro do teto
 	g.captura.balanceamento["teto"] = 1.0
+	var tamanho_equipe := g.equipe.ativos.size()
 	g._on_acao(InterfaceEncontro.Acao.CAPTURAR)
-	await process_frame
+	await get_tree().process_frame
 	g._on_item(dispositivo)
 	await _ate_inativo(g)
+	_ok(g.equipe.ativos.size() == tamanho_equipe + 1, "a capturada entrou na equipe")
 	_ok(g.inventario.quantidade(dispositivo.id) == estoque_antes - 1,
 			"o dispositivo foi consumido no lance")
 	_ok(g.inventario.colecao.size() == colecao_antes + 1,
@@ -463,11 +534,12 @@ func _testar_fluxo_completo() -> void:
 	estoque_antes = g.inventario.quantidade(dispositivo.id)
 	colecao_antes = g.inventario.colecao.size()
 	g._on_acao(InterfaceEncontro.Acao.CAPTURAR)
-	await process_frame
+	await get_tree().process_frame
 	g._on_item(dispositivo)
 	await _ate_o_menu(g)
 	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO), "falha devolve ao menu")
 	_ok(g.criatura_atual() != null, "a criatura continua no encontro")
+	_ok(g.motor.turno >= 1, "a falha gastou o turno: a criatura revidou")
 	_ok(g.inventario.colecao.size() == colecao_antes, "nada entrou na colecao")
 	_ok(g.inventario.quantidade(dispositivo.id) == estoque_antes - 1,
 			"o dispositivo se gasta mesmo na falha")
@@ -478,19 +550,19 @@ func _testar_fluxo_completo() -> void:
 		while g.inventario.tem(d.id):
 			g.inventario.consumir(d.id)
 	g._on_acao(InterfaceEncontro.Acao.CAPTURAR)
-	await process_frame
+	await get_tree().process_frame
 	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO),
 			"sem dispositivos, a roda nao abre e o menu continua vivo")
 	for i in g.captura.iscas:
 		while g.inventario.tem(i.id):
 			g.inventario.consumir(i.id)
 	g._on_acao(InterfaceEncontro.Acao.ISCA)
-	await process_frame
+	await get_tree().process_frame
 	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO), "sem iscas, idem")
 
 	# --- roda nao seleciona item zerado ---
 	var roda := RodaCaptura.new()
-	root.add_child(roda)
+	get_tree().root.add_child(roda)
 	var inv := InventarioJogador.new()
 	inv.adicionar(g.captura.dispositivos[1].id, 3)   # so o segundo tem estoque
 	await roda.abrir("teste", g.captura.dispositivos, inv,
@@ -513,8 +585,10 @@ func _testar_fluxo_completo() -> void:
 	_ok(g.estado.e(EstadoEncontro.Estado.INTERACAO), "um novo encontro abre depois de tudo")
 	_ok(g.isca_ativa() == null and g._falhas == 0,
 			"isca e contagem de falhas nao vazam do encontro anterior")
-	g._on_acao(InterfaceEncontro.Acao.ABANDONAR)
+	g._on_acao(InterfaceEncontro.Acao.FUGIR)
 	await _ate_inativo(g)
+
+	await _testar_duelo_e_derrota(g, zona)
 
 	# --- deteccao pela caminhada ---
 	_ok(g.zonas_ativas() >= 0, "contagem de zonas ativas acessivel")
@@ -523,8 +597,8 @@ func _testar_fluxo_completo() -> void:
 	g.cfg.chance_por_passo = 1.0
 	g._posicao_anterior = jogador.global_position
 	jogador.global_position += Vector2(200, 0)
-	await process_frame
-	await process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
 	_ok(g.estado.em_encontro(), "andar dentro da zona dispara o encontro")
 
 	# Encerrar NO MEIO do roteiro de abertura: a corrotina que estava esperando
@@ -532,14 +606,91 @@ func _testar_fluxo_completo() -> void:
 	g._encerrar("interrompido")
 	await _ate_inativo(g)
 	for i in 30:
-		await process_frame
+		await get_tree().process_frame
 	_ok(g.estado.e(EstadoEncontro.Estado.INATIVO),
 			"encerrar durante a abertura nao deixa o roteiro acordar depois")
 	_ok(g.criatura_atual() == null, "e nao ressuscita a criatura do encontro morto")
 	_ok(not jogador.congelado, "o jogador nao fica preso por um encontro interrompido")
+	_etapas += 1
+
+
+## Duelo contra guardiao, troca obrigatoria e derrota, passando pelo gerenciador.
+func _testar_duelo_e_derrota(g: GerenciadorEncontro, zona: PontoDeEncontro) -> void:
+	print("\nDuelo, troca obrigatoria e derrota")
+	var desfechos: Array = []
+	var ouvir := func(d: String, _c: Criatura) -> void: desfechos.append(d)
+	g.encontro_terminado.connect(ouvir)
+	_curar(g)
+
+	var guardiao := {"id": "teste", "nome": "Teste", "titulo": "DUELO", "selo": "selo_teste"}
+	g.iniciar_duelo(guardiao, [g.bestiario[10], g.bestiario[11]])
+	await _ate_o_menu(g)
+	_ok(g.em_duelo(), "o duelo passa pelo mesmo gerenciador")
+	_ok(g.motor.tipo_inimigo == "guardiao", "com o motor no modo guardiao")
+	var menu: Array = g._interface._itens_menu
+	var acoes := menu.map(func(o: Dictionary) -> int: return int(o["acao"]))
+	_ok(not InterfaceEncontro.Acao.CAPTURAR in acoes and not InterfaceEncontro.Acao.FUGIR in acoes,
+			"no duelo nao se captura nem se foge")
+
+	# Vencer: o adversario com 1 de vida e sem esquiva.
+	for c: Combatente in g.motor.lado_inimigo:
+		c.vida = 1
+		c.ficha.esquiva = 0.0
+	var investida := g.tabelas_batalha.de_reserva()
+	for tentativa in 12:
+		if not g.estado.em_encontro():
+			break
+		_curar(g)
+		g.motor.jogador().ficha.velocidade = 999.0
+		g._on_lista({"tipo": "golpe", "golpe": investida})
+		await _ate_o_menu(g)
+	await _ate_inativo(g)
+	_ok(not desfechos.is_empty() and desfechos.back() == "duelo_vencido",
+			"derrubar a equipe do guardiao vence o duelo", str(desfechos))
+
+	# Troca obrigatoria e derrota: as duas primeiras caem no golpe do adversario.
+	_curar(g)
+	g.iniciar_duelo(guardiao, [g.bestiario[12]])
+	await _ate_o_menu(g)
+	var forcou := false
+	for tentativa in 80:
+		if not g.estado.em_encontro():
+			break
+		if g.estado.e(EstadoEncontro.Estado.TROCA_OBRIGATORIA):
+			forcou = true
+			_ok(not g._interface._lista_cancelavel, "a troca obrigatoria nao se cancela")
+			g._on_lista(g._itens_de_troca("trocar_forcada")[0]["valor"])
+			await _ate_decisao(g)
+			continue
+		g.motor.jogador().vida = 1
+		g.motor.jogador().ficha.esquiva = 0.0
+		g._resolver_turno({"tipo": "passar"})
+		await _ate_decisao(g)
+	await _ate_inativo(g)
+	_ok(forcou, "cair com reserva viva obriga a trocar")
+	_ok(desfechos.back() == "derrota", "a equipe inteira no chao e derrota", str(desfechos))
+	_ok(not g.equipe.tem_vivos(), "ninguem de pe depois da derrota")
+	_ok(not g.pode_comecar(), "e nenhum encontro comeca assim")
+	g.iniciar(zona)
+	_ok(not g.estado.em_encontro(), "iniciar() recusa")
+	g.encontro_terminado.disconnect(ouvir)
+	_curar(g)
+	_etapas += 1
 
 
 # ------------------------------------------------------------------- utilidades
+
+## Espera o jogador ter de decidir algo, ou o encontro acabar.
+func _ate_decisao(g: GerenciadorEncontro) -> void:
+	var parou := func() -> bool:
+		return g.estado.aceita_entrada() or not g.estado.em_encontro()
+	await _ate(g, parou)
+
+
+func _curar(g: GerenciadorEncontro) -> void:
+	for c: Combatente in g.equipe.ativos + g.equipe.deposito:
+		c.vida = c.ficha.vida
+
 
 ## Reduz o roteiro ao minimo para o teste nao gastar segundos em fades.
 func _acelerar(g: GerenciadorEncontro) -> void:
@@ -556,6 +707,7 @@ func _acelerar(g: GerenciadorEncontro) -> void:
 	g.cfg.duracao_desfecho = RITMO_DE_TESTE
 	g.cfg.duracao_encerramento = RITMO_DE_TESTE
 	g.cfg.carencia_segundos = 0.0
+	g.cfg.duracao_evento_batalha = RITMO_DE_TESTE
 
 
 ## Espera a maquina chegar a INTERACAO (ou desistir). Espera por ESTADO e nao por
@@ -576,7 +728,7 @@ func _ate(g: GerenciadorEncontro, condicao: Callable, limite: int = 900) -> void
 	for i in limite:
 		if condicao.call():
 			return
-		await process_frame
+		await get_tree().process_frame
 	push_error("teste: tempo esgotado esperando; estado = "
 			+ EstadoEncontro.nome(g.estado.atual))
 
