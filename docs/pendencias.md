@@ -327,3 +327,28 @@ O que entrou:
   em estoque (vara + lanterna + pá); falta só o conserto do parse.
 - **Tremor da fisgada** é `@export` no `GerenciadorPesca` (visual, como os demais
   parâmetros de nó), não um campo de `data/pesca/configuracao.json`.
+
+---
+
+## 12. Batalha, guardiã, vitória e derrota — entregue (fatia)
+
+**Estado:** fatia jogável entregue em 2026-11-03. Ver `presentation/batalha/README.md`. Isto
+fecha, da seção 7, a **batalha de verdade**; da seção 9, **time e depósito** e **HP**; da
+seção 10, os **efeitos de item** e **depósito/time**; da seção 11, **captura ou batalha
+depois de fisgar**.
+
+### Em aberto nesta etapa
+
+- **Faltam 2 guardiões e o duelo final** (até 16/11, pelo plano). Quem faz o duelo final
+  ainda não foi decidido. Hoje `selos_para_vencer` é 1 e vencer a Dulce encerra o jogo.
+- **Os percentis são medidos, não sentidos.** O simulador joga com IA. O valor da Dulce
+  (0,9) sai dele, e pode estar errado para pessoas: conferir no playtest.
+- **Encontro selvagem é caro.** Lutar até o fim custa em média 42% da vida. Sem loja, a
+  reposição é a cura gratuita da Mirela, que pode ficar longe. Dado para o playtest.
+- **Sem loja, poções acabam.** Continua fora do escopo; a cura da Mirela evita o jogo travar.
+- **Bestiário sem tela própria no jogo.** A vitrine do algoritmo (RF07, RF08) segue no plano.
+- **Sem animação de golpe.** O alvo só treme. Polimento, depois da vitrine.
+- **Testes ainda quebrados, de antes desta etapa:** `test_interacao` aborta sob `-s`,
+  `test_bolsa` não compila, e `test_save` falha em `autoload registrado` (efeito do `-s`).
+  `test_encontro` foi corrigido e virou cena. Convertê-los segue no plano, até 08/11.
+

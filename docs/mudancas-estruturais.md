@@ -5,6 +5,45 @@ Refatorações que não alteram o modelo não entram aqui.
 
 ---
 
+## 2026-11-03 — Batalha e guardiões: o modelo NÃO mudou, mas a Camada 1 passa a ler a Camada 2
+
+### O que mudou
+
+**Nada no modelo generativo.** `GeradorCriaturas`, `Criatura`, `MetricasCoerencia` e as
+tabelas `primary_priors`, `conditional_*`, `feature_variants` e `vocabulary` não foram
+tocados. A mesma seed produz o mesmo bestiário, e RF04 e RF08 medem o mesmo objeto.
+
+A batalha é mais uma **leitura** da saída do modelo: stats e golpes vêm da morfologia e
+do porte já sorteados, como a afinidade de captura (2026-09-04) e o perfil de pesca
+(2026-10-27). A coerência semântica atravessa para a mecânica sem regra por espécie.
+
+### O que a Seção 3 do artigo precisa saber
+
+1. **A Camada 4 ganhou um combate derivado.** RF06 está entregue por este caminho.
+2. **Conteúdo autoral condicionado à saída do gerador.** O guardião é autoral (fixo), mas
+   a equipe dele é selecionada do bestiário da seed, por elemento da região e percentil
+   de força (`SelecaoBestiario`). As três criaturas iniciais também. É a primeira vez que
+   a Camada 1 depende da Camada 2, e por isso a separação "autoral não muda entre
+   partidas" precisa dessa ressalva. Não há sorteio novo: a seleção é função determinística
+   do bestiário, então RF03 continua valendo.
+3. **A tela de vitória mostra a coerência da seed contra o baseline independente da mesma
+   seed**, usando a coerência por moda, que é a medida válida em n=100. A informação mútua
+   continua exigindo n ≥ 5000 (`procedural/creatures/README.md`).
+
+### No trade-off
+
+Coerência e desempenho não pagam nada: o bestiário é o mesmo e a derivação é O(1) por
+criatura. A escala continua limitada às ~100 criaturas por seed.
+
+### Pendente, e declarado
+
+O **gerador v2** (bestiário estratificado, dependência entre traços, `P(porte | animal,
+elemento)` e nota de coerência por criatura) foi decidido e adiado. **Esse sim muda o
+modelo**, e vai exigir entrada própria aqui, nova rodada do simulador de batalha e
+atualização da Seção 3. Ver `docs/plano-etapa-final.md`.
+
+---
+
 ## 2026-10-27 — Pesca: o modelo NÃO mudou
 
 ### O que mudou, e por que isto entra aqui mesmo assim

@@ -56,7 +56,8 @@ playtest com público externo é diferencial.
 |---|---|
 | `test_dialogo`, `test_equipamento`, `test_gerador`, `test_mundo`, `test_pesca`, `test_tutorial` | passam |
 | `test_pesca_integracao.tscn` (como cena) | passa (153 verificações) |
-| `test_encontro` | **imprime que passou, mas o fluxo completo aborta**: sob `-s`, `Opcoes` não resolve e a linha 341 quebra. Falso positivo |
+| `test_encontro` | corrigido em 03/11: roda como cena (`test_encontro.tscn`) e exige que cada etapa chegue ao fim |
+| `test_batalha`, `test_arco.tscn` | novos em 03/11; passam |
 | `test_interacao` | **aborta** pelo mesmo motivo (autoload sob `-s`) |
 | `test_bolsa` | **não compila** (`detalhe()` sem argumento, linha 125) |
 | `test_save` | **2 falhas**: `autoload registrado` (efeito do `-s`) e `sorteio de seed não se repete` |
@@ -70,7 +71,7 @@ executor precisa falhar quando um teste aborta.
 |---|---|
 | RF01 mundo por seed, RF02 bestiário, RF03 reprodutibilidade, RF05 exploração, RF08 métricas | entregues |
 | RF04 atributos correlacionados | entregue no dado; **escamas, asas e nadadeiras não são desenhadas** (`pendencias.md`, itens 1 e 2), e são os exemplos centrais da tese |
-| RF06 batalhas | **não existe**: `presentation/batalha/` está vazia |
+| RF06 batalhas | **fatia entregue em 03/11** (`presentation/batalha/README.md`); faltam 2 guardiões e o duelo final |
 | RF07 stats e visual | parcial: mesma lacuna de arte; sem tela de coleção |
 | Camada 3 (ambientação pela seed) | **não implementada**: `procedural/ambiance/` só tem README; a vegetação atual é autoral |
 
@@ -106,6 +107,12 @@ captura. RNG próprio (`world_seed` + deslocamento), regra pura em
 al. (2011) pagaria desempenho sem ganho para este objetivo. A escala continua
 limitada às ~100 criaturas por seed.
 
+**Ajustes de 03/11 ao arco acima:** quem dá a primeira criatura é a **Mirela**, não o
+Anselmo: ela está a 2 células do início, e o Anselmo a 40, depois do mato. É uma **escolha
+de 1 entre 3** criaturas da seed. Os guardiões são NPCs existentes: Dulce, Anselmo e Otávio.
+Sem XP nem níveis: a força vem de qual criatura se tem. O HP persiste, com cura gratuita
+da Mirela e salvamento automático antes de cada guardião.
+
 **Fora do escopo final, salvo sobra de prazo:** loja, interiores de casa, missões
 paralelas, agenda de NPCs. Vão para a seção 16 do GDD como limitações.
 
@@ -118,16 +125,16 @@ registro lá e atualização da Seção 3.**
 
 | Até | Entrega |
 |---|---|
-| 05/11 | build para a aula: batalha mínima, vitória e derrota simples |
+| 05/11 | build para a aula: batalha, vitória e derrota (**fatia pronta em 03/11**; falta gerar a build) |
 | 06/11 | primeira aula: novas datas por escrito, orientações agendadas, possível playtest |
 | 08/11 | testes corrigidos, CI com testes e `gdlint` |
-| 10/11 | batalha completa e equipe (RF06); GDD v0.5 |
+| 10/11 | combate completo; GDD v0.5 |
 | 11/11 | build web no itch.io pelo CI, com log de erros |
-| 12/11 | vitrine do algoritmo no jogo |
-| 14/11 | arte de escamas, asas e nadadeiras |
-| 16/11 | guardiões, vitória e derrota: **jogável de ponta a ponta** |
+| 13/11 | **gerador v2**, em três braços (independente, v1, v2); simulador de novo; vitrine do algoritmo |
+| 15/11 | arte de asas e nadadeiras (escamas depois) |
+| 16/11 | demais guardiões e duelo final: **jogável de ponta a ponta** |
 | 18/11 | Camada 3 mínima; nota da Seção 3 do artigo |
-| 19/11 | playtest da versão completa (≥ 10, com público externo) |
+| 19/11 | playtest da versão completa (≥ 10, com público externo), com o **teste cego** |
 | 22/11 | melhorias do playtest, áudio, game feel |
 | 24/11 | GDD v1.0, Wiki, README, peer review do PAC VIII |
 | 26/11 | pôster, vídeo, QR Code; artigo final |
@@ -144,6 +151,19 @@ Tomadas em 03/11/2026:
 - **Referência do protagonista:** sprite de Pokémon Emerald, usado para formato e
   proporção. A imagem fica fora do repositório e entra como referência no GDD.
 - **Artigo:** será versionado neste repositório pelo autor.
+
+- **Gerador v2, adiado para depois do combate:** novo modo, mantendo a v1 reproduzível.
+  Entram: bestiário estratificado, dependência entre traços, `P(porte | animal, elemento)`
+  e nota de coerência por criatura (surpresa). **Fora:** `P(matiz | elemento, paleta)` e
+  vocabulário maior. Primários seguem independentes: fogo+peixe é um caso que o trabalho
+  quer mostrar. Sem busca nem rejeição.
+- **Critérios da v2, fixados antes de escrevê-la:** 64/64 pares em toda seed; informação
+  mútua e unicidade sem queda (n=5000); geração abaixo de 2 s; RF03. O choque paleta×matiz
+  (cerca de 6,6%) fica como dado informativo, porque a melhoria que o reduziria ficou fora.
+- **Validação humana:** teste cego no playtest de 19/11, em que pessoas adivinham o
+  elemento pelo sprite, comparando os três braços. Quebra a circularidade de medir a
+  tabela com a própria tabela.
+- **Critério de aceite do combate:** `tools/simular_batalha.gd`.
 
 Pendentes, para a aula de 06/11/2026:
 
