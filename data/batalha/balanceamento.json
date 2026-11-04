@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "descricao": "Balanceamento central da batalha (RF06). Nenhum destes numeros aparece hardcoded em codigo. Os stats sao DERIVADOS da morfologia e do porte ja sorteados pelo gerador: nao existe tabela por especie, e o GeradorCriaturas nao e tocado. E o mesmo caminho da pesca e da afinidade de captura. A vida e a formula de vigor de data/captura/balanceamento.json, que ja foi escrita para esta substituicao.",
+    "formula_dano": "dano = max(minimo, poder_efetivo * (ataque / defesa_efetiva) * escala * mult_elemento * mult_lado * variacao)",
+    "formula_acerto": "p = precisao_do_golpe * (1 - esquiva_efetiva_do_alvo)",
+    "versao": 1
+  },
+
+  "stats": {
+    "_descricao": "Cada traco presente soma a UM stat: valor + por_variante * indice da variante. O indice segue o eixo declarado em data/feature_variants.json (ex.: garras vao de suave a agressiva). O porte ajusta o resto; a vida por porte ja esta na formula de vigor.",
+    "base": { "ataque": 50.0, "defesa": 50.0, "velocidade": 50.0, "esquiva": 0.03 },
+    "por_traco": {
+      "garras":     { "stat": "ataque",     "valor": 8.0,  "por_variante": 3.0 },
+      "escamas":    { "stat": "defesa",     "valor": 8.0,  "por_variante": 3.0 },
+      "asas":       { "stat": "velocidade", "valor": 8.0,  "por_variante": 3.0 },
+      "nadadeiras": { "stat": "esquiva",    "valor": 0.04, "por_variante": 0.015 }
+    },
+    "por_porte": {
+      "compacto": { "defesa": 4.0,  "velocidade": -3.0 },
+      "medio":    {},
+      "esbelto":  { "defesa": -1.0, "velocidade": 2.0 },
+      "alongado": { "defesa": -3.0, "velocidade": 5.0 }
+    }
+  },
+
+  "dano": {
+    "escala": 0.85,
+    "variacao": 0.15,
+    "minimo": 1,
+    "poder_por_variante": 0.1
+  },
+
+  "fuga": {
+    "_descricao": "Chance de fugir de um selvagem. Sobe com a diferenca de velocidade; falhar gasta o turno. Contra guardiao nao ha fuga.",
+    "base": 0.55,
+    "por_velocidade": 0.015,
+    "piso": 0.2,
+    "teto": 0.95
+  },
+
+  "lados": {
+    "_descricao": "Como cada tipo de adversario luta. O selvagem bate mais fraco e erra mais a escolha do golpe: e encontro de caminho, e o HP persiste entre batalhas.",
+    "selvagem": { "mult_dano": 0.4, "chance_golpe_aleatorio": 0.35, "chance_reforco": 0.1 },
+    "guardiao": { "mult_dano": 1.0, "chance_golpe_aleatorio": 0.1, "chance_reforco": 0.2 },
+    "jogador":  { "mult_dano": 1.0, "chance_golpe_aleatorio": 0.0, "chance_reforco": 0.0 }
+  },
+
+  "forca": {
+    "_descricao": "Pesos do indice de forca usado para escolher iniciais e equipes de guardiao por percentil. Nao entra em nenhum calculo de dano.",
+    "vida": 0.25,
+    "ataque": 1.0,
+    "defesa": 1.0,
+    "velocidade": 0.5,
+    "esquiva": 100.0
+  },
+
+  "iniciais": {
+    "_descricao": "A escolha de 1 entre 3 no comeco da partida. Faixa de percentil de forca do bestiario: nem a mais fraca nem a mais forte da seed.",
+    "quantidade": 3,
+    "percentil_min": 0.35,
+    "percentil_max": 0.65
+  },
+
+  "equipe": { "maximo": 3 }
+}

@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "descricao": "Vantagem de elementos. Cada elemento e forte contra dois e fraco contra dois, e a relacao e simetrica: A forte contra B implica B fraco contra A. Multiplicadores suaves de proposito: o que esta disponivel depende da seed, e um x2 poderia criar um guardiao quase impossivel numa seed sem o elemento certo.",
+    "versao": 1
+  },
+  "multiplicador_forte": 1.5,
+  "multiplicador_fraco": 0.75,
+  "forte_contra": {
+    "fogo":     ["planta", "gelo"],
+    "agua":     ["fogo", "terra"],
+    "terra":    ["fogo", "eletrico"],
+    "ar":       ["planta", "sombra"],
+    "planta":   ["agua", "sombra"],
+    "eletrico": ["agua", "ar"],
+    "gelo":     ["ar", "terra"],
+    "sombra":   ["eletrico", "gelo"]
+  }
+}
