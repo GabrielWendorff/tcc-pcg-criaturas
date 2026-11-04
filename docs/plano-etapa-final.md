@@ -6,7 +6,11 @@ Levantamento de 03/11/2026 (terça-feira) contra o
 [Trello](https://trello.com/b/nPQmonFA/pac-vii-viii-pcg-rpg-2d), lista
 "Etapa Final (até 30/11)". `docs/pendencias.md` continua sendo o registro técnico.
 
-Faltam **27 dias** para a entrega de 30/11/2026 (segunda-feira).
+Faltam **27 dias** para a entrega de 30/11/2026 (segunda-feira), contados de 03/11.
+
+**Estado em 04/11/2026:** a fatia de combate, vitória e derrota está pronta e foi testada
+pelo autor, e as builds para a aula estão geradas (seção 4.1). O próximo marco é a aula de
+06/11.
 
 ---
 
@@ -18,8 +22,8 @@ Faltam **27 dias** para a entrega de 30/11/2026 (segunda-feira).
 | Playtest com ≥ 10 pessoas | 30/10/2026 | **não realizado; prazo vencido** | possivelmente na aula de 06/11/2026; levar build |
 | Relatório do playtest | 30/10/2026 | **não realizado; prazo vencido** | pedir nova data por escrito na aula de 06/11/2026 |
 | 5 orientações evidenciadas | 30/11/2026 | **nenhuma até agora** | agendar as 5 em 06/11/2026 |
-| Jogo do início ao fim, com vitória e derrota | 30/11/2026 | **não atende** | seção 3 |
-| Build pública (Itch.io, loja, WebGL, APK) | 30/11/2026 | não existe | CI + itch.io |
+| Jogo do início ao fim, com vitória e derrota | 30/11/2026 | **fatia atende** (1 guardiã); faltam 2 guardiões e o duelo final | seção 3 |
+| Build pública (Itch.io, loja, WebGL, APK) | 30/11/2026 | só builds locais de Linux e Windows (seção 4.1) | CI + itch.io |
 | GDD (mínimo: visão, loop, mecânicas, tecnologias) | 30/11/2026 | não existe | template de 19 seções |
 | Wiki | 30/11/2026 | desligada; repositório privado | ver decisão D3 |
 | CI/CD com build automatizado | 30/11/2026 | não existe | GitHub Actions |
@@ -30,8 +34,9 @@ Faltam **27 dias** para a entrega de 30/11/2026 (segunda-feira).
 | PAC VIII: release, peer review, aceite | 30/11/2026 | **a confirmar** | ver decisão D4 |
 | Visitar outra noite do Demo Day e avaliar colegas | 10, 15 ou 16/12/2026 | futuro | requisito de aprovação |
 
-"Sem condição de vitória/derrota" está em *O que não pode ter* da linha: hoje o
-jogo incorre nisso, e é o maior risco técnico.
+"Sem condição de vitória/derrota" está em *O que não pode ter* da linha. Desde 03/11 o
+jogo não incorre mais nisso. O maior risco técnico passou a ser o acúmulo entre 13/11 e
+19/11 (seção 4).
 
 ## 2. Nota: o que falta para o 5 em cada critério
 
@@ -125,14 +130,14 @@ registro lá e atualização da Seção 3.**
 
 | Até | Entrega |
 |---|---|
-| 05/11 | build para a aula: batalha, vitória e derrota (**fatia pronta em 03/11**; falta gerar a build) |
+| ~~05/11~~ | ~~build para a aula: batalha, vitória e derrota~~ (pronta em 04/11; seção 4.1) |
 | 06/11 | primeira aula: novas datas por escrito, orientações agendadas, possível playtest |
 | 08/11 | testes corrigidos, CI com testes e `gdlint` |
-| 10/11 | combate completo; GDD v0.5 |
+| 10/11 | ajustes do combate a partir do que a aula mostrar; GDD v0.5 |
 | 11/11 | build web no itch.io pelo CI, com log de erros |
 | 13/11 | **gerador v2**, em três braços (independente, v1, v2); simulador de novo; vitrine do algoritmo |
 | 15/11 | arte de asas e nadadeiras (escamas depois) |
-| 16/11 | demais guardiões e duelo final: **jogável de ponta a ponta** |
+| 16/11 | Anselmo, Otávio e duelo final (dono a definir): **jogo completo** |
 | 18/11 | Camada 3 mínima; nota da Seção 3 do artigo |
 | 19/11 | playtest da versão completa (≥ 10, com público externo), com o **teste cego** |
 | 22/11 | melhorias do playtest, áudio, game feel |
@@ -141,6 +146,30 @@ registro lá e atualização da Seção 3.**
 | 27/11 | ensaio da prova de autoria; congelar a release |
 | 30/11 | **entrega** e prova de autoria |
 | 10, 15, 16/12 | Poster + Demo Day |
+
+**Risco:** gerador v2, vitrine, arte e guardiões vêm em sequência entre 13/11 e 16/11, e o
+teste cego de 19/11 depende da v2 e da arte. Proposta, se atrasar: cortar primeiro a
+Camada 3 de 18/11, depois as escamas.
+
+### 4.1 Builds
+
+| Build | Arquivo em `exports/` | F2, F3, F4 | Uso |
+|---|---|---|---|
+| entrega | `linux/rpg-pcg.x86_64`, `windows/rpg-pcg.exe` | não | aula e playtest |
+| debug | `debug/linux/rpg-pcg-debug.x86_64`, `debug/windows/rpg-pcg-debug.exe` | sim | demonstração e diagnóstico |
+
+```bash
+godot --headless --path . --export-release "Linux" exports/linux/rpg-pcg.x86_64
+godot --headless --path . --export-release "Windows" exports/windows/rpg-pcg.exe
+godot --headless --path . --export-debug "Linux" exports/debug/linux/rpg-pcg-debug.x86_64
+godot --headless --path . --export-debug "Windows" exports/debug/windows/rpg-pcg-debug.exe
+```
+
+As teclas seguem `OS.is_debug_build()`. A F5 (salvar) e o F de usar item valem nas duas.
+
+`export_presets.cfg` e `exports/` estão fora do git, e o filtro que mantém as referências
+locais (`autoral/_*`) fora da build está nesse arquivo. **O CI precisa dele:** versionar o
+arquivo no passo de 08/11 e conferir o binário com `grep -a _ref_direcoes`.
 
 ## 5. Decisões
 
@@ -164,6 +193,14 @@ Tomadas em 03/11/2026:
   elemento pelo sprite, comparando os três braços. Quebra a circularidade de medir a
   tabela com a própria tabela.
 - **Critério de aceite do combate:** `tools/simular_batalha.gd`.
+
+Tomadas em 04/11/2026:
+
+- **Teclas de desenvolvimento** só no editor e na build de debug.
+
+Pendente, sem data:
+
+- Quem faz o duelo final.
 
 Pendentes, para a aula de 06/11/2026:
 
