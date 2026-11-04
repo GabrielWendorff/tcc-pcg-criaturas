@@ -10,13 +10,16 @@ autoral/
 │   ├── <id>_1x.png       folha de caminhada (4 direções × 4 quadros)
 │   └── retratos/*.png    busto 32×32 para a caixa de diálogo
 ├── dialogos/<id>.json    uma árvore por personagem (+ anselmo_tutorial: falas da lição)
+├── guardioes/guardioes.json  guardiões: NPC, selo e regra (a equipe vem da seed)
 ├── tutoriais/<id>.json   tutoriais como sequência de passos (pesca.json: a lição do Anselmo)
 ├── protagonista*.png     folha do personagem jogável
 ├── gerar_protagonista.py desenha a folha do protagonista, pixel a pixel
 └── gerar_npcs.py         deriva as folhas e os retratos dos NPCs
 ```
 
-> A aleatoriedade da seed atua nas camadas 2 e 3 (`procedural/`), nunca aqui.
+> A aleatoriedade da seed atua nas camadas 2 e 3 (`procedural/`), nunca aqui. A exceção
+> declarada é a equipe do guardião: o guardião é fixo, e as criaturas dele são lidas do
+> bestiário (`docs/mudancas-estruturais.md`, 2026-11-03).
 
 ## O mapa é saída de ferramenta
 

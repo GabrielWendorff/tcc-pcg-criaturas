@@ -2,7 +2,7 @@
   "_meta": {
     "descricao": "Itens que NAO sao de captura. Dispositivos e iscas continuam declarados em data/captura/dispositivos.json e iscas.json, e o CatalogoItens os envelopa a partir de la — nunca os redeclare aqui: dois arquivos descrevendo o mesmo item divergem na primeira calibragem.",
     "icones": "Todo item precisa de uma entrada em arte/itens/itens.json, gerada por tools/arte/gerar_itens.py. Item sem icone e erro de dado, apanhado por tools/test_bolsa.gd.",
-    "efeito": "Declarativo. {'tipo': 'curar', 'valor': N} e {'tipo': 'reviver', 'percentual': N}. Quem interpreta e o sistema de batalha (Etapa 5); ate la o campo e so descricao.",
+    "efeito": "Declarativo. {'tipo': 'curar', 'valor': N} e {'tipo': 'reviver', 'percentual': N}. Quem interpreta e CalculoBatalha, na batalha e na bolsa.",
     "equipamento": "Item com o marcador 'equipamento' vai para a mao e aparece na roda de itens (Q). 'mao' diz como desenha-lo: {'forma': 'vara'|'lanterna'|'pa'|'icone', 'comprimento': px, 'cor': 'rrggbb'}; 'textura' (res://...png) ou 'cena' (res://...tscn) substituem o placeholder desenhado por codigo — e onde a arte final entra, sem tocar em GDScript. Sem 'mao', o item aparece como o proprio icone, pequeno. 'uso' diz o que o botao de usar (F) faz com ele na mao: 'pescar' liga a vara a pesca; '' so troca o sprite. Ver presentation/equipamento/README.md.",
     "versao": 1
   },

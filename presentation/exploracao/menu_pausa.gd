@@ -1,7 +1,7 @@
 class_name MenuPausa
 extends CanvasLayer
 
-## Menu de pausa (ESC no mundo): continuar, bolsa, opcoes, salvar, sair.
+## Menu de pausa (ESC no mundo): continuar, equipe, bolsa, opcoes, salvar, sair.
 ##
 ## PAUSA DE VERDADE — `get_tree().paused = true`. Nao e so congelar o jogador:
 ## com a arvore pausada o encontro nao sorteia, os tweens de animacao param e o
@@ -30,6 +30,7 @@ enum Pagina { RAIZ, OPCOES }
 
 const OPCOES_RAIZ := [
 	{"id": "continuar", "texto": "CONTINUAR"},
+	{"id": "equipe", "texto": "EQUIPE"},
 	{"id": "bolsa", "texto": "BOLSA"},
 	{"id": "opcoes", "texto": "OPÇÕES"},
 	{"id": "salvar", "texto": "SALVAR"},
@@ -37,6 +38,15 @@ const OPCOES_RAIZ := [
 ]
 
 var bolsa: TelaBolsa
+var tela_equipe: TelaEquipe
+
+## Quem resolve um item usado na bolsa, porque esta classe nao sabe o que e curar:
+## recebe o ItemJogo e devolve a frase do resultado. A cena do mundo liga aqui.
+var usar_item: Callable
+
+## Equipe mostrada pela tela de equipe. A cena do mundo entrega.
+var equipe: EquipeJogador
+var catalogo_corpos: CatalogoCorpos
 
 ## A bolsa foi aberta DIRETO do mundo (tecla B), e nao pelo item do menu. Quem
 ## entrou por atalho tem de sair por atalho: fechar a bolsa devolve o jogo, em
@@ -105,6 +115,11 @@ func _ready() -> void:
 	bolsa.item_usado.connect(_ao_usar_item)
 	add_child(bolsa)
 
+	tela_equipe = TelaEquipe.new()
+	tela_equipe.name = "TelaEquipe"
+	tela_equipe.fechada.connect(_voltar_da_equipe)
+	add_child(tela_equipe)
+
 	visible = false
 
 
@@ -130,6 +145,8 @@ func fechar() -> void:
 	_painel_opcoes.fechar()
 	if bolsa.aberta():
 		bolsa.fechar()
+	if tela_equipe.aberta():
+		tela_equipe.fechar()
 	get_tree().paused = false
 
 
@@ -168,6 +185,8 @@ func _ao_escolher(indice: int) -> void:
 	match String(OPCOES_RAIZ[indice]["id"]):
 		"continuar":
 			retomar_pedido.emit()
+		"equipe":
+			_mostrar_equipe()
 		"bolsa":
 			_mostrar_bolsa(false)
 		"opcoes":
@@ -176,6 +195,21 @@ func _ao_escolher(indice: int) -> void:
 			salvar_pedido.emit()
 		"sair":
 			sair_pedido.emit()
+
+
+func _mostrar_equipe() -> void:
+	if equipe == null:
+		nota("Sem equipe nesta cena.")
+		_ir_para(Pagina.RAIZ)
+		return
+	_raiz.visible = false
+	_menu.fechar()
+	tela_equipe.abrir(equipe, catalogo_corpos)
+
+
+func _voltar_da_equipe() -> void:
+	if _aberto:
+		_ir_para(Pagina.RAIZ)
 
 
 ## Abre a bolsa por cima. O menu sai de cena enquanto ela esta aberta: duas
@@ -203,13 +237,15 @@ func _ao_fechar_bolsa() -> void:
 		_ir_para(Pagina.RAIZ)
 
 
-## Nenhum sistema consome item ainda (a batalha e a Etapa 5). Recusar por escrito
-## e melhor que gastar em silencio.
+## Quem cura e a cena do mundo, por `usar_item`. Item sem efeito responde com uma
+## recusa escrita, em vez de gastar em silencio.
 func _ao_usar_item(item: ItemJogo) -> void:
 	if item.permanente:
-		nota("%s fica com você — é equipamento." % item.nome)
+		bolsa.avisar("%s fica com você — é equipamento." % item.nome)
+	elif not item.efeito.has("tipo") or not usar_item.is_valid():
+		bolsa.avisar("Nada para fazer com %s agora." % item.nome)
 	else:
-		nota("Nada para usar %s agora." % item.nome)
+		bolsa.avisar(String(usar_item.call(item)))
 
 
 ## Mensagem curta sob o menu. Fica ate a proxima — com o jogo pausado nao ha
@@ -220,7 +256,7 @@ func nota(texto: String) -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
-	if not _aberto or bolsa.aberta():
+	if not _aberto or bolsa.aberta() or tela_equipe.aberta():
 		return
 	var tratou := false
 	if _pagina == Pagina.RAIZ:

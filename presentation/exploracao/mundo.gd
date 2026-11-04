@@ -4,9 +4,10 @@ extends Node2D
 ##
 ## Monta mundo, jogador, camera, encontro, dialogo, roda de itens, pesca e o
 ## tutorial do Anselmo, e liga uns aos outros — nenhum deles conhece os demais.
-## Continua sem missao; a batalha existe apenas como o golpe que enfraquece a
-## criatura dentro do encontro (ver GerenciadorEncontro._atacar), e a pesca para
-## na fisgada (ver _ao_fisgar).
+##
+## O ARCO DO JOGO e costurado aqui: a primeira criatura (Mirela), o duelo do guardiao,
+## o selo, a vitoria e a derrota. A regra de batalha nao esta nesta cena; ela so reage
+## a como o encontro terminou (_on_encontro_terminado).
 ##
 ## A SEED entra aqui, e desde a Etapa 1 do menu ela vem DE FORA: quem a escolhe e
 ## a tela de nova partida (RF01), e quem a guarda e o autoload `Save`. Esta cena
@@ -45,6 +46,10 @@ extends Node2D
 
 const CENA_BESTIARIO := "res://presentation/bestiario_viewer.tscn"
 const CENA_MENU := "res://presentation/menu/menu_principal.tscn"
+const CENA_MUNDO := "res://presentation/exploracao/mundo.tscn"
+
+const BANDEIRA_INICIAL := "recebeu_inicial"
+const BANDEIRA_VENCEU := "jogo_vencido"
 
 ## Linha de teclas do HUD. Constante (e nao literal em _montar_hud) para o teste
 ## de integracao conferir os glifos contra a fonte pixel.
@@ -85,6 +90,9 @@ var pausa: MenuPausa
 var roda: RodaItens
 var pesca: GerenciadorPesca
 var tutorial: GerenciadorTutorial
+var guardioes: CatalogoGuardioes
+var tela_inicial: TelaEscolhaInicial
+var tela_desfecho: TelaDesfecho
 
 var _depuracao: bool = false
 var _sobreposicao: SobreposicaoDepuracao
@@ -92,6 +100,14 @@ var _aviso: Label
 var _hud_dica: Control
 var _hud_bolsa: Control
 var _hud_nota: Control
+var _hud_objetivo: Control
+## O que fazer quando a conversa fechar: a escolha inicial e o duelo nao abrem por cima
+## da caixa de fala do NPC que os pediu.
+var _apos_conversa: Callable
+## Guardiao do duelo em curso, para saber de quem e o selo quando ele terminar.
+var _duelo_atual: Dictionary = {}
+## A criatura fisgada foi para a batalha: a pesca espera ela terminar.
+var _pesca_em_batalha: bool = false
 var _tween_nota: Tween
 var _regiao_corrente: String = ""
 ## O HUD foi pedido visivel? (_mostrar_hud). Guardado porque as duas linhas de
@@ -147,7 +163,38 @@ func _ready() -> void:
 	_montar_tutorial()
 	_montar_regioes_e_mapa()
 	_montar_pausa()
+	_montar_arco()
 	_ligar_save()
+	_atualizar_objetivo()
+
+
+## Primeira criatura, guardioes, vitoria e derrota.
+func _montar_arco() -> void:
+	guardioes = CatalogoGuardioes.carregar()
+	if guardioes.erro != "":
+		_mostrar_erro("guardioes: " + guardioes.erro)
+		return
+	tela_inicial = TelaEscolhaInicial.new()
+	tela_inicial.name = "TelaEscolhaInicial"
+	add_child(tela_inicial)
+	tela_inicial.escolhida.connect(_ao_escolher_inicial)
+	tela_inicial.cancelada.connect(func() -> void:
+			jogador.congelar(false)
+			if dialogos != null:
+				dialogos.suspender(false))
+
+	tela_desfecho = TelaDesfecho.new()
+	tela_desfecho.name = "TelaDesfecho"
+	add_child(tela_desfecho)
+	tela_desfecho.opcao_escolhida.connect(_ao_escolher_no_desfecho)
+
+	if dialogos != null:
+		dialogos.conversa_terminada.connect(_ao_terminar_conversa)
+	if estado_mundo != null:
+		estado_mundo.bandeira_mudou.connect(func(_n: String, _v: Variant) -> void:
+				_atualizar_objetivo())
+	if encontros != null and encontros.equipe != null:
+		encontros.equipe.mudou.connect(_atualizar_objetivo)
 
 
 ## Liga o sistema de encontros. Depois do HUD de proposito: o gerenciador emite
@@ -279,17 +326,23 @@ func _ao_encerrar_pesca() -> void:
 	_atualizar_bolsa()
 
 
-## PONTO DE INTEGRACAO da pesca com a batalha/captura (RF06), que ainda nao
-## existem. Hoje: nota no HUD e registro no console. Quando existirem, entram
-## AQUI e em mais nenhum lugar: `pesca.encerrar_ao_fisgar = false` em
-## _montar_pesca, abrir a batalha/captura com `criatura` e chamar
-## `pesca.encerrar()` quando ela acabar — a pesca ja fica parada em FISGADO,
-## com o jogador congelado, esperando exatamente por isso.
+## A criatura fisgada vira batalha, com a pesca parada em FISGADO e o jogador
+## congelado ate ela terminar (_on_encontro_terminado chama pesca.encerrar). Na licao do
+## Anselmo, ou sem ninguem de pe para lutar, a fisgada so vira nota: quem aprende a
+## pescar nao pode perder a partida por isso.
 func _ao_fisgar(criatura: Criatura) -> void:
 	if criatura == null:
 		return
 	print("Pesca: fisgou %s" % criatura)
 	_nota(TEXTO_FISGOU % criatura.nome())
+	if pesca.modo_tutorial or encontros == null or not encontros.pode_comecar():
+		return
+	# Sincrono, antes do primeiro await: _fisgar le este campo logo depois do sinal.
+	pesca.encerrar_ao_fisgar = false
+	_pesca_em_batalha = true
+	# O letreiro "FISGOU!" fica um instante antes do encontro cobrir a tela.
+	await get_tree().create_timer(pesca.cfg.duracao_resultado).timeout
+	encontros.iniciar_com_criatura(criatura)
 
 
 ## Agua e regiao pela geometria do MAPA. Sao Callable para a pesca: ela nao
@@ -349,6 +402,10 @@ func _dono_da_tela() -> String:
 		return "tutorial"
 	if pausa != null and pausa.aberto():
 		return "pausa"
+	if tela_desfecho != null and tela_desfecho.aberta():
+		return "desfecho"
+	if tela_inicial != null and tela_inicial.aberta():
+		return "escolha"
 	if encontros != null and encontros.estado.em_encontro():
 		return "encontro"
 	if dialogos != null and dialogos.em_conversa():
@@ -380,7 +437,7 @@ func _process(_delta: float) -> void:
 func _ceder_topo_a_dica() -> void:
 	var dica_na_tela: bool = tutorial != null and tutorial.dica != null \
 			and tutorial.dica.dica_visivel()
-	for no: Control in [_hud_dica, _hud_bolsa]:
+	for no: Control in [_hud_dica, _hud_bolsa, _hud_objetivo]:
 		if no != null:
 			no.visible = _hud_visivel and not dica_na_tela
 
@@ -464,30 +521,40 @@ func _reequipar(id: String) -> void:
 		jogador.equipar(null)
 
 
-## Criaturas capturadas. PROVISORIO ATE A ETAPA 4: hoje existe uma colecao unica
-## (InventarioJogador.colecao) e nenhum conceito de time, entao tudo e gravado em
-## `armazenadas`. Quando o time ativo existir, esta secao e substituida pela do
-## gerenciador de equipe e os saves antigos continuam validos — o deposito e
-## exatamente onde uma criatura sem time deve estar.
+## Criaturas do jogador: equipe e deposito, com a vida de cada uma. Os atributos nao
+## vao para o save, sao recalculados pela seed (CriaturaSalva).
 func _colher_criaturas(d: DadosPartida) -> void:
-	d.armazenadas.clear()
-	for c: Criatura in encontros.inventario.colecao:
-		d.armazenadas.append(CriaturaSalva.de_criatura(c))
+	d.equipe = encontros.equipe.para_salvas(encontros.equipe.ativos)
+	d.armazenadas = encontros.equipe.para_salvas(encontros.equipe.deposito)
 
 
 func _repor_criaturas(d: DadosPartida) -> void:
+	var equipe := encontros.equipe
+	equipe.ativos.clear()
+	equipe.deposito.clear()
 	encontros.inventario.colecao.clear()
-	for lista: Array in [d.equipe, d.armazenadas]:
-		for salva: CriaturaSalva in lista:
-			var c := salva.resolver(encontros.bestiario)
-			if c == null:
-				# Nao derruba a partida: uma criatura que nao resolve veio de um
-				# bestiario menor, e perder uma criatura e melhor que recusar o
-				# save inteiro. DadosPartida._validar ja barra o caso grave (a
-				# seed trocada), que e o unico em que TUDO estaria errado.
-				push_warning("Save: criatura #%d nao existe neste bestiario" % salva.id)
-				continue
-			encontros.inventario.colecao.append(c)
+	_repor_lista(d.equipe, equipe.ativos)
+	_repor_lista(d.armazenadas, equipe.deposito)
+	# Save de antes da equipe existir: tudo estava em `armazenadas`.
+	while equipe.ativos.size() < equipe.maximo and not equipe.deposito.is_empty():
+		equipe.promover(0)
+	if not equipe.vazia():
+		estado_mundo.definir(BANDEIRA_INICIAL)
+	equipe.mudou.emit()
+
+
+func _repor_lista(salvas: Array[CriaturaSalva], destino: Array[Combatente]) -> void:
+	for salva: CriaturaSalva in salvas:
+		var c := salva.resolver(encontros.bestiario)
+		if c == null:
+			# Nao derruba a partida: uma criatura que nao resolve veio de um
+			# bestiario menor, e perder uma criatura e melhor que recusar o
+			# save inteiro. DadosPartida._validar ja barra o caso grave (a
+			# seed trocada), que e o unico em que TUDO estaria errado.
+			push_warning("Save: criatura #%d nao existe neste bestiario" % salva.id)
+			continue
+		destino.append(Combatente.de_criatura(c, encontros.tabelas_batalha, salva.hp_atual))
+		encontros.inventario.colecao.append(c)
 
 
 ## Nome de exibicao da regiao, para o cartao do slot. Vem do mapa ja carregado —
@@ -534,6 +601,25 @@ func _montar_pausa() -> void:
 	pausa.retomar_pedido.connect(_fechar_pausa)
 	pausa.salvar_pedido.connect(_salvar_pela_pausa)
 	pausa.sair_pedido.connect(_sair_para_o_menu)
+	pausa.usar_item = _usar_item_da_bolsa
+	if encontros != null:
+		pausa.equipe = encontros.equipe
+		pausa.catalogo_corpos = encontros.catalogo
+
+
+## Item usado fora de batalha: vai para quem mais precisa na equipe. O item so e gasto
+## se fez algo.
+func _usar_item_da_bolsa(item: ItemJogo) -> String:
+	if encontros == null or encontros.equipe == null:
+		return "Nada para fazer com %s agora." % item.nome
+	var alvo := encontros.equipe.alvo_de_efeito(item.efeito)
+	if alvo == null:
+		return "Ninguém na equipe precisa de %s." % item.nome
+	if not Bolsa.remover(item.id):
+		return "Acabou: %s." % item.nome
+	var ganho := CalculoBatalha.aplicar_efeito(item.efeito, alvo)
+	encontros.equipe.mudou.emit()
+	return "%s: +%d de vida em %s." % [item.nome, ganho, alvo.nome()]
 
 
 ## ESC e `ui_cancel` ao mesmo tempo: quem ja tem a tela na frente responde
@@ -598,8 +684,153 @@ func _on_servico_pedido(pedido: Dictionary, npc: Npc) -> void:
 		"pesca":
 			_nota(_dica_de_pesca())
 			return
+		"escolher_inicial":
+			_apos_conversa = _abrir_escolha_inicial
+			return
+		"curar_equipe":
+			encontros.equipe.curar_todos()
+			_nota("Equipe recuperada.")
+			return
+		"duelo":
+			var id_guardiao := String(pedido.get("guardiao", ""))
+			_apos_conversa = _comecar_duelo.bind(id_guardiao)
+			return
 	print("servico pedido por %s: %s %s" % [quem, tipo, pedido])
 	_nota("(%s ainda nao implementado — pedido por %s)" % [tipo.to_upper(), quem])
+
+
+func _ao_terminar_conversa(_npc: Npc) -> void:
+	if not _apos_conversa.is_valid():
+		return
+	var pendente := _apos_conversa
+	_apos_conversa = Callable()
+	pendente.call()
+
+
+func _abrir_escolha_inicial() -> void:
+	if encontros == null or not encontros.equipe.vazia():
+		return
+	jogador.congelar(true)
+	dialogos.suspender(true)
+	tela_inicial.abrir(SelecaoBestiario.iniciais(encontros.bestiario, encontros.tabelas_batalha),
+			encontros.catalogo, encontros.tabelas_batalha)
+
+
+func _ao_escolher_inicial(c: Criatura) -> void:
+	encontros.equipe.adicionar(Combatente.de_criatura(c, encontros.tabelas_batalha))
+	encontros.inventario.guardar_criatura(c)
+	estado_mundo.definir(BANDEIRA_INICIAL)
+	jogador.congelar(false)
+	dialogos.suspender(false)
+	_atualizar_bolsa()
+	_autosalvar()
+	_nota("%s agora anda com você." % c.nome())
+
+
+func _comecar_duelo(id_guardiao: String) -> void:
+	var guardiao := guardioes.por_id(id_guardiao)
+	if guardiao.is_empty():
+		push_warning("duelo pedido para guardiao desconhecido: " + id_guardiao)
+		return
+	if not encontros.pode_comecar():
+		_nota("Ninguém de pé na equipe. A Mirela cuida disso, na praça.")
+		return
+	# Antes da luta: e o ponto para onde a derrota volta.
+	_autosalvar()
+	_duelo_atual = guardiao
+	encontros.iniciar_duelo(guardiao, SelecaoBestiario.equipe_guardiao(encontros.bestiario,
+			encontros.tabelas_batalha, guardiao.get("elementos", []),
+			int(guardiao.get("tamanho_equipe", 2)), float(guardiao.get("percentil_forca", 0.5))))
+
+
+## Grava sem avisar quando da; sem slot (cena aberta direto) nao faz nada.
+func _autosalvar() -> void:
+	if Save.em_partida() and Save.slot_atual > 0:
+		var erro := Save.salvar()
+		if erro != "":
+			push_warning("Salvamento automatico falhou: " + erro)
+
+
+func _objetivo_atual() -> String:
+	if encontros == null or encontros.equipe == null or guardioes == null:
+		return ""
+	if encontros.equipe.vazia():
+		return "OBJETIVO  fale com a Mirela, na praça da vila"
+	var de_pe := "EQUIPE %d/%d de pé" % [encontros.equipe.vivos(), encontros.equipe.ativos.size()]
+	if estado_mundo.ativa(BANDEIRA_VENCEU):
+		return "OBJETIVO  concluído. Explore à vontade     " + de_pe
+	for g: Dictionary in guardioes.guardioes:
+		if not estado_mundo.ativa(String(g.get("selo", ""))):
+			return "OBJETIVO  vença %s, ao sul da vila     %s" % [String(g.get("nome", "")), de_pe]
+	return de_pe
+
+
+func _atualizar_objetivo() -> void:
+	if _hud_objetivo != null:
+		_escrever_hud(_hud_objetivo, _objetivo_atual())
+
+
+func _mostrar_vitoria() -> void:
+	jogador.congelar(true)
+	dialogos.suspender(true)
+	tela_desfecho.abrir("VITÓRIA", TemaEncontro.OURO, _texto_de_vitoria(), [
+		{"id": "continuar", "texto": "CONTINUAR EXPLORANDO"},
+		{"id": "menu", "texto": "MENU PRINCIPAL"},
+	])
+
+
+## Os dados da seed: o que este mundo gerou e o quanto isso e coerente contra o sorteio
+## independente da mesma seed (RF08). Coerencia por moda, a medida que vale em n=100: a
+## informacao mutua exige n >= 5000 (procedural/creatures/README.md).
+func _texto_de_vitoria() -> String:
+	var n: int = encontros.bestiario.size()
+	var ger := GeradorCriaturas.new(encontros.tabelas, encontros.catalogo)
+	var cond := MetricasCoerencia.avaliar(encontros.bestiario, encontros.tabelas)
+	var indep := MetricasCoerencia.avaliar(
+			ger.gerar_bestiario(seed_do_mundo, n, GeradorCriaturas.Modo.INDEPENDENTE),
+			encontros.tabelas)
+	var tempo := Save.partida.tempo_legivel() if Save.em_partida() else "—"
+	var nome_seed := Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
+	return "SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS  %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%" % [
+		nome_seed, tempo, encontros.inventario.colecao.size(), n,
+		int(cond["unicidade"]["distintas"]),
+		_coerencia_media(cond) * 100.0, _coerencia_media(indep) * 100.0]
+
+
+static func _coerencia_media(metricas: Dictionary) -> float:
+	var soma: float = 0.0
+	for dim: String in MetricasCoerencia.DIMENSOES_MODA:
+		soma += float(metricas["moda"][dim]["obs"])
+	return soma / MetricasCoerencia.DIMENSOES_MODA.size()
+
+
+func _mostrar_derrota() -> void:
+	jogador.congelar(true)
+	dialogos.suspender(true)
+	var opcoes: Array = []
+	if Save.em_partida() and ArquivoSave.slot_valido(Save.slot_atual) \
+			and int(ArquivoSave.ler(Save.slot_atual)["estado"]) == ArquivoSave.Estado.OK:
+		opcoes.append({"id": "recarregar", "texto": "VOLTAR AO ÚLTIMO SAVE"})
+	else:
+		opcoes.append({"id": "recarregar", "texto": "RECOMEÇAR"})
+	opcoes.append({"id": "menu", "texto": "MENU PRINCIPAL"})
+	tela_desfecho.abrir("DERROTA", TemaEncontro.FALHA,
+			"Sua equipe inteira caiu.\nNinguém ficou de pé para continuar.", opcoes)
+
+
+func _ao_escolher_no_desfecho(id: String) -> void:
+	match id:
+		"continuar":
+			jogador.congelar(false)
+			dialogos.suspender(false)
+		"menu":
+			_sair_para_o_menu()
+		"recarregar":
+			if Save.em_partida() and ArquivoSave.slot_valido(Save.slot_atual) \
+					and Save.carregar(Save.slot_atual):
+				get_tree().change_scene_to_file(CENA_MUNDO)
+			else:
+				get_tree().reload_current_scene()
 
 
 ## O que falta para pescar, dito no HUD: vara na mao, vara so na bolsa, ou vara
@@ -747,7 +978,7 @@ func _montar_hud() -> void:
 
 	# Nota transitoria: avisos curtos que nao merecem uma caixa (servico ainda
 	# nao implementado, regiao descoberta). Some sozinha.
-	_hud_nota = _rotulo_de_hud("", Vector2(14, 46))
+	_hud_nota = _rotulo_de_hud("", Vector2(14, 64))
 	camada.add_child(_hud_nota)
 	_hud_nota.modulate.a = 0.0
 
@@ -756,6 +987,10 @@ func _montar_hud() -> void:
 	# entrar no mato — informacao de exploracao, nao de menu.
 	_hud_bolsa = _rotulo_de_hud("", Vector2(14, 28))
 	camada.add_child(_hud_bolsa)
+
+	# O objetivo fica sempre a vista: e o que diz ao jogador para onde este mundo vai.
+	_hud_objetivo = _rotulo_de_hud("", Vector2(14, 46))
+	camada.add_child(_hud_objetivo)
 
 
 ## Rotulo do HUD: texto claro sobre uma copia escura deslocada 2px. Devolve o
@@ -807,7 +1042,7 @@ func _nota(texto: String) -> void:
 
 func _mostrar_hud(visivel: bool) -> void:
 	_hud_visivel = visivel
-	for no in [_hud_dica, _hud_bolsa, _hud_nota]:
+	for no in [_hud_dica, _hud_bolsa, _hud_nota, _hud_objetivo]:
 		if no != null:
 			no.visible = visivel
 	_ceder_topo_a_dica()
@@ -816,8 +1051,32 @@ func _mostrar_hud(visivel: bool) -> void:
 func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 	_mostrar_hud(true)
 	_atualizar_bolsa()
+	_atualizar_objetivo()
 	if criatura != null:
 		print("Encontro encerrado (%s): %s" % [desfecho, criatura.nome()])
+	if _pesca_em_batalha:
+		_pesca_em_batalha = false
+		pesca.encerrar_ao_fisgar = true
+		pesca.encerrar()
+
+	var duelo := _duelo_atual
+	_duelo_atual = {}
+	match desfecho:
+		"derrota":
+			_mostrar_derrota()
+		"duelo_vencido":
+			_ao_vencer_duelo(duelo)
+
+
+func _ao_vencer_duelo(guardiao: Dictionary) -> void:
+	estado_mundo.definir(String(guardiao.get("selo", "")))
+	_nota("%s entregou o selo." % String(guardiao.get("nome", "")))
+	if guardioes.venceu_o_jogo(estado_mundo) and not estado_mundo.ativa(BANDEIRA_VENCEU):
+		estado_mundo.definir(BANDEIRA_VENCEU)
+		_autosalvar()
+		_mostrar_vitoria()
+		return
+	_autosalvar()
 
 
 ## Encontro imediato na zona mais proxima do jogador (F4).
@@ -827,6 +1086,9 @@ func _forcar_encontro() -> void:
 	# Atalho de depuracao, mas sob a mesma regra: um encontro por cima da pesca
 	# ou da roda deixaria dois sistemas congelando e descongelando o jogador.
 	if _dono_da_tela() != "":
+		return
+	if not encontros.pode_comecar():
+		_nota("Sem ninguém de pé na equipe.")
 		return
 	var mais_perto: PontoDeEncontro = null
 	var menor: float = INF

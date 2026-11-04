@@ -21,12 +21,29 @@
   "assuntos": {
    "pergunta": "O que você quer perguntar?",
    "escolhas": [
+    {"texto": "Vim desafiar a guardiã do sítio.", "destino": "desafio",
+     "se": {"todos": [{"bandeira": "recebeu_inicial"}, {"nao": {"bandeira": "selo_dulce"}}]}},
+    {"texto": "Quero uma revanche.", "destino": "revanche",
+     "se": {"bandeira": "selo_dulce"}},
     {"texto": "Sobre a fazenda", "destino": "fazenda"},
     {"texto": "Sobre a plantação", "destino": "plantacao"},
     {"texto": "Sobre o campo em volta", "destino": "campo"},
     {"texto": "Quero comprar mantimentos", "destino": "loja"},
     {"texto": "Bom trabalho.", "destino": "despedida"}
    ]
+  },
+  "desafio": {
+   "falas": [
+    "Então a Mirela já te contou. Quem quer o selo do sítio passa por mim e pelas minhas duas.",
+    "Vá salvando o que tem para salvar. Aqui eu não facilito."
+   ],
+   "efeitos": {"servico": {"tipo": "duelo", "guardiao": "dulce"}},
+   "fim": true
+  },
+  "revanche": {
+   "falas": ["O selo é seu de qualquer jeito. Mas eu gosto de uma boa briga. Vamos."],
+   "efeitos": {"servico": {"tipo": "duelo", "guardiao": "dulce"}},
+   "fim": true
   },
   "fazenda": {
    "falas": [

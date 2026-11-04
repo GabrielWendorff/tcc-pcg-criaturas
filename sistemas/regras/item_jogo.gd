@@ -41,10 +41,7 @@ var max_pilha: int = 99
 var permanente: bool = false
 
 ## O que o item FAZ quando usado. Declarativo: {"tipo": "curar", "valor": 30}.
-## Quem interpreta e o sistema que tem o que curar — hoje ninguem, e isso e
-## proposital: a batalha e a Etapa 5, e inventar aqui um motor de efeitos antes
-## de existir alvo seria adivinhacao. O formato esta declarado para que os itens
-## de cura ja possam existir na bolsa e no save.
+## Quem interpreta e CalculoBatalha, na batalha e na bolsa.
 var efeito: Dictionary = {}
 
 ## Etiquetas livres consultadas por outros sistemas ("pesca", "chave").

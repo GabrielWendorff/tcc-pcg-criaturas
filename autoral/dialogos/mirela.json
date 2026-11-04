@@ -13,14 +13,37 @@
     {
      "se": {"bandeira": "se_apresentou"},
      "falas": ["De volta, hein? A praça é sempre o melhor lugar para se perder um pouco."]
+    },
+    {
+     "se": {"nao": {"bandeira": "recebeu_inicial"}},
+     "falas": ["Você é novo por aqui? Não saia para o mato de mãos vazias, viu? Fale comigo primeiro."]
     }
    ],
    "escolhas": [
+    {"texto": "Preciso de uma criatura para andar por aí.", "destino": "oferta",
+     "se": {"nao": {"bandeira": "recebeu_inicial"}}},
+    {"texto": "Pode cuidar da minha equipe?", "destino": "cuidar",
+     "se": {"bandeira": "recebeu_inicial"}},
     {"texto": "Sim, acabei de chegar.", "destino": "chegou",
-     "efeitos": {"definir": {"se_apresentou": true}}},
+     "efeitos": {"definir": {"se_apresentou": true}},
+     "se": {"nao": {"bandeira": "se_apresentou"}}},
     {"texto": "Estou apenas passando.", "destino": "passando"},
     {"texto": "Não quero conversar.", "destino": "seco"}
    ]
+  },
+  "oferta": {
+   "falas": [
+    "Sem companhia o mato alto não deixa ninguém passar. Tenho três por aqui, e nenhuma é igual à outra.",
+    "Olhe bem o que cada uma tem no corpo. Garra, escama, asa: é isso que vai lutar por você. Escolha uma.",
+    "Só não ache que uma dá conta de tudo. A Dulce, no sítio ao sul, guarda o selo de lá. Pegue mais no mato antes de bater na porteira dela."
+   ],
+   "efeitos": {"servico": {"tipo": "escolher_inicial"}},
+   "fim": true
+  },
+  "cuidar": {
+   "falas": ["Deixe comigo. Água do poço e um pouco de sossego dão conta de quase tudo."],
+   "efeitos": {"servico": {"tipo": "curar_equipe"}},
+   "fim": true
   },
   "chegou": {
    "falas": [

@@ -21,8 +21,8 @@ extends CanvasLayer
 ## selecao e reancorada por ID de categoria, nunca por indice.
 ##
 ## Esta classe nao consome nada. Ela EMITE `item_usado` e quem tem o que curar
-## resolve — hoje ninguem, porque a batalha e a Etapa 5. Usar um item sem alvo
-## responde com uma recusa escrita, em vez de gastar o item em silencio.
+## resolve (a cena do mundo, pelo menu de pausa). Usar um item sem alvo responde com
+## uma recusa escrita, em vez de gastar o item em silencio.
 
 signal fechada()
 signal item_usado(item: ItemJogo)
@@ -37,6 +37,7 @@ const LARGURA_FICHA := 368.0
 const ALTURA_CORPO := 376.0
 const ESCALA_ICONE := 2
 const ESCALA_ICONE_FICHA := 5
+const TEXTO_RODAPE := "SETAS categoria e item     E usar     ESC fechar"
 
 var _raiz: Control
 var _abas: HBoxContainer
@@ -146,9 +147,7 @@ func _montar() -> void:
 	_ficha.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	caixa_ficha.add_child(_ficha)
 
-	_rodape = TemaEncontro.rotulo(
-			"←→ categoria     ↑↓ item     E usar     ESC fechar",
-			TemaEncontro.TEXTO_FRACO)
+	_rodape = TemaEncontro.rotulo(TEXTO_RODAPE, TemaEncontro.PERG_E)
 	coluna.add_child(_rodape)
 
 
@@ -163,6 +162,7 @@ func abrir(criatura: Criatura = null) -> void:
 		_cat_atual = String(_categorias[0]["id"]) if not _categorias.is_empty() else ""
 	_aberta = true
 	visible = true
+	_rodape.text = TEXTO_RODAPE
 	_reconstruir_abas()
 	_reconstruir_lista()
 
@@ -420,3 +420,14 @@ func _usar() -> void:
 	if _itens.is_empty():
 		return
 	item_usado.emit(_itens[_indice])
+
+
+## Resultado de usar um item, no rodape. A lista e refeita porque a quantidade pode
+## ter mudado, e a categoria pode ter esvaziado.
+func avisar(texto: String) -> void:
+	_categorias = Bolsa.categorias_com_itens()
+	if not _tem_categoria(_cat_atual):
+		_cat_atual = String(_categorias[0]["id"]) if not _categorias.is_empty() else ""
+	_reconstruir_abas()
+	_reconstruir_lista()
+	_rodape.text = texto

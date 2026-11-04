@@ -24,10 +24,9 @@ extends RefCounted
 ## O que ESTA aqui e so o que a seed NAO pode reproduzir: o que aconteceu com
 ## aquela criatura depois de capturada.
 ##
-## NIVEL, EXPERIENCIA E HP ainda nao tem sistema (a batalha e a Etapa 5). Os
-## campos existem desde ja para que um save escrito hoje continue valido quando
-## ela existir — acrescentar campo a um formato versionado e barato, mudar o
-## significado de um save ja gravado nao e.
+## O HP e a vida atual da batalha. NIVEL e EXPERIENCIA nao tem sistema, por decisao
+## (presentation/batalha/README.md): a forca vem de qual criatura se tem. Os campos
+## ficam para nao mudar o significado de um save ja gravado.
 
 ## HP ainda nao atribuido: a criatura entra em campo com a vida cheia. Um
 ## sentinela e melhor que 0 porque 0 e um valor legitimo (criatura desmaiada).

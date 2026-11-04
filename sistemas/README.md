@@ -40,7 +40,8 @@ cena do mundo (encontro, diálogo, mapa) **não** entra.
 | `Opcoes` | `opcoes.gd` | configurações do jogador, em `user://opcoes.json` |
 | `Bolsa` | `bolsa.gd` | catálogo de itens + quantidades — ver `presentation/bolsa/README.md` |
 
-Previsto pela etapa seguinte: `Equipe` (time ativo e depósito).
+`Equipe` estava prevista aqui e **não** virou autoload: uma `Criatura` só resolve contra o
+bestiário, que tem o tempo de vida da cena do mundo. Ver `presentation/batalha/README.md`.
 
 A ordem em `project.godot` importa: `Bolsa._ready()` registra uma seção no
 `Save` e escuta `Save.partida_iniciada`, então `Save` vem antes.
@@ -182,6 +183,17 @@ um campo que ainda não foi inventado.
 **As configurações não estão aqui.** Elas vão para `user://opcoes.json` na Etapa
 2, separadas de propósito: valem para o jogador, não para a partida — trocar de
 slot não pode religar um efeito que ele desligou.
+
+## `equipe`, `armazenadas` e `hp`
+
+A equipe ativa vai em `equipe`, o depósito em `armazenadas`, e `hp` guarda a vida atual
+(`-1` = cheia; `0` é uma criatura caída, por isso o sentinela). Entrou **sem** subir
+`VERSAO_ATUAL`: um save antigo tem tudo em `armazenadas`, e a carga promove até 3 para a
+equipe. `nivel` e `xp` seguem parados: não há progressão por experiência
+(`presentation/batalha/README.md`).
+
+Há salvamento automático ao receber a primeira criatura e antes de cada guardião, para a
+derrota sempre ter para onde voltar. Sair sem salvar continua não gravando nada.
 
 ## `item_equipado`: campo opcional, sem versão nova
 

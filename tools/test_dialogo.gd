@@ -83,10 +83,11 @@ func _rodar() -> void:
 	_ok(not s.esperando_escolha(), "nao pede escolha antes de a fala acabar")
 	s.avancar()
 	_ok(s.esperando_escolha(), "terminada a fala, o no ramifica")
-	_ok(s.escolhas().size() == 3, "tres escolhas no no inicial",
+	# A oferta da primeira criatura + as tres de sempre.
+	_ok(s.escolhas().size() == 4, "quatro escolhas no no inicial",
 			"%d" % s.escolhas().size())
 
-	s.escolher(0)                                  # "Sim, acabei de chegar."
+	s.escolher(1)                                  # "Sim, acabei de chegar."
 	_ok(estado.ativa("se_apresentou"), "a escolha aplicou o efeito 'definir'")
 	var falas := 0
 	while s.tem_fala():
