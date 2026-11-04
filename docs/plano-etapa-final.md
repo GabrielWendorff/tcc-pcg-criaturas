@@ -25,7 +25,7 @@ pelo autor, e as builds para a aula estão geradas (seção 4.1). O próximo mar
 | Jogo do início ao fim, com vitória e derrota | 30/11/2026 | **fatia atende** (1 guardiã); faltam 2 guardiões e o duelo final | seção 3 |
 | Build pública (Itch.io, loja, WebGL, APK) | 30/11/2026 | só builds locais de Linux e Windows (seção 4.1) | CI + itch.io |
 | GDD (mínimo: visão, loop, mecânicas, tecnologias) | 30/11/2026 | não existe | template de 19 seções |
-| Wiki | 30/11/2026 | desligada; repositório privado | ver decisão D3 |
+| Wiki | 30/11/2026 | **primeira versão publicada em 04/11**; cresce com CI, GDD, playtest e gerador v2 | fechar em 24/11 |
 | CI/CD com build automatizado | 30/11/2026 | não existe | GitHub Actions |
 | Análise estática | 30/11/2026 | não existe | `gdlint` no CI |
 | Monitoramento (log de erros ou telemetria) | 30/11/2026 | não existe | log de sessão e erros |
@@ -46,7 +46,7 @@ com os três professores.** O critério 5 é eliminatório.
 | Critério | O que já sustenta | O que falta |
 |---|---|---|
 | 1. Relevância e complexidade | contribuição original (atributos correlacionados), RF08 medido contra baseline | jogo completo que mostre isso, com escopo declarado no GDD |
-| 2. Documentação | READMEs por módulo, `mudancas-estruturais.md`, `pendencias.md` | README raiz, GDD, Wiki, diagrama C4 |
+| 2. Documentação | READMEs por módulo, README raiz, Wiki, `mudancas-estruturais.md`, `pendencias.md` | GDD, Wiki completa, diagrama C4 |
 | 3. Qualidade do código | regras puras em `regras/`, dados em JSON, testes de lógica | corrigir os testes da seção 2.1; PRs revisados; lint |
 | 4. Infra e engenharia | Git | CI/CD, deploy automatizado, monitoramento, ambientes dev/produção |
 | 5. Ética e autoria | arte gerada por scripts próprios | créditos e referências no GDD (seções 3 e 18), domínio do código |
@@ -141,7 +141,7 @@ registro lá e atualização da Seção 3.**
 | 18/11 | Camada 3 mínima; nota da Seção 3 do artigo |
 | 19/11 | playtest da versão completa (≥ 10, com público externo), com o **teste cego** |
 | 22/11 | melhorias do playtest, áudio, game feel |
-| 24/11 | GDD v1.0, Wiki, README, peer review do PAC VIII |
+| 24/11 | GDD v1.0, Wiki completa, peer review do PAC VIII |
 | 26/11 | pôster, vídeo, QR Code; artigo final |
 | 27/11 | ensaio da prova de autoria; congelar a release |
 | 30/11 | **entrega** e prova de autoria |
@@ -176,7 +176,7 @@ arquivo no passo de 08/11 e conferir o binário com `grep -a _ref_direcoes`.
 Tomadas em 03/11/2026:
 
 - **Arco do jogo:** aprovado, com foco no gerador (seção 3).
-- **Repositório público:** a Wiki em repositório privado exige plano pago.
+- **Repositório público:** a Wiki em repositório privado exige plano pago. Aberto em 04/11.
 - **Referência do protagonista:** sprite de Pokémon Emerald, usado para formato e
   proporção. A imagem fica fora do repositório e entra como referência no GDD.
 - **Artigo:** será versionado neste repositório pelo autor.
