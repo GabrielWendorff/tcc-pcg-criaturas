@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "descricao": "Itens que NAO sao de captura. Dispositivos e iscas continuam declarados em data/captura/dispositivos.json e iscas.json, e o CatalogoItens os envelopa a partir de la — nunca os redeclare aqui: dois arquivos descrevendo o mesmo item divergem na primeira calibragem.",
+    "icones": "Todo item precisa de uma entrada em arte/itens/itens.json, gerada por tools/arte/gerar_itens.py. Item sem icone e erro de dado, apanhado por tools/test_bolsa.gd.",
+    "efeito": "Declarativo. {'tipo': 'curar', 'valor': N} e {'tipo': 'reviver', 'percentual': N}. Quem interpreta e CalculoBatalha, na batalha e na bolsa.",
+    "equipamento": "Item com o marcador 'equipamento' vai para a mao e aparece na roda de itens (Q). 'mao' diz como desenha-lo: {'forma': 'vara'|'lanterna'|'pa'|'icone', 'comprimento': px, 'cor': 'rrggbb'}; 'textura' (res://...png) ou 'cena' (res://...tscn) substituem o placeholder desenhado por codigo — e onde a arte final entra, sem tocar em GDScript. Sem 'mao', o item aparece como o proprio icone, pequeno. 'uso' diz o que o botao de usar (F) faz com ele na mao: 'pescar' liga a vara a pesca; '' so troca o sprite. Ver presentation/equipamento/README.md.",
+    "versao": 1
+  },
+
+  "categorias": [
+    {
+      "id": "dispositivos",
+      "rotulo": "DISPOSITIVOS",
+      "descricao": "O que prende a criatura.",
+      "fonte": "captura:dispositivos"
+    },
+    {
+      "id": "iscas",
+      "rotulo": "ISCAS",
+      "descricao": "O que atrai pelo animal base. Servem na captura e na pesca.",
+      "fonte": "captura:iscas"
+    },
+    {
+      "id": "consumiveis",
+      "rotulo": "CONSUMÍVEIS",
+      "descricao": "Gastos ao usar."
+    },
+    {
+      "id": "ferramentas",
+      "rotulo": "FERRAMENTAS",
+      "descricao": "Equipamento. Não se gasta."
+    }
+  ],
+
+  "itens": {
+    "ferramentas": [
+      {
+        "id": "vara_de_pesca",
+        "nome": "Vara de Pesca",
+        "descricao": "Bambu rachado e linha remendada. Era do pai do Anselmo.",
+        "empilhavel": false,
+        "permanente": true,
+        "marcadores": ["pesca", "equipamento"],
+        "quantidade_inicial": 0,
+        "mao": { "forma": "vara", "comprimento": 18.0, "cor": "8a5a3c" },
+        "uso": "pescar"
+      },
+      {
+        "id": "lanterna",
+        "nome": "Lanterna",
+        "descricao": "Lata furada e um toco de vela. Ilumina mais a coragem que o caminho.",
+        "empilhavel": false,
+        "permanente": true,
+        "marcadores": ["equipamento"],
+        "quantidade_inicial": 1,
+        "mao": { "forma": "lanterna", "comprimento": 7.0, "cor": "7e8698" },
+        "uso": ""
+      },
+      {
+        "id": "pa_de_jardim",
+        "nome": "Pá de Jardim",
+        "descricao": "Cabo gasto no formato da mão da Dulce. Ela emprestou e esqueceu.",
+        "empilhavel": false,
+        "permanente": true,
+        "marcadores": ["equipamento"],
+        "quantidade_inicial": 1,
+        "mao": { "forma": "pa", "comprimento": 13.0, "cor": "8a5a3c" },
+        "uso": ""
+      }
+    ],
+
+    "consumiveis": [
+      {
+        "id": "pocao_simples",
+        "nome": "Poção Simples",
+        "descricao": "Erva fervida com mel. Fecha o corte, não o cansaço.",
+        "efeito": { "tipo": "curar", "valor": 30 },
+        "quantidade_inicial": 3
+      },
+      {
+        "id": "pocao_forte",
+        "nome": "Poção Forte",
+        "descricao": "Amarga o bastante para ser levada a sério.",
+        "efeito": { "tipo": "curar", "valor": 80 },
+        "quantidade_inicial": 1
+      },
+      {
+        "id": "elixir_de_folego",
+        "nome": "Elixir de Fôlego",
+        "descricao": "Põe de pé quem já tinha desistido. Uma vez só.",
+        "efeito": { "tipo": "reviver", "percentual": 50 },
+        "quantidade_inicial": 0
+      }
+    ]
+  }
+}

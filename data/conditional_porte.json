@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "descricao": "Vies de PORTE (silhueta) CONDICIONADO ao elemento. O porte e o primeiro atributo derivado a ser resolvido: e ele que, junto com o animal_base, seleciona qual mascara de corpo em arte/corpos/ sera usada (arquivo corpo_<animal>_<indice+1>_<porte>.png). Elementos densos (terra, gelo) puxam a silhueta para compacto; elementos etereos (ar, eletrico, sombra) puxam para alongado. Pesos inteiros nao-normalizados na ordem de 'portes'; o gerador normaliza pelo total.",
+    "tipo": "condicional_variante",
+    "condicionado_a": ["elemento"],
+    "alvo": "porte",
+    "pesos": "inteiros_nao_normalizados",
+    "eixo": "compacto -> alongado",
+    "versao": 1
+  },
+  "portes": ["compacto", "medio", "esbelto", "alongado"],
+  "vies_por_elemento": {
+    "fogo":     [2, 3, 3, 2],
+    "agua":     [2, 3, 3, 2],
+    "terra":    [5, 3, 2, 1],
+    "ar":       [1, 2, 3, 5],
+    "planta":   [3, 3, 2, 2],
+    "eletrico": [1, 2, 4, 4],
+    "gelo":     [4, 3, 2, 1],
+    "sombra":   [1, 2, 3, 4]
+  }
+}

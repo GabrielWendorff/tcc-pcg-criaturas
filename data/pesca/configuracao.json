@@ -1,0 +1,110 @@
+{
+  "_meta": {
+    "descricao": "Ritmo e calibragem da pesca. Toda distancia, tempo, chance e texto da pesca sai daqui; ConfiguracaoPesca traz os MESMOS valores como padrao embutido, de modo que a ausencia deste arquivo degrada o ajuste fino, nunca o funcionamento. Cada chave e o nome exato da variavel em ConfiguracaoPesca (presentation/pesca/regras/configuracao_pesca.gd); chave desconhecida vira aviso no console. Nada aqui participa da geracao de criaturas.",
+    "unidades": "distancia em CELULAS do chao (32 px horizontais = 16 px verticais = raiz(2) celula, a metrica de Npc.distancia_em_celulas); profundidade normalizada 0 = superficie .. 1 = fundo; velocidade normalizada 0 = devagar .. 1 = rapido, real = lerp(velocidade_min, velocidade_max, normalizada) em celulas/s; tempos em segundos; forca do arco 0..1 (0 = esquerda).",
+    "calibragem": "Metas verificadas em tools/test_pesca.gd: (1) com a politica perfeita, o monstro e fisgado ~3.2 s apos a silhueta surgir ((alvo - inicial)/ganho = 3.0 s + ~0.2 s de inercia da linha); (2) errando tudo, foge em inicial/perda = 4.4 s; (3) com velocidade_max, um arremesso de 7 celulas volta em ~3 s (7/2.4 = 2.9 s mais a arrancada da linha); (4) recolhendo devagar um arremesso medio (forca 0.5 = 4.25 celulas), ha ~7 sorteios: ~1.5 silhuetas esperadas, ~80% de chance de ver ao menos uma.",
+    "versao": 1
+  },
+
+  "deteccao": {
+    "_descricao": "A sondagem marcha em pixels a partir do pe do jogador, na direcao encarada. Agua mais longe que 'alcance_agua_celulas' nao conta: e olhar o rio de longe, nao estar na beira.",
+    "alcance_agua_celulas": 1.6,
+    "passo_sonda_px": 2.0
+  },
+
+  "arremesso": {
+    "_descricao": "Arco de forca em meio circulo: o ponteiro vai e volta a 'arco_velocidade' fracoes do arco por segundo. Zonas: [0, limite_verde) fraco, [limite_verde, limite_amarelo) medio, resto maximo. A forca vira distancia por lerp(distancia_min_celulas, distancia_max_celulas, forca). Arremessar longe importa: os peixes, rapidos, consomem muito trajeto ate serem fisgados.",
+    "arco_velocidade": 0.85,
+    "arco_raio": 72.0,
+    "arco_espessura": 14.0,
+    "arco_atraso_trava": 0.15,
+    "limite_verde": 0.45,
+    "limite_amarelo": 0.80,
+    "distancia_min_celulas": 1.5,
+    "distancia_max_celulas": 7.0,
+    "duracao_voo": 0.55
+  },
+
+  "recolhimento": {
+    "_descricao": "Mouse Y = altura da isca (presa a [profundidade_min, profundidade_max]); mouse X = velocidade (esquerda rapido, direita devagar). As duas seguem o mouse por lerp exponencial 1 - exp(-k*delta), independente da taxa de quadros.",
+    "profundidade_min": 0.06,
+    "profundidade_max": 0.94,
+    "profundidade_inicial": 0.12,
+    "suavidade_profundidade": 6.0,
+    "suavidade_velocidade": 8.0,
+    "velocidade_min": 0.35,
+    "velocidade_max": 2.4
+  },
+
+  "surgimento": {
+    "_descricao": "Depois de 'atraso_minimo_surgimento' s, um sorteio a cada 'intervalo_surgimento' s: randf() < chance_surgimento x multiplicador do ponto => roleta dos candidatos do ponto. Nao surge com a isca a menos de 'distancia_minima_para_surgir' celulas do jogador.",
+    "intervalo_surgimento": 1.2,
+    "chance_surgimento": 0.22,
+    "atraso_minimo_surgimento": 1.0,
+    "distancia_minima_para_surgir": 1.0
+  },
+
+  "interesse": {
+    "_descricao": "Medidor 0..alvo. Sobe 'interesse_ganho'/s com altura E velocidade dentro das tolerancias do monstro; fora, desce 'interesse_perda'/s (mais devagar, para dar tempo de corrigir). Alvo = fisgado; zero = o monstro foge.",
+    "interesse_inicial": 40.0,
+    "interesse_ganho": 20.0,
+    "interesse_perda": 9.0,
+    "interesse_alvo": 100.0
+  },
+
+  "deriva": {
+    "_descricao": "Opcional: o monstro oscila de altura e velocidade por senoides de fase e periodo sorteados (do RNG da pesca). Amplitudes menores que as tolerancias: a deriva pede atencao, nao reflexo.",
+    "deriva_ativa": true,
+    "deriva_amplitude_profundidade": 0.08,
+    "deriva_amplitude_velocidade": 0.06,
+    "deriva_periodo_min": 3.0,
+    "deriva_periodo_max": 6.0
+  },
+
+  "silhueta": {
+    "_descricao": "So visual: a silhueta fica 'silhueta_distancia_longe' celulas atras da isca com interesse 0 e 'silhueta_distancia_perto' com interesse no alvo.",
+    "silhueta_distancia_longe": 1.0,
+    "silhueta_distancia_perto": 0.2,
+    "silhueta_suavidade": 4.0
+  },
+
+  "tutorial": {
+    "_descricao": "Modo tutorial do Anselmo: tolerancias multiplicadas, o monstro de ensino (o mais facil do ponto) surge num tempo fixo, nao perde interesse (piso > 0) e a isca nunca chega ao fim do trajeto. A fisgada e garantida.",
+    "tutorial_multiplicador_tolerancia": 2.2,
+    "tutorial_tempo_ate_silhueta": 2.5,
+    "tutorial_perda": 0.0,
+    "tutorial_interesse_minimo": 5.0,
+    "tutorial_distancia_minima": 0.6
+  },
+
+  "interface": {
+    "_descricao": "Fora do tutorial as faixas-alvo do monstro ficam escondidas: o jogador le a silhueta. 'mostrar_alvos' liga sempre (facil demais, util para depurar).",
+    "mostrar_alvos": false,
+    "duracao_resultado": 1.6,
+    "duracao_transicao": 0.3
+  },
+
+  "textos": {
+    "_descricao": "Texto ao jogador. Portugues com acentos, SO com glifos da fonte pixel (sem reticencias unicode, aspas curvas ou setas cima/baixo); tools/test_pesca.gd confere.",
+    "fisgou": "FISGOU!",
+    "escapou": "ESCAPOU...",
+    "fugiu": "ESCAPOU...",
+    "recolhida": "Nada mordeu a isca.",
+    "cancelada": "Pesca cancelada.",
+    "sem_agua": "Nada de água à frente.",
+    "sem_vara": "Equipe a vara de pesca: segure [Q] para abrir a roda.",
+    "zona_fraco": "FRACO",
+    "zona_medio": "MÉDIO",
+    "zona_maximo": "MÁXIMO",
+    "dica_arremesso": "[F] trava a força do arremesso.",
+    "dica_recolher": "Mouse à esquerda: rápido · à direita: devagar · cima/baixo: altura",
+    "rotulo_velocidade": "VELOCIDADE",
+    "rotulo_interesse": "INTERESSE",
+    "rotulo_altura_ok": "ALTURA OK",
+    "rotulo_velocidade_ok": "VELOCIDADE OK",
+    "indicador_tecla": "[F]",
+    "indicador_texto": "PESCAR",
+    "silhueta_surgiu": "Uma sombra segue a isca!",
+    "dica_cancelar": "[ESC] cancela"
+  }
+}

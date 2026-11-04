@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "descricao": "Guardioes (Camada 1, autoral). O NPC, o selo e a regra sao fixos; a EQUIPE e lida do bestiario da seed, filtrada pelos elementos da regiao e escolhida por percentil de forca. E conteudo autoral condicionado a saida do gerador: o caso registrado em docs/mudancas-estruturais.md. Acrescentar um guardiao e acrescentar uma entrada aqui e os nos no dialogo dele.",
+    "selos_para_vencer": "Quantos selos encerram o jogo com vitoria. Cresce quando os demais guardioes e o duelo final entrarem.",
+    "versao": 1
+  },
+  "selos_para_vencer": 1,
+  "guardioes": [
+    {
+      "id": "dulce",
+      "npc": "dulce",
+      "nome": "Dulce",
+      "titulo": "GUARDIÃ DO SÍTIO",
+      "selo": "selo_dulce",
+      "elementos": ["terra", "planta"],
+      "tamanho_equipe": 2,
+      "percentil_forca": 0.9
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+ "_meta": {
+  "descricao": "Falas do Anselmo durante a licao de pesca. Nenhum NPC usa esta arvore como dialogo proprio: quem a abre e o GerenciadorTutorial, no no que o passo de autoral/tutoriais/pesca.json pede ('conversa'), pela boca do Anselmo. Por isso todos os nos estao em 'entradas' e cada um termina sozinho ('fim'): a ordem da licao mora nos passos, nao aqui.",
+  "aviso": "Conteudo AUTORAL (Camada 1). A variante de 'apresentacao' ({viu: apresentacao ou pulou}) cobre quem repete a licao, quem pulou da outra vez e quem recomeca depois de carregar o jogo — nos tres casos a vara ja esta com ele."
+ },
+ "id": "anselmo_tutorial",
+ "nome": "Anselmo",
+ "inicio": "apresentacao",
+ "entradas": ["apresentacao", "ensina_roda", "ensina_arremesso", "tentar_de_novo", "despedida", "pulou"],
+ "nos": {
+  "apresentacao": {
+   "falas": [
+    "O que mora neste rio não é peixe de feira. É bicho, e bicho escolhe a isca.",
+    "Esta vara era do meu pai. Bambu rachado, linha remendada... e ainda pesca melhor que muita vara nova.",
+    "Fica com ela. Vara pendurada na parede não ensina nada a ninguém."
+   ],
+   "variantes": [
+    {
+     "se": {"algum": [{"viu": ["anselmo", "apresentacao"]}, {"viu": ["anselmo", "pulou"]}]},
+     "falas": [
+      "A vara do meu pai você já tem. O que falta é a mão.",
+      "Vamos do começo, devagar. Pressa é o que mais espanta bicho."
+     ]
+    }
+   ],
+   "fim": true
+  },
+  "ensina_roda": {
+   "falas": [
+    "Primeiro, a vara tem de estar na mão, não no fundo da bolsa.",
+    "Segure o [Q] e as suas coisas abrem numa roda. Aponte para a vara e solte. Eu espero."
+   ],
+   "fim": true
+  },
+  "ensina_arremesso": {
+   "falas": [
+    "Agora o lance. Na beira, de frente para a água, aperte o [F].",
+    "Um arco vai aparecer, com o ponteiro indo e voltando. No verde o lance sai fraco, no amarelo sai médio, no vermelho vai longe.",
+    "Aperte o [F] de novo na hora certa. Longe não é sempre melhor: o que importa é onde o bicho está."
+   ],
+   "fim": true
+  },
+  "tentar_de_novo": {
+   "falas": [
+    "Calma. Linha recolhida não é linha perdida.",
+    "Lance de novo. O rio não tem pressa, e você também não devia ter."
+   ],
+   "fim": true
+  },
+  "despedida": {
+   "falas": [
+    "Viu? Não foi força. Foi a altura certa, na hora certa.",
+    "Leve estas minhocas. O que morde debaixo d'água morde isto.",
+    "E volte quando quiser. Se esquecer alguma coisa, eu repito."
+   ],
+   "fim": true
+  },
+  "pulou": {
+   "falas": [
+    "Com pressa, é? Tudo bem. A vara é sua do mesmo jeito.",
+    "Quando quiser aprender direito, é só me procurar. O rio continua aqui."
+   ],
+   "fim": true
+  }
+ }
+}

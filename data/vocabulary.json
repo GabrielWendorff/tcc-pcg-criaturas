@@ -8,6 +8,7 @@
     "animal_base": ["gato", "peixe", "ave", "reptil", "roedor", "inseto", "anfibio", "canino"]
   },
   "derivados": {
+    "porte": ["compacto", "medio", "esbelto", "alongado"],
     "paleta": ["quente", "fria", "terrosa", "vibrante", "neutra"],
     "matiz": ["vermelho", "laranja", "amarelo", "verde", "ciano", "azul", "roxo", "marrom", "cinza", "branco"],
     "morfologia": ["garras", "escamas", "asas", "nadadeiras"]

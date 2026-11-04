@@ -1,0 +1,70 @@
+{
+  "_meta": {
+    "descricao": "Dispositivos de captura. 'multiplicador' e o ganho geral do aparelho; 'eficacia_por_traco' e o ganho (ou perda) que ele tem contra CADA traco morfologico presente na criatura — e o que faz a escolha do dispositivo ser uma leitura da criatura, e nao do preco. Acrescentar um dispositivo e acrescentar uma entrada aqui: nem a roda de selecao nem o calculo mudam.",
+    "tracos_validos": ["garras", "escamas", "asas", "nadadeiras"],
+    "formas": "primitiva desenhada por IconeCaptura; nao ha PNG de item no projeto",
+    "versao": 1
+  },
+  "dispositivos": [
+    {
+      "id": "esfera_simples",
+      "nome": "Esfera Simples",
+      "descricao": "Serve para tudo, brilha em nada.",
+      "forma": "esfera",
+      "cor": "8a909c",
+      "multiplicador": 1.0,
+      "eficacia_por_traco": {},
+      "quantidade_inicial": 12
+    },
+    {
+      "id": "esfera_reforcada",
+      "nome": "Esfera Reforçada",
+      "descricao": "Mesma forma, casco que aguenta o coice.",
+      "forma": "esfera",
+      "cor": "4b6ee8",
+      "multiplicador": 1.35,
+      "eficacia_por_traco": {},
+      "quantidade_inicial": 5
+    },
+    {
+      "id": "rede_de_caca",
+      "nome": "Rede de Caça",
+      "descricao": "Fecha no ar. Garras a rasgam.",
+      "forma": "rede",
+      "cor": "5bbf5b",
+      "multiplicador": 1.0,
+      "eficacia_por_traco": { "asas": 1.90, "garras": 0.80 },
+      "quantidade_inicial": 6
+    },
+    {
+      "id": "armadilha_de_aco",
+      "nome": "Armadilha de Aço",
+      "descricao": "Prende o que reage. Inútil contra o que voa.",
+      "forma": "armadilha",
+      "cor": "e8863a",
+      "multiplicador": 1.0,
+      "eficacia_por_traco": { "garras": 1.85, "escamas": 1.20, "asas": 0.60 },
+      "quantidade_inicial": 6
+    },
+    {
+      "id": "redoma_aquatica",
+      "nome": "Redoma Aquática",
+      "descricao": "Água pressurizada: a couraça e a nadadeira perdem a vantagem.",
+      "forma": "redoma",
+      "cor": "4bd6d6",
+      "multiplicador": 1.0,
+      "eficacia_por_traco": { "nadadeiras": 1.90, "escamas": 1.25, "asas": 0.70 },
+      "quantidade_inicial": 6
+    },
+    {
+      "id": "prisma_selante",
+      "nome": "Prisma Selante",
+      "descricao": "Raro. Ignora quase toda defesa — e acaba.",
+      "forma": "prisma",
+      "cor": "9b5be8",
+      "multiplicador": 1.80,
+      "eficacia_por_traco": { "escamas": 1.20, "asas": 1.20, "garras": 1.20, "nadadeiras": 1.20 },
+      "quantidade_inicial": 1
+    }
+  ]
+}

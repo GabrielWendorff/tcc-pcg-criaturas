@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "descricao": "Pontos de pesca (o 'FishingSpot' do pedido). O bestiario muda com a seed, entao um ponto NAO lista criaturas: declara PESOS por elemento e por animal, e os candidatos sao calculados sobre o bestiario da seed DEPOIS da geracao (PontoDePesca.candidatos) — a mesma logica de elementos_provaveis dos pontos de encontro, aplicada a agua. A regiao muda QUEM se pesca ali, nunca COMO a criatura e gerada (RF03).",
+    "formula": "peso no ponto = perfil.peso * elementos[e] (peso_fora se o elemento nao esta declarado) * animais[a] (1 se nao declarado). Peso 0 exclui. multiplicador_surgimento multiplica a chance de surgimento por sorteio de data/pesca/configuracao.json.",
+    "regioes": "Ids de autoral/mapas/mundo.json -> regioes. Cada regiao pertence a no maximo UM ponto (TabelasPesca.validar confere). Regiao sem ponto (o Sitio da Dulce nao tem agua) cai no 'padrao'.",
+    "versao": 1
+  },
+
+  "padrao": "ribeira",
+
+  "pontos": [
+    {
+      "id": "lago_da_vila",
+      "nome": "Lago da Vila",
+      "regioes": ["vila"],
+      "_descricao": "Agua parada e limpa, com juncos: agua, planta e um pouco de gelo da nascente.",
+      "elementos": { "agua": 3.0, "planta": 1.6, "gelo": 1.2 },
+      "animais": { "peixe": 1.4, "anfibio": 1.2 },
+      "peso_fora": 0.35,
+      "multiplicador_surgimento": 1.0
+    },
+    {
+      "id": "ribeira",
+      "nome": "Ribeira do Anselmo",
+      "regioes": ["ribeira"],
+      "_descricao": "O rio que desce do lago: correnteza, barranco de terra, sombra das arvores. O ponto mais vivo do mapa — e onde o Anselmo ensina.",
+      "elementos": { "agua": 3.0, "terra": 1.4, "planta": 1.2, "sombra": 0.8 },
+      "animais": { "peixe": 1.6, "anfibio": 1.0 },
+      "peso_fora": 0.4,
+      "multiplicador_surgimento": 1.15
+    },
+    {
+      "id": "rio_da_fabrica",
+      "nome": "Rio da Fábrica",
+      "regioes": ["industrial"],
+      "_descricao": "Agua escura da fabrica parada: eletrico e sombra dominam, a agua limpa e minoria. Menos vida, mais estranheza.",
+      "elementos": { "eletrico": 3.0, "sombra": 2.2, "fogo": 1.2, "agua": 0.8 },
+      "animais": { "peixe": 1.0, "anfibio": 1.3 },
+      "peso_fora": 0.3,
+      "multiplicador_surgimento": 0.85
+    }
+  ]
+}

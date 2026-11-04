@@ -1,0 +1,1417 @@
+{
+  "_meta": {
+    "descricao": "Ancora, pegada em celulas e poligono de colisao de cada prop do mundo. Gerado por tools/arte/gerar_mundo_props.py — nao editar a mao.",
+    "ancora": "pixel do sprite que cai sobre o centro da pegada",
+    "colisao": "poligono em pixels relativos a ancora, ou tipo 'nenhuma'",
+    "celula": [
+      32,
+      16
+    ]
+  },
+  "props": {
+    "casa_01": {
+      "arquivo": "casa_01.png",
+      "tamanho": [
+        72,
+        66
+      ],
+      "ancora": [
+        36,
+        50
+      ],
+      "celulas": [
+        2,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -15.04
+          ],
+          [
+            30.08,
+            0
+          ],
+          [
+            0,
+            15.04
+          ],
+          [
+            -30.08,
+            0
+          ]
+        ]
+      }
+    },
+    "casa_02": {
+      "arquivo": "casa_02.png",
+      "tamanho": [
+        72,
+        66
+      ],
+      "ancora": [
+        36,
+        50
+      ],
+      "celulas": [
+        2,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -15.04
+          ],
+          [
+            30.08,
+            0
+          ],
+          [
+            0,
+            15.04
+          ],
+          [
+            -30.08,
+            0
+          ]
+        ]
+      }
+    },
+    "casa_03": {
+      "arquivo": "casa_03.png",
+      "tamanho": [
+        88,
+        76
+      ],
+      "ancora": [
+        44,
+        56
+      ],
+      "celulas": [
+        3,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -18.799999999999997
+          ],
+          [
+            37.599999999999994,
+            0
+          ],
+          [
+            0,
+            18.799999999999997
+          ],
+          [
+            -37.599999999999994,
+            0
+          ]
+        ]
+      }
+    },
+    "casa_04": {
+      "arquivo": "casa_04.png",
+      "tamanho": [
+        88,
+        76
+      ],
+      "ancora": [
+        44,
+        56
+      ],
+      "celulas": [
+        2,
+        3
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -18.799999999999997
+          ],
+          [
+            37.599999999999994,
+            0
+          ],
+          [
+            0,
+            18.799999999999997
+          ],
+          [
+            -37.599999999999994,
+            0
+          ]
+        ]
+      }
+    },
+    "casa_05": {
+      "arquivo": "casa_05.png",
+      "tamanho": [
+        72,
+        66
+      ],
+      "ancora": [
+        36,
+        50
+      ],
+      "celulas": [
+        2,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -15.04
+          ],
+          [
+            30.08,
+            0
+          ],
+          [
+            0,
+            15.04
+          ],
+          [
+            -30.08,
+            0
+          ]
+        ]
+      }
+    },
+    "casa_06": {
+      "arquivo": "casa_06.png",
+      "tamanho": [
+        104,
+        95
+      ],
+      "ancora": [
+        52,
+        71
+      ],
+      "celulas": [
+        3,
+        3
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -22.56
+          ],
+          [
+            45.12,
+            0
+          ],
+          [
+            0,
+            22.56
+          ],
+          [
+            -45.12,
+            0
+          ]
+        ]
+      }
+    },
+    "celeiro": {
+      "arquivo": "celeiro.png",
+      "tamanho": [
+        88,
+        84
+      ],
+      "ancora": [
+        44,
+        64
+      ],
+      "celulas": [
+        3,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -18.799999999999997
+          ],
+          [
+            37.599999999999994,
+            0
+          ],
+          [
+            0,
+            18.799999999999997
+          ],
+          [
+            -37.599999999999994,
+            0
+          ]
+        ]
+      }
+    },
+    "arvore_01": {
+      "arquivo": "arvore_01.png",
+      "tamanho": [
+        34,
+        53
+      ],
+      "ancora": [
+        17,
+        45
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.6
+          ],
+          [
+            11.2,
+            0
+          ],
+          [
+            0,
+            5.6
+          ],
+          [
+            -11.2,
+            0
+          ]
+        ]
+      }
+    },
+    "arvore_02": {
+      "arquivo": "arvore_02.png",
+      "tamanho": [
+        32,
+        46
+      ],
+      "ancora": [
+        16,
+        38
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.6
+          ],
+          [
+            11.2,
+            0
+          ],
+          [
+            0,
+            5.6
+          ],
+          [
+            -11.2,
+            0
+          ]
+        ]
+      }
+    },
+    "arvore_03": {
+      "arquivo": "arvore_03.png",
+      "tamanho": [
+        40,
+        59
+      ],
+      "ancora": [
+        20,
+        51
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.6
+          ],
+          [
+            11.2,
+            0
+          ],
+          [
+            0,
+            5.6
+          ],
+          [
+            -11.2,
+            0
+          ]
+        ]
+      }
+    },
+    "pinheiro_01": {
+      "arquivo": "pinheiro_01.png",
+      "tamanho": [
+        38,
+        60
+      ],
+      "ancora": [
+        19,
+        52
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.279999999999999
+          ],
+          [
+            10.559999999999999,
+            0
+          ],
+          [
+            0,
+            5.279999999999999
+          ],
+          [
+            -10.559999999999999,
+            0
+          ]
+        ]
+      }
+    },
+    "pinheiro_02": {
+      "arquivo": "pinheiro_02.png",
+      "tamanho": [
+        34,
+        52
+      ],
+      "ancora": [
+        17,
+        44
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.279999999999999
+          ],
+          [
+            10.559999999999999,
+            0
+          ],
+          [
+            0,
+            5.279999999999999
+          ],
+          [
+            -10.559999999999999,
+            0
+          ]
+        ]
+      }
+    },
+    "toco_01": {
+      "arquivo": "toco_01.png",
+      "tamanho": [
+        32,
+        24
+      ],
+      "ancora": [
+        16,
+        16
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -4.4
+          ],
+          [
+            8.8,
+            0
+          ],
+          [
+            0,
+            4.4
+          ],
+          [
+            -8.8,
+            0
+          ]
+        ]
+      }
+    },
+    "flores_01": {
+      "arquivo": "flores_01.png",
+      "tamanho": [
+        32,
+        22
+      ],
+      "ancora": [
+        16,
+        14
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
+    },
+    "flores_02": {
+      "arquivo": "flores_02.png",
+      "tamanho": [
+        32,
+        22
+      ],
+      "ancora": [
+        16,
+        14
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
+    },
+    "pedra_01": {
+      "arquivo": "pedra_01.png",
+      "tamanho": [
+        32,
+        34
+      ],
+      "ancora": [
+        16,
+        26
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.76
+          ],
+          [
+            11.52,
+            0
+          ],
+          [
+            0,
+            5.76
+          ],
+          [
+            -11.52,
+            0
+          ]
+        ]
+      }
+    },
+    "pedra_02": {
+      "arquivo": "pedra_02.png",
+      "tamanho": [
+        32,
+        30
+      ],
+      "ancora": [
+        16,
+        22
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.76
+          ],
+          [
+            11.52,
+            0
+          ],
+          [
+            0,
+            5.76
+          ],
+          [
+            -11.52,
+            0
+          ]
+        ]
+      }
+    },
+    "pedra_03": {
+      "arquivo": "pedra_03.png",
+      "tamanho": [
+        32,
+        39
+      ],
+      "ancora": [
+        16,
+        31
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -5.76
+          ],
+          [
+            11.52,
+            0
+          ],
+          [
+            0,
+            5.76
+          ],
+          [
+            -11.52,
+            0
+          ]
+        ]
+      }
+    },
+    "penhasco_01": {
+      "arquivo": "penhasco_01.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "ancora": [
+        16,
+        24
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -8.0
+          ],
+          [
+            16.0,
+            0
+          ],
+          [
+            0,
+            8.0
+          ],
+          [
+            -16.0,
+            0
+          ]
+        ]
+      }
+    },
+    "penhasco_02": {
+      "arquivo": "penhasco_02.png",
+      "tamanho": [
+        32,
+        38
+      ],
+      "ancora": [
+        16,
+        30
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -8.0
+          ],
+          [
+            16.0,
+            0
+          ],
+          [
+            0,
+            8.0
+          ],
+          [
+            -16.0,
+            0
+          ]
+        ]
+      }
+    },
+    "cabana": {
+      "arquivo": "cabana.png",
+      "tamanho": [
+        72,
+        62
+      ],
+      "ancora": [
+        36,
+        46
+      ],
+      "celulas": [
+        2,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -15.04
+          ],
+          [
+            30.08,
+            0
+          ],
+          [
+            0,
+            15.04
+          ],
+          [
+            -30.08,
+            0
+          ]
+        ]
+      }
+    },
+    "padaria": {
+      "arquivo": "padaria.png",
+      "tamanho": [
+        88,
+        77
+      ],
+      "ancora": [
+        44,
+        57
+      ],
+      "celulas": [
+        3,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -18.799999999999997
+          ],
+          [
+            37.599999999999994,
+            0
+          ],
+          [
+            0,
+            18.799999999999997
+          ],
+          [
+            -37.599999999999994,
+            0
+          ]
+        ]
+      }
+    },
+    "oficina": {
+      "arquivo": "oficina.png",
+      "tamanho": [
+        72,
+        65
+      ],
+      "ancora": [
+        36,
+        49
+      ],
+      "celulas": [
+        2,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -15.04
+          ],
+          [
+            30.08,
+            0
+          ],
+          [
+            0,
+            15.04
+          ],
+          [
+            -30.08,
+            0
+          ]
+        ]
+      }
+    },
+    "fabrica": {
+      "arquivo": "fabrica.png",
+      "tamanho": [
+        106,
+        117
+      ],
+      "ancora": [
+        53,
+        93
+      ],
+      "celulas": [
+        3,
+        3
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -22.56
+          ],
+          [
+            45.12,
+            0
+          ],
+          [
+            0,
+            22.56
+          ],
+          [
+            -45.12,
+            0
+          ]
+        ]
+      }
+    },
+    "galpao_01": {
+      "arquivo": "galpao_01.png",
+      "tamanho": [
+        88,
+        76
+      ],
+      "ancora": [
+        44,
+        56
+      ],
+      "celulas": [
+        3,
+        2
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -18.799999999999997
+          ],
+          [
+            37.599999999999994,
+            0
+          ],
+          [
+            0,
+            18.799999999999997
+          ],
+          [
+            -37.599999999999994,
+            0
+          ]
+        ]
+      }
+    },
+    "galpao_02": {
+      "arquivo": "galpao_02.png",
+      "tamanho": [
+        88,
+        74
+      ],
+      "ancora": [
+        44,
+        54
+      ],
+      "celulas": [
+        2,
+        3
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -18.799999999999997
+          ],
+          [
+            37.599999999999994,
+            0
+          ],
+          [
+            0,
+            18.799999999999997
+          ],
+          [
+            -37.599999999999994,
+            0
+          ]
+        ]
+      }
+    },
+    "chamine": {
+      "arquivo": "chamine.png",
+      "tamanho": [
+        36,
+        68
+      ],
+      "ancora": [
+        18,
+        60
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -6.0
+          ],
+          [
+            12.0,
+            0
+          ],
+          [
+            0,
+            6.0
+          ],
+          [
+            -12.0,
+            0
+          ]
+        ]
+      }
+    },
+    "maquinario": {
+      "arquivo": "maquinario.png",
+      "tamanho": [
+        36,
+        38
+      ],
+      "ancora": [
+        18,
+        30
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -6.5600000000000005
+          ],
+          [
+            13.120000000000001,
+            0
+          ],
+          [
+            0,
+            6.5600000000000005
+          ],
+          [
+            -13.120000000000001,
+            0
+          ]
+        ]
+      }
+    },
+    "barril": {
+      "arquivo": "barril.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "ancora": [
+        16,
+        24
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -4.640000000000001
+          ],
+          [
+            9.280000000000001,
+            0
+          ],
+          [
+            0,
+            4.640000000000001
+          ],
+          [
+            -9.280000000000001,
+            0
+          ]
+        ]
+      }
+    },
+    "barril_agua": {
+      "arquivo": "barril_agua.png",
+      "tamanho": [
+        32,
+        32
+      ],
+      "ancora": [
+        16,
+        24
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -4.640000000000001
+          ],
+          [
+            9.280000000000001,
+            0
+          ],
+          [
+            0,
+            4.640000000000001
+          ],
+          [
+            -9.280000000000001,
+            0
+          ]
+        ]
+      }
+    },
+    "varal_peixe": {
+      "arquivo": "varal_peixe.png",
+      "tamanho": [
+        38,
+        40
+      ],
+      "ancora": [
+        19,
+        32
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -4.0
+          ],
+          [
+            8.0,
+            0
+          ],
+          [
+            0,
+            4.0
+          ],
+          [
+            -8.0,
+            0
+          ]
+        ]
+      }
+    },
+    "barco": {
+      "arquivo": "barco.png",
+      "tamanho": [
+        54,
+        38
+      ],
+      "ancora": [
+        27,
+        26
+      ],
+      "celulas": [
+        2,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -9.600000000000001
+          ],
+          [
+            19.200000000000003,
+            0
+          ],
+          [
+            0,
+            9.600000000000001
+          ],
+          [
+            -19.200000000000003,
+            0
+          ]
+        ]
+      }
+    },
+    "junco_01": {
+      "arquivo": "junco_01.png",
+      "tamanho": [
+        32,
+        34
+      ],
+      "ancora": [
+        16,
+        26
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
+    },
+    "junco_02": {
+      "arquivo": "junco_02.png",
+      "tamanho": [
+        32,
+        34
+      ],
+      "ancora": [
+        16,
+        26
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
+    },
+    "plantacao_milho": {
+      "arquivo": "plantacao_milho.png",
+      "tamanho": [
+        32,
+        37
+      ],
+      "ancora": [
+        16,
+        29
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
+    },
+    "plantacao_folha": {
+      "arquivo": "plantacao_folha.png",
+      "tamanho": [
+        32,
+        31
+      ],
+      "ancora": [
+        16,
+        23
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
+    },
+    "espantalho": {
+      "arquivo": "espantalho.png",
+      "tamanho": [
+        36,
+        46
+      ],
+      "ancora": [
+        18,
+        38
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -4.0
+          ],
+          [
+            8.0,
+            0
+          ],
+          [
+            0,
+            4.0
+          ],
+          [
+            -8.0,
+            0
+          ]
+        ]
+      }
+    },
+    "poco": {
+      "arquivo": "poco.png",
+      "tamanho": [
+        36,
+        42
+      ],
+      "ancora": [
+        18,
+        34
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -6.8
+          ],
+          [
+            13.6,
+            0
+          ],
+          [
+            0,
+            6.8
+          ],
+          [
+            -13.6,
+            0
+          ]
+        ]
+      }
+    },
+    "cerca_x": {
+      "arquivo": "cerca_x.png",
+      "tamanho": [
+        32,
+        30
+      ],
+      "ancora": [
+        16,
+        22
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -6.4
+          ],
+          [
+            12.8,
+            0
+          ],
+          [
+            0,
+            6.4
+          ],
+          [
+            -12.8,
+            0
+          ]
+        ]
+      }
+    },
+    "cerca_y": {
+      "arquivo": "cerca_y.png",
+      "tamanho": [
+        32,
+        30
+      ],
+      "ancora": [
+        16,
+        22
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -6.4
+          ],
+          [
+            12.8,
+            0
+          ],
+          [
+            0,
+            6.4
+          ],
+          [
+            -12.8,
+            0
+          ]
+        ]
+      }
+    },
+    "placa": {
+      "arquivo": "placa.png",
+      "tamanho": [
+        32,
+        38
+      ],
+      "ancora": [
+        16,
+        30
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -4.4
+          ],
+          [
+            8.8,
+            0
+          ],
+          [
+            0,
+            4.4
+          ],
+          [
+            -8.8,
+            0
+          ]
+        ]
+      }
+    },
+    "caixa": {
+      "arquivo": "caixa.png",
+      "tamanho": [
+        32,
+        29
+      ],
+      "ancora": [
+        16,
+        21
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -6.88
+          ],
+          [
+            13.76,
+            0
+          ],
+          [
+            0,
+            6.88
+          ],
+          [
+            -13.76,
+            0
+          ]
+        ]
+      }
+    }
+  }
+}

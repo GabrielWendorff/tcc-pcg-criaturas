@@ -1,0 +1,132 @@
+{
+ "_meta": {
+  "descricao": "Aldea da vila inicial — apresenta o mundo e as regioes vizinhas.",
+  "aviso": "Conteudo AUTORAL (Camada 1). Editavel a mao; o teste headless valida destinos, condicoes e efeitos."
+ },
+ "id": "mirela",
+ "nome": "Mirela",
+ "inicio": "raiz",
+ "nos": {
+  "raiz": {
+   "falas": ["Você é novo por aqui? Faz tempo que ninguém chega na vila sem ser pelo rio."],
+   "variantes": [
+    {
+     "se": {"bandeira": "se_apresentou"},
+     "falas": ["De volta, hein? A praça é sempre o melhor lugar para se perder um pouco."]
+    },
+    {
+     "se": {"nao": {"bandeira": "recebeu_inicial"}},
+     "falas": ["Você é novo por aqui? Não saia para o mato de mãos vazias, viu? Fale comigo primeiro."]
+    }
+   ],
+   "escolhas": [
+    {"texto": "Preciso de uma criatura para andar por aí.", "destino": "oferta",
+     "se": {"nao": {"bandeira": "recebeu_inicial"}}},
+    {"texto": "Pode cuidar da minha equipe?", "destino": "cuidar",
+     "se": {"bandeira": "recebeu_inicial"}},
+    {"texto": "Sim, acabei de chegar.", "destino": "chegou",
+     "efeitos": {"definir": {"se_apresentou": true}},
+     "se": {"nao": {"bandeira": "se_apresentou"}}},
+    {"texto": "Estou apenas passando.", "destino": "passando"},
+    {"texto": "Não quero conversar.", "destino": "seco"}
+   ]
+  },
+  "oferta": {
+   "falas": [
+    "Sem companhia o mato alto não deixa ninguém passar. Tenho três por aqui, e nenhuma é igual à outra.",
+    "Olhe bem o que cada uma tem no corpo. Garra, escama, asa: é isso que vai lutar por você. Escolha uma.",
+    "Só não ache que uma dá conta de tudo. A Dulce, no sítio ao sul, guarda o selo de lá. Pegue mais no mato antes de bater na porteira dela."
+   ],
+   "efeitos": {"servico": {"tipo": "escolher_inicial"}},
+   "fim": true
+  },
+  "cuidar": {
+   "falas": ["Deixe comigo. Água do poço e um pouco de sossego dão conta de quase tudo."],
+   "efeitos": {"servico": {"tipo": "curar_equipe"}},
+   "fim": true
+  },
+  "chegou": {
+   "falas": [
+    "Então seja bem-vindo. Aqui é a praça: o poço no meio, a casa do prefeito ao sul e a loja a leste.",
+    "Se quiser se situar, olhe o mapa. Daqui saem três caminhos, e nenhum deles leva ao mesmo lugar."
+   ],
+   "efeitos": {"definir": {"conheceu_mirela": true}},
+   "seguinte": "assuntos"
+  },
+  "passando": {
+   "falas": ["Todo mundo está apenas passando, até parar. Pergunte o que quiser, já que parou."],
+   "efeitos": {"definir": {"conheceu_mirela": true}},
+   "seguinte": "assuntos"
+  },
+  "seco": {
+   "falas": ["Tudo bem. A vila é pequena, a gente se esbarra de novo."],
+   "fim": true
+  },
+  "assuntos": {
+   "pergunta": "O que você quer perguntar?",
+   "escolhas": [
+    {"texto": "Sobre a vila", "destino": "vila"},
+    {"texto": "Sobre o rio", "destino": "rio"},
+    {"texto": "Sobre a fábrica", "destino": "fabrica"},
+    {"texto": "Sobre a fazenda", "destino": "fazenda"},
+    {"texto": "Sobre as criaturas", "destino": "criaturas"},
+    {"texto": "Por enquanto é só.", "destino": "despedida"}
+   ]
+  },
+  "vila": {
+   "falas": [
+    "Somos poucos. Sete casas, um celeiro e um poço que nunca secou nem no ano da estiagem.",
+    "O que sobra aqui é caminho: tudo o que existe por perto começa nesta praça."
+   ],
+   "efeitos": {"definir": {"ouviu_sobre_vila": true}},
+   "seguinte": "assuntos"
+  },
+  "rio": {
+   "falas": [
+    "Siga a leste, passando o lago. A água desce dali e vira rio antes de sair do vale.",
+    "Tem um pescador morando na margem. O Anselmo fala pouco, mas fala bem."
+   ],
+   "variantes": [
+    {
+     "se": {"visitou": "ribeira"},
+     "falas": ["Você já esteve lá, então já viu: a água desce do lago e não volta mais."]
+    }
+   ],
+   "efeitos": {"definir": {"ouviu_sobre_rio": true}},
+   "seguinte": "assuntos"
+  },
+  "fabrica": {
+   "falas": [
+    "Do outro lado da ponte. Aquilo já foi o que sustentava o vale inteiro.",
+    "Hoje é galpão fechado e chaminé fria. Ainda tem gente lá, teimando."
+   ],
+   "efeitos": {"definir": {"ouviu_sobre_fabrica": true}},
+   "seguinte": "assuntos"
+  },
+  "fazenda": {
+   "falas": [
+    "Ao sul, seguindo a estrada de terra. A Dulce planta o que a vila come.",
+    "Se um dia faltar comida na sua bolsa, é para lá que se vai."
+   ],
+   "efeitos": {"definir": {"ouviu_sobre_fazenda": true}},
+   "seguinte": "assuntos"
+  },
+  "criaturas": {
+   "falas": [
+    "Elas vivem no mato alto. Não ataque de cara: observe primeiro o que a bicha tem no corpo.",
+    "Garra, escama, nadadeira... cada coisa dessas diz de onde ela veio e como ela escapa."
+   ],
+   "variantes": [
+    {
+     "se": {"capturadas": "total", "pelo_menos": 1},
+     "falas": ["Vi que você já tem companhia. Cuide bem: o que você pegou diz mais de você do que da criatura."]
+    }
+   ],
+   "seguinte": "assuntos"
+  },
+  "despedida": {
+   "falas": ["Vá com calma. E não atravesse a ponte à noite."],
+   "fim": true
+  }
+ }
+}

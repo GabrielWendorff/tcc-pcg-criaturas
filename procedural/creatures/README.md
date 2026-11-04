@@ -6,9 +6,9 @@ Contribuição original do trabalho. Gera ~100 criaturas únicas por seed com
 Fluxo:
 `Seed → Atributos Primários → Probabilidades Condicionadas → Atributos Derivados → Criatura Final`
 
-- Atributos primários: elemento, animal base, paleta.
-- Atributos derivados (cor, garras, escamas, asas, nadadeiras): sorteados
-  **condicionados** aos primários, nunca de forma independente.
+- Atributos primários: elemento, animal base.
+- Atributos derivados (porte, paleta, matiz, garras, escamas, asas, nadadeiras):
+  sorteados **condicionados** aos primários, nunca de forma independente.
 
 Regras (obrigatório):
 - Toda função de geração recebe a **seed explicitamente** (RF03 — sem estado
@@ -16,21 +16,32 @@ Regras (obrigatório):
 - Tabelas de probabilidade vêm de `res://data/` (`.tres`/JSON), não hardcoded.
 - Saída determinística: mesma seed ⇒ mesmo bestiário.
 
-## Silhueta como atributo (Fase 1)
+## Silhueta como atributo
 
-O corpo é o **primeiro derivado a ser resolvido**, condicionado ao animal
-(`P(corpo | animal)`). Antes, `animal_base` apenas alterava os raios de uma mesma
-elipse e todas as criaturas compartilhavam a silhueta de um blob circular; os
-apêndices nasciam em frações fixas do quadro, iguais para os 8 animais — uma asa
-brotava no mesmo ponto num peixe e numa ave.
+O **porte** é o primeiro derivado a ser resolvido, condicionado ao elemento
+(`P(porte | elemento)`, em `data/conditional_porte.json`). Combinado ao
+`animal_base`, ele forma o `body_id` que indexa uma das 32 máscaras de pixel art
+em `arte/corpos/` — 8 animais × 4 portes no eixo *compacto → alongado*.
 
-Agora `data/part_library.tres` declara 14 corpos em 6 arquétipos, cada um com sua
-geometria, suas âncoras por slot e seus slots proibidos. A geometria é **dado**:
-`creature_renderer.gd` não contém nenhuma forma, só a transformação do espaço
-normalizado do `BodyDef` para pixels. Cada corpo é enquadrado pela sua própria
-caixa envolvente, porque os arquétipos têm extensões muito diferentes.
+Antes, `animal_base` apenas alterava os raios de uma mesma elipse e todas as
+criaturas compartilhavam a silhueta de um blob circular; os apêndices nasciam em
+frações fixas do quadro, iguais para os 8 animais. Hoje cada corpo declara suas
+próprias âncoras (`arte/corpos/corpos_ancoras.json`) e o apêndice acompanha a
+anatomia: a garra encosta na ponta da pata daquele corpo, e um corpo sem patas não
+declara `pe_*` — logo não recebe garras.
 
-`forbidden_slots` já está preenchido, mas só vira veto na Fase 2.
+Isso põe o condicionamento na leitura mais imediata da criatura: um monstro de
+terra é atarracado e um de ar é esguio, antes de qualquer cor.
+
+`CatalogoCorpos` é a ponte entre esta camada e a apresentação: resolve *quais
+atributos → qual PNG e em que ponto ele encosta*. `PaletaCriatura` traduz
+(matiz, paleta) na rampa de 4 tons que colore as máscaras indexadas.
+
+**Cobertura de arte.** Só `garras` tem máscaras (`CatalogoCorpos.ARTE_DE_FEATURE`).
+`escamas`, `asas` e `nadadeiras` continuam sendo sorteadas e medidas normalmente —
+apenas ainda não são desenhadas, e a ficha da criatura marca isso como *(sem
+arte)*. O pipeline vetorial anterior (`BodyDef` / `part_library.tres` /
+`creature_renderer.gd`) permanece no repositório como referência, sem uso.
 
 ## Métricas (RF08)
 
@@ -50,6 +61,7 @@ amostrando fielmente das condicionais?* Com n=5000, a eficiência é ~99,9%.
 
 | dimensão | teto teórico |
 |---|---|
+| porte | 36,8% |
 | paleta | 55,0% |
 | matiz | 43,7% |
 | morfologia | 85,1% |
@@ -67,10 +79,16 @@ Sob H₀, `I → 0`. Medido com seed 123456789, n=5000:
 
 | par | condicionado | independente | razão |
 |---|---|---|---|
-| elemento→paleta | 0,565 | 0,004 | 145× |
-| elemento→matiz | 1,320 | 0,009 | 153× |
-| elemento→cor | 1,622 | 0,056 | 29× |
-| animal→morfologia | 1,173 | 0,016 | 71× |
+| elemento→porte | 0,118 | 0,002 | 68× |
+| elemento→paleta | 0,577 | 0,003 | 181× |
+| elemento→matiz | 1,300 | 0,008 | 163× |
+| elemento→cor | 1,601 | 0,049 | 33× |
+| animal→morfologia | 1,182 | 0,017 | 69× |
+
+O porte tem a menor informação mútua das dimensões (`U = 5,9%`) porque seu viés é o
+mais suave — no máximo 5:3:2:1. É escolha de calibração, não defeito: endurecer
+`conditional_porte.json` aumenta a coerência da silhueta e reduz a variedade. O
+valor medido bate com o analítico `H(porte) − Σₑ P(e)·H(porte|e) = 0,1176`.
 
 **Atenção ao n.** O estimador plug-in é fortemente enviesado para cima quando há
 mais células que observações: com n=100 e 8 elementos × ~50 combinações de cor,
@@ -87,7 +105,7 @@ criaturas são distintas quando `d ≥ k`. Custo O(n²) — para amostras grande
 `avaliar_info_mutua()` direto, que é O(n).
 
 Unicidade **não** mede qualidade: o baseline independente produz *mais* criaturas
-distintas (1430 vs 712 em n=5000), porque descorrelacionar aumenta a dispersão. É
+distintas (2295 vs 1189 em n=5000), porque descorrelacionar aumenta a dispersão. É
 a coerência que separa variedade de ruído — este é exatamente o ponto do trabalho
 frente a No Man's Sky.
 

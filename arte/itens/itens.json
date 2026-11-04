@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "descricao": "Indice dos icones de item na folha itens.png. Os ids sao os de data/captura/*.json e data/itens/catalogo.json. Gerado por tools/arte/gerar_itens.py — nao editar a mao.",
+    "versao": 1
+  },
+  "celula": [
+    20,
+    20
+  ],
+  "colunas": 8,
+  "itens": {
+    "esfera_simples": 0,
+    "esfera_reforcada": 1,
+    "rede_de_caca": 2,
+    "armadilha_de_aco": 3,
+    "redoma_aquatica": 4,
+    "prisma_selante": 5,
+    "osso": 6,
+    "carne_seca": 7,
+    "petisco_felino": 8,
+    "peixe_seco": 9,
+    "minhoca": 10,
+    "sementes": 11,
+    "queijo_curado": 12,
+    "nectar_floral": 13,
+    "fruta_madura": 14,
+    "larva_viva": 15,
+    "vara_de_pesca": 16,
+    "pocao_simples": 17,
+    "pocao_forte": 18,
+    "elixir_de_folego": 19,
+    "lanterna": 20,
+    "pa_de_jardim": 21
+  }
+}

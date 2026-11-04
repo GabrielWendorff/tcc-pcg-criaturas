@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "descricao": "Catalogo de golpes. NAO ha lista por especie: o conjunto de uma criatura e funcao dos atributos sorteados. Um golpe do elemento, um por traco presente, e Investida apenas para quem ficaria com menos de dois. O jogador ve garras no sprite e tem um golpe de garra. A variante do traco escala o poder (dano.poder_por_variante) ou o valor do reforco.",
+    "requisito": "{'elemento': id} | {'traco': id} | {'reserva': true}",
+    "tipo": "'dano' usa poder e precisao; golpes de elemento carregam o elemento do requisito, os demais sao neutros. 'reforco' soma 'valor' ao stat ate 'limite', ate a criatura sair de campo.",
+    "versao": 1
+  },
+  "golpes": [
+    { "id": "labareda",  "nome": "Labareda",  "requisito": { "elemento": "fogo" },     "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Fogo direto." },
+    { "id": "jato",      "nome": "Jato",      "requisito": { "elemento": "agua" },     "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Água sob pressão." },
+    { "id": "tremor",    "nome": "Tremor",    "requisito": { "elemento": "terra" },    "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "O chão responde." },
+    { "id": "rajada",    "nome": "Rajada",    "requisito": { "elemento": "ar" },       "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Vento cortante." },
+    { "id": "cipo",      "nome": "Cipó",      "requisito": { "elemento": "planta" },   "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Chicote verde." },
+    { "id": "faisca",    "nome": "Faísca",    "requisito": { "elemento": "eletrico" }, "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Descarga curta." },
+    { "id": "geada",     "nome": "Geada",     "requisito": { "elemento": "gelo" },     "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Frio que trava." },
+    { "id": "penumbra",  "nome": "Penumbra",  "requisito": { "elemento": "sombra" },   "tipo": "dano", "poder": 55, "precisao": 0.95, "descricao": "Golpe sem origem." },
+
+    { "id": "rasgar",    "nome": "Rasgar",    "requisito": { "traco": "garras" },      "tipo": "dano", "poder": 70, "precisao": 0.85, "descricao": "Forte, mas pode errar." },
+    { "id": "rasante",   "nome": "Rasante",   "requisito": { "traco": "asas" },        "tipo": "dano", "poder": 42, "precisao": 1.00, "prioridade": 1, "descricao": "Age primeiro." },
+    { "id": "couraca",   "nome": "Couraça",   "requisito": { "traco": "escamas" },     "tipo": "reforco", "stat": "defesa",  "valor": 0.25, "limite": 0.75, "descricao": "Sobe a defesa." },
+    { "id": "deslize",   "nome": "Deslize",   "requisito": { "traco": "nadadeiras" },  "tipo": "reforco", "stat": "esquiva", "valor": 0.07, "limite": 0.21, "descricao": "Sobe a esquiva." },
+
+    { "id": "investida", "nome": "Investida", "requisito": { "reserva": true },        "tipo": "dano", "poder": 40, "precisao": 1.00, "descricao": "Sem truque." }
+  ]
+}

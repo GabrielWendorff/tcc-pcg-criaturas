@@ -9,6 +9,7 @@ const DATA_DIR := "res://data/"
 
 var vocabulary: Dictionary = {}
 var priors: Dictionary = {}
+var porte: Dictionary = {}        # vies de P(porte  | elemento), pesos nao normalizados
 var palette: Dictionary = {}      # P(paleta | elemento)
 var hue: Dictionary = {}          # P(matiz  | elemento)
 var morphology: Dictionary = {}   # base_por_animal + modificador_por_elemento
@@ -41,14 +42,17 @@ func valido() -> bool:
 func _carregar_tudo() -> void:
 	var voc: Variant = _ler_json("vocabulary.json")
 	var pri: Variant = _ler_json("primary_priors.json")
+	var por: Variant = _ler_json("conditional_porte.json")
 	var pal: Variant = _ler_json("conditional_palette.json")
 	var hu: Variant = _ler_json("conditional_hue.json")
 	var mor: Variant = _ler_json("conditional_morphology.json")
 	var var_: Variant = _ler_json("feature_variants.json")
-	if voc == null or pri == null or pal == null or hu == null or mor == null or var_ == null:
+	if voc == null or pri == null or por == null or pal == null or hu == null \
+			or mor == null or var_ == null:
 		return
 	vocabulary = voc
 	priors = pri
+	porte = por["vies_por_elemento"]
 	palette = pal["tabela"]
 	hue = hu["tabela"]
 	morphology = mor
@@ -84,12 +88,22 @@ func features_morfologia() -> Array:
 	return vocabulary["derivados"]["morfologia"]
 
 
+func portes() -> Array:
+	return vocabulary["derivados"]["porte"]
+
+
 func prior_elemento() -> Dictionary:
 	return priors["elemento"]
 
 
 func prior_animal() -> Dictionary:
 	return priors["animal_base"]
+
+
+## Pesos (nao normalizados) de escolha do porte, dado o elemento. Mesma ordem de
+## portes(). O porte seleciona a mascara de corpo — ver CatalogoCorpos.
+func vies_porte(elemento: String) -> Array:
+	return porte[elemento]
 
 
 func dist_paleta(elemento: String) -> Dictionary:
@@ -160,27 +174,38 @@ func _calcular_marginais() -> void:
 				acc += float(pa[a]) * float(pe[e]) * prob_feature(a, e, f)
 		m_feature[f] = acc
 
-		# Media das distribuicoes de variante ponderada pelo prior do elemento.
-		# Normaliza cada linha antes de somar: os pesos do JSON nao sao
-		# normalizados e linhas com totais diferentes pesariam desigualmente.
-		var pesos: Array = []
-		pesos.resize(num_modelos(f))
-		pesos.fill(0.0)
-		for e in elementos():
-			var linha: Array = vies_variante(f, e)
-			var total: float = 0.0
-			for w in linha:
-				total += float(w)
-			for i in linha.size():
-				pesos[i] += float(pe[e]) * float(linha[i]) / total
-		m_variante[f] = pesos
+		m_variante[f] = _media_vies(func(e): return vies_variante(f, e), num_modelos(f))
 
 	marginais = {
+		"porte": _media_vies(func(e): return vies_porte(e), portes().size()),
 		"paleta": m_paleta,
 		"matiz": m_matiz,
 		"feature": m_feature,
 		"variante": m_variante,
 	}
+
+
+## Media, ponderada pelo prior do elemento, de um vetor de vies indexado por elemento.
+## Normaliza cada linha antes de somar: os pesos do JSON nao sao normalizados e linhas
+## com totais diferentes pesariam desigualmente.
+func _media_vies(linha_de: Callable, n: int) -> Array:
+	var pe: Dictionary = prior_elemento()
+	var pesos: Array = []
+	pesos.resize(n)
+	pesos.fill(0.0)
+	for e in elementos():
+		var linha: Array = linha_de.call(e)
+		var total: float = 0.0
+		for w in linha:
+			total += float(w)
+		for i in linha.size():
+			pesos[i] += float(pe[e]) * float(linha[i]) / total
+	return pesos
+
+
+## Pesos de escolha do porte sem condicionar ao elemento.
+func marginal_vies_porte() -> Array:
+	return marginais["porte"]
 
 
 func marginal_paleta() -> Dictionary:

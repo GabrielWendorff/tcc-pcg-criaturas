@@ -1,0 +1,749 @@
+{
+  "canvas": [
+    32,
+    32
+  ],
+  "escala_garra_sugerida": 0.375,
+  "peso_animal_base": {
+    "gato": 0.14,
+    "peixe": 0.13,
+    "ave": 0.13,
+    "reptil": 0.13,
+    "roedor": 0.12,
+    "inseto": 0.12,
+    "anfibio": 0.11,
+    "canino": 0.12
+  },
+  "portes": [
+    "compacto",
+    "medio",
+    "esbelto",
+    "alongado"
+  ],
+  "sprites": {
+    "gato_1_compacto": {
+      "tipo": "gato",
+      "arquetipo": "quadrupede",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        17,
+        30
+      ],
+      "pe_tras": [
+        9,
+        30
+      ],
+      "cabeca": [
+        19,
+        14
+      ],
+      "cauda": [
+        2,
+        13
+      ]
+    },
+    "gato_2_medio": {
+      "tipo": "gato",
+      "arquetipo": "quadrupede",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        8,
+        30
+      ],
+      "cabeca": [
+        20,
+        14
+      ],
+      "cauda": [
+        2,
+        15
+      ]
+    },
+    "gato_3_esbelto": {
+      "tipo": "gato",
+      "arquetipo": "quadrupede",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        19,
+        30
+      ],
+      "pe_tras": [
+        7,
+        30
+      ],
+      "cabeca": [
+        21,
+        14
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "gato_4_alongado": {
+      "tipo": "gato",
+      "arquetipo": "quadrupede",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        19,
+        30
+      ],
+      "pe_tras": [
+        7,
+        30
+      ],
+      "cabeca": [
+        22,
+        15
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "canino_1_compacto": {
+      "tipo": "canino",
+      "arquetipo": "quadrupede",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        8,
+        30
+      ],
+      "cabeca": [
+        21,
+        11
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "canino_2_medio": {
+      "tipo": "canino",
+      "arquetipo": "quadrupede",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        19,
+        30
+      ],
+      "pe_tras": [
+        7,
+        30
+      ],
+      "cabeca": [
+        22,
+        11
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "canino_3_esbelto": {
+      "tipo": "canino",
+      "arquetipo": "quadrupede",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        19,
+        30
+      ],
+      "pe_tras": [
+        7,
+        30
+      ],
+      "cabeca": [
+        22,
+        11
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "canino_4_alongado": {
+      "tipo": "canino",
+      "arquetipo": "quadrupede",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        20,
+        30
+      ],
+      "pe_tras": [
+        6,
+        30
+      ],
+      "cabeca": [
+        23,
+        11
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "roedor_1_compacto": {
+      "tipo": "roedor",
+      "arquetipo": "bipede",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        12,
+        30
+      ],
+      "cabeca": [
+        16,
+        17
+      ],
+      "cauda": [
+        2,
+        29
+      ]
+    },
+    "roedor_2_medio": {
+      "tipo": "roedor",
+      "arquetipo": "bipede",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        12,
+        30
+      ],
+      "cabeca": [
+        16,
+        18
+      ],
+      "cauda": [
+        2,
+        29
+      ]
+    },
+    "roedor_3_esbelto": {
+      "tipo": "roedor",
+      "arquetipo": "bipede",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        12,
+        30
+      ],
+      "cabeca": [
+        16,
+        19
+      ],
+      "cauda": [
+        2,
+        29
+      ]
+    },
+    "roedor_4_alongado": {
+      "tipo": "roedor",
+      "arquetipo": "bipede",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        12,
+        30
+      ],
+      "cabeca": [
+        16,
+        18
+      ],
+      "cauda": [
+        2,
+        29
+      ]
+    },
+    "reptil_1_compacto": {
+      "tipo": "reptil",
+      "arquetipo": "serpentiforme",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        19,
+        30
+      ],
+      "pe_tras": [
+        9,
+        30
+      ],
+      "cabeca": [
+        20,
+        22
+      ],
+      "cauda": [
+        2,
+        26
+      ]
+    },
+    "reptil_2_medio": {
+      "tipo": "reptil",
+      "arquetipo": "serpentiforme",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        20,
+        30
+      ],
+      "pe_tras": [
+        8,
+        30
+      ],
+      "cabeca": [
+        21,
+        22
+      ],
+      "cauda": [
+        2,
+        26
+      ]
+    },
+    "reptil_3_esbelto": {
+      "tipo": "reptil",
+      "arquetipo": "serpentiforme",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        21,
+        30
+      ],
+      "pe_tras": [
+        7,
+        30
+      ],
+      "cabeca": [
+        22,
+        22
+      ],
+      "cauda": [
+        2,
+        25
+      ]
+    },
+    "reptil_4_alongado": {
+      "tipo": "reptil",
+      "arquetipo": "serpentiforme",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        22,
+        30
+      ],
+      "pe_tras": [
+        6,
+        30
+      ],
+      "cabeca": [
+        23,
+        22
+      ],
+      "cauda": [
+        2,
+        25
+      ]
+    },
+    "anfibio_1_compacto": {
+      "tipo": "anfibio",
+      "arquetipo": "bipede",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        19,
+        30
+      ],
+      "pe_tras": [
+        7,
+        30
+      ],
+      "cabeca": [
+        20,
+        20
+      ],
+      "cauda": null
+    },
+    "anfibio_2_medio": {
+      "tipo": "anfibio",
+      "arquetipo": "bipede",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        20,
+        30
+      ],
+      "pe_tras": [
+        6,
+        30
+      ],
+      "cabeca": [
+        21,
+        19
+      ],
+      "cauda": null
+    },
+    "anfibio_3_esbelto": {
+      "tipo": "anfibio",
+      "arquetipo": "bipede",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        20,
+        30
+      ],
+      "pe_tras": [
+        6,
+        30
+      ],
+      "cabeca": [
+        21,
+        19
+      ],
+      "cauda": null
+    },
+    "anfibio_4_alongado": {
+      "tipo": "anfibio",
+      "arquetipo": "bipede",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        21,
+        30
+      ],
+      "pe_tras": [
+        5,
+        30
+      ],
+      "cabeca": [
+        22,
+        19
+      ],
+      "cauda": null
+    },
+    "ave_1_compacto": {
+      "tipo": "ave",
+      "arquetipo": "avial",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        13,
+        30
+      ],
+      "cabeca": [
+        21,
+        11
+      ],
+      "cauda": [
+        5,
+        14
+      ]
+    },
+    "ave_2_medio": {
+      "tipo": "ave",
+      "arquetipo": "avial",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        13,
+        30
+      ],
+      "cabeca": [
+        21,
+        10
+      ],
+      "cauda": [
+        4,
+        13
+      ]
+    },
+    "ave_3_esbelto": {
+      "tipo": "ave",
+      "arquetipo": "avial",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        13,
+        30
+      ],
+      "cabeca": [
+        22,
+        9
+      ],
+      "cauda": [
+        4,
+        12
+      ]
+    },
+    "ave_4_alongado": {
+      "tipo": "ave",
+      "arquetipo": "avial",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        18,
+        30
+      ],
+      "pe_tras": [
+        13,
+        30
+      ],
+      "cabeca": [
+        23,
+        9
+      ],
+      "cauda": [
+        4,
+        11
+      ]
+    },
+    "peixe_1_compacto": {
+      "tipo": "peixe",
+      "arquetipo": "aquatico",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": false,
+      "pe_frente": [
+        17,
+        27
+      ],
+      "pe_tras": [
+        11,
+        27
+      ],
+      "cabeca": [
+        17,
+        9
+      ],
+      "cauda": [
+        2,
+        16
+      ]
+    },
+    "peixe_2_medio": {
+      "tipo": "peixe",
+      "arquetipo": "aquatico",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": false,
+      "pe_frente": [
+        17,
+        26
+      ],
+      "pe_tras": [
+        11,
+        26
+      ],
+      "cabeca": [
+        18,
+        10
+      ],
+      "cauda": [
+        1,
+        16
+      ]
+    },
+    "peixe_3_esbelto": {
+      "tipo": "peixe",
+      "arquetipo": "aquatico",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": false,
+      "pe_frente": [
+        17,
+        26
+      ],
+      "pe_tras": [
+        11,
+        26
+      ],
+      "cabeca": [
+        19,
+        11
+      ],
+      "cauda": [
+        1,
+        16
+      ]
+    },
+    "peixe_4_alongado": {
+      "tipo": "peixe",
+      "arquetipo": "aquatico",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": false,
+      "pe_frente": [
+        17,
+        25
+      ],
+      "pe_tras": [
+        11,
+        25
+      ],
+      "cabeca": [
+        20,
+        12
+      ],
+      "cauda": [
+        1,
+        16
+      ]
+    },
+    "inseto_1_compacto": {
+      "tipo": "inseto",
+      "arquetipo": "insetoide",
+      "porte": "compacto",
+      "indice_porte": 0,
+      "tem_patas": true,
+      "pe_frente": [
+        22,
+        26
+      ],
+      "pe_tras": [
+        8,
+        26
+      ],
+      "cabeca": [
+        21,
+        11
+      ],
+      "cauda": [
+        2,
+        18
+      ]
+    },
+    "inseto_2_medio": {
+      "tipo": "inseto",
+      "arquetipo": "insetoide",
+      "porte": "medio",
+      "indice_porte": 1,
+      "tem_patas": true,
+      "pe_frente": [
+        23,
+        26
+      ],
+      "pe_tras": [
+        9,
+        26
+      ],
+      "cabeca": [
+        22,
+        11
+      ],
+      "cauda": [
+        2,
+        18
+      ]
+    },
+    "inseto_3_esbelto": {
+      "tipo": "inseto",
+      "arquetipo": "insetoide",
+      "porte": "esbelto",
+      "indice_porte": 2,
+      "tem_patas": true,
+      "pe_frente": [
+        24,
+        26
+      ],
+      "pe_tras": [
+        10,
+        26
+      ],
+      "cabeca": [
+        23,
+        11
+      ],
+      "cauda": [
+        2,
+        18
+      ]
+    },
+    "inseto_4_alongado": {
+      "tipo": "inseto",
+      "arquetipo": "insetoide",
+      "porte": "alongado",
+      "indice_porte": 3,
+      "tem_patas": true,
+      "pe_frente": [
+        25,
+        26
+      ],
+      "pe_tras": [
+        11,
+        26
+      ],
+      "cabeca": [
+        24,
+        11
+      ],
+      "cauda": [
+        2,
+        18
+      ]
+    }
+  }
+}

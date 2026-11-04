@@ -1,0 +1,95 @@
+{
+ "_meta": {
+  "descricao": "NPCs autorais (Camada 1). Fixos, independentes da world_seed.",
+  "aviso": "Celulas conferidas contra autoral/mapas/mundo.json pela validacao de tools/mapas/gerar_mundo.py: NPC dentro de prop ou inalcancavel a pe faz a geracao do mapa FALHAR.",
+  "versao": 1
+ },
+ "npcs": [
+  {
+   "id": "mirela",
+   "nome": "Mirela",
+   "papel": "Aldeã",
+   "dialogo": "mirela",
+   "regiao": "vila",
+   "celula": [
+    23,
+    19
+   ],
+   "direcao": "baixo",
+   "alcance": 1.8,
+   "folha": "res://autoral/npcs/mirela_1x.png",
+   "retrato": "res://autoral/npcs/retratos/mirela.png"
+  },
+  {
+   "id": "anselmo",
+   "nome": "Anselmo",
+   "papel": "Pescador",
+   "dialogo": "anselmo",
+   "regiao": "ribeira",
+   "celula": [
+    60,
+    20
+   ],
+   "direcao": "cima",
+   "alcance": 1.8,
+   "folha": "res://autoral/npcs/anselmo_1x.png",
+   "retrato": "res://autoral/npcs/retratos/anselmo.png",
+   "servico": {
+    "tipo": "pesca"
+   }
+  },
+  {
+   "id": "bento",
+   "nome": "Bento",
+   "papel": "Padeiro",
+   "dialogo": "bento",
+   "regiao": "industrial",
+   "celula": [
+    62,
+    69
+   ],
+   "direcao": "cima",
+   "alcance": 1.8,
+   "folha": "res://autoral/npcs/bento_1x.png",
+   "retrato": "res://autoral/npcs/retratos/bento.png",
+   "servico": {
+    "tipo": "loja",
+    "loja": "padaria"
+   }
+  },
+  {
+   "id": "dulce",
+   "nome": "Dulce",
+   "papel": "Fazendeira",
+   "dialogo": "dulce",
+   "regiao": "fazenda",
+   "celula": [
+    22,
+    51
+   ],
+   "direcao": "baixo",
+   "alcance": 1.8,
+   "folha": "res://autoral/npcs/dulce_1x.png",
+   "retrato": "res://autoral/npcs/retratos/dulce.png",
+   "servico": {
+    "tipo": "loja",
+    "loja": "fazenda"
+   }
+  },
+  {
+   "id": "otavio",
+   "nome": "Otávio",
+   "papel": "Ex-operário",
+   "dialogo": "otavio",
+   "regiao": "industrial",
+   "celula": [
+    70,
+    60
+   ],
+   "direcao": "baixo",
+   "alcance": 1.8,
+   "folha": "res://autoral/npcs/otavio_1x.png",
+   "retrato": "res://autoral/npcs/retratos/otavio.png"
+  }
+ ]
+}

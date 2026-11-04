@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "descricao": "Indice do atlas de terreno isometrico.",
+    "gerado_por": "tools/arte/gerar_mundo_tiles.py",
+    "aviso": "Saida de ferramenta. Nao editar a mao.",
+    "mascara_de_bordas": {
+      "NO": 1,
+      "NE": 2,
+      "SE": 4,
+      "SO": 8,
+      "vizinho_NO": [
+        -1,
+        0
+      ],
+      "vizinho_NE": [
+        0,
+        -1
+      ],
+      "vizinho_SE": [
+        1,
+        0
+      ],
+      "vizinho_SO": [
+        0,
+        1
+      ]
+    }
+  },
+  "arquivo": "atlas_terreno.png",
+  "celula": [
+    32,
+    16
+  ],
+  "linhas": {
+    "grama": 0,
+    "caminho": 1,
+    "terra": 2,
+    "areia": 3,
+    "agua": 4,
+    "rocha": 5,
+    "grama_alta": 6,
+    "calcada": 7,
+    "lavoura": 8,
+    "ponte": 9
+  },
+  "com_mascara": [
+    "caminho",
+    "terra",
+    "areia",
+    "agua",
+    "rocha",
+    "grama_alta",
+    "calcada",
+    "lavoura",
+    "ponte"
+  ],
+  "pesos_grama": [
+    0.55,
+    0.39,
+    0.06
+  ],
+  "grupos_de_transicao": {
+    "caminho": [
+      "caminho",
+      "terra",
+      "calcada"
+    ],
+    "terra": [
+      "terra",
+      "caminho",
+      "calcada",
+      "lavoura"
+    ],
+    "calcada": [
+      "calcada",
+      "caminho",
+      "terra"
+    ],
+    "lavoura": [
+      "lavoura",
+      "terra"
+    ],
+    "ponte": [
+      "ponte",
+      "caminho",
+      "terra"
+    ],
+    "areia": [
+      "areia",
+      "agua"
+    ],
+    "agua": [
+      "agua"
+    ],
+    "rocha": [
+      "rocha"
+    ],
+    "grama_alta": [
+      "grama_alta"
+    ]
+  }
+}

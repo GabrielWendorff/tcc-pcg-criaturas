@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "descricao": "Ritmo e deteccao do encontro. Todo tempo do roteiro (aviso -> tremor -> escurecimento -> texto -> menu) sai daqui; ConfiguracaoEncontro traz os mesmos valores como padrao embutido, de modo que a ausencia deste arquivo degrada o ajuste fino, nunca o funcionamento.",
+    "unidades": "segundos, exceto onde indicado",
+    "versao": 1
+  },
+
+  "deteccao": {
+    "_descricao": "Dentro de uma zona de encontro, cada 'distancia_por_passo' pixels ANDADOS valem um sorteio de 'chance_por_passo'. Contar distancia, e nao tempo, e o que impede que ficar parado na grama alta gere encontro.",
+    "distancia_por_passo": 24.0,
+    "chance_por_passo": 0.14,
+    "carencia_segundos": 1.5,
+    "chance_fora_da_regiao": 0.15
+  },
+
+  "ritmo": {
+    "duracao_aviso": 0.85,
+    "duracao_tremor": 0.35,
+    "intensidade_tremor": 5.0,
+    "atraso_apos_aviso": 0.15,
+    "duracao_escurecimento": 0.45,
+    "duracao_texto_encontro": 1.10,
+    "duracao_abertura_menu": 0.28,
+    "duracao_abertura_roda": 0.22,
+    "duracao_lancamento": 0.75,
+    "duracao_balanco": 0.55,
+    "balancos": 3,
+    "duracao_desfecho": 1.20,
+    "duracao_encerramento": 0.40,
+    "duracao_evento_batalha": 0.95
+  },
+
+  "texto": {
+    "_descricao": "Texto do cartao de transicao. Em portugues como o resto da interface do projeto; trocar aqui troca na tela.",
+    "criatura_encontrada": "CRIATURA ENCONTRADA"
+  }
+}

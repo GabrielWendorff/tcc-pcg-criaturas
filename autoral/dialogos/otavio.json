@@ -1,0 +1,75 @@
+{
+ "_meta": {
+  "descricao": "Ex-operario do distrito industrial — historia do lugar. Demonstra dialogo condicionado por bandeira posta por OUTRO NPC (ouviu_sobre_fabrica).",
+  "aviso": "Conteudo AUTORAL (Camada 1)."
+ },
+ "id": "otavio",
+ "nome": "Otávio",
+ "inicio": "raiz",
+ "nos": {
+  "raiz": {
+   "falas": ["Cuidado com o ferro velho. Aquilo ali corta antes de você ver que cortou."],
+   "variantes": [
+    {
+     "se": {"todos": [{"bandeira": "ouviu_sobre_fabrica"}, {"nao": {"falou_com": "otavio"}}]},
+     "falas": [
+      "Você é o que andou perguntando da fábrica na vila, não é?",
+      "Pergunte de uma vez, então. Eu trabalhei lá dentro dezoito anos."
+     ]
+    },
+    {
+     "se": {"falou_com": "otavio"},
+     "falas": ["De volta ao pátio. Sente na caixa, que o banco está molhado."]
+    }
+   ],
+   "efeitos": {"definir": {"conheceu_otavio": true}},
+   "seguinte": "assuntos"
+  },
+  "assuntos": {
+   "pergunta": "O que você quer perguntar?",
+   "escolhas": [
+    {"texto": "Sobre a fábrica", "destino": "fabrica"},
+    {"texto": "Sobre os galpões", "destino": "galpoes"},
+    {"texto": "Por que fechou?", "destino": "fechou",
+     "se": {"bandeira": "ouviu_a_historia"}},
+    {"texto": "Sobre o rio aqui embaixo", "destino": "rio",
+     "se": {"bandeira": "ouviu_sobre_rio"}},
+    {"texto": "Preciso ir.", "destino": "despedida"}
+   ]
+  },
+  "fabrica": {
+   "falas": [
+    "Três turnos, sirene às cinco, e a chaminé apitando antes da sirene.",
+    "Metade da vila trabalhou ali. A outra metade vendia para quem trabalhava."
+   ],
+   "efeitos": {"definir": {"ouviu_a_historia": true}},
+   "seguinte": "assuntos"
+  },
+  "galpoes": {
+   "falas": [
+    "Aquele do fundo era da expedição. Hoje guarda chuva e pombo.",
+    "O maquinário ficou porque ninguém quis pagar o frete para levar embora."
+   ],
+   "seguinte": "assuntos"
+  },
+  "fechou": {
+   "falas": [
+    "Não fechou de uma vez. Foi um turno de cada vez, até sobrar o meu.",
+    "No último dia eu apaguei a luz e devolvi a chave. Ninguém veio buscar."
+   ],
+   "efeitos": {"definir": {"sabe_do_fechamento": true}},
+   "seguinte": "assuntos"
+  },
+  "rio": {
+   "falas": [
+    "O pescador te contou da cor da água, imagino. A cor é nossa, sim.",
+    "Ninguém aqui gosta de falar disso. Eu falo porque já não tenho emprego para perder."
+   ],
+   "seguinte": "assuntos"
+  },
+  "despedida": {
+   "falas": ["Vá pela rua de pedra. A do barro alaga com qualquer chuva."],
+   "fim": true
+  }
+ }
+}
