@@ -17,6 +17,7 @@ extends Node
 ##   7. a pesca: fisgar fora da licao vira batalha, e a pesca espera ela acabar
 ##   8. a fonte cobre o texto que so a batalha escreve
 ##   9. a batalha pelas teclas do jogador, e nao por chamadas internas
+##  10. F2, F3 e F4 so existem no editor e na build de debug; F5 vale sempre
 ##
 ## Grava em user://saves_teste_arco/, nunca nos saves reais. Um vigia derruba o teste se
 ## algo travar, e o resultado so e positivo se a ultima linha de cada etapa for alcancada.
@@ -29,7 +30,7 @@ const TETO_TOTAL := 120.0
 
 ## Quantas funcoes _testar_* existem. Um erro de script dentro de uma delas devolve null
 ## ao chamador e a execucao segue: so a ultima linha de cada etapa prova que ela rodou.
-const ETAPAS := 9
+const ETAPAS := 10
 
 var _falhas: int = 0
 var _verificacoes: int = 0
@@ -103,6 +104,7 @@ func _rodar() -> void:
 	await _testar_pesca()
 	_testar_glifos()
 	await _testar_teclado()
+	await _testar_teclas_de_desenvolvimento()
 
 
 # ------------------------------------------------------------------- etapas
@@ -447,6 +449,53 @@ func _testar_teclado() -> void:
 	await _ate_inativo(g)
 	_ok(not g.estado.em_encontro() and not _m.jogador.congelado, "E em FUGIR encerra e solta o jogador")
 	_etapas += 1
+
+
+func _testar_teclas_de_desenvolvimento() -> void:
+	print("\n10. Teclas de desenvolvimento")
+	var g: GerenciadorEncontro = _m.encontros
+	_acelerar(g)
+	g.equipe.curar_todos()
+	var cena := get_tree().current_scene
+
+	_m.teclas_de_desenvolvimento = false
+	_ok(not _m.texto_das_teclas().contains("F4"), "entrega: o HUD nao cita F2, F3 nem F4",
+			_m.texto_das_teclas())
+	_ok(_m.texto_das_teclas().contains("F usar"), "entrega: o F de usar item continua")
+	_tecla_f(KEY_F4)
+	await get_tree().process_frame
+	_ok(not g.estado.em_encontro(), "entrega: F4 nao forca encontro")
+	_tecla_f(KEY_F3)
+	_ok(not _m._sobreposicao.visible, "entrega: F3 nao mostra as zonas")
+	_tecla_f(KEY_F2)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_ok(get_tree().current_scene == cena, "entrega: F2 nao sai para o bestiario")
+	# Um valor que so chega ao disco se a tecla gravar de verdade.
+	Save.partida.tempo_jogado = 54321.0
+	_tecla_f(KEY_F5)
+	var dados: DadosPartida = ArquivoSave.ler(SLOT)["dados"]
+	_ok(is_equal_approx(dados.tempo_jogado, 54321.0), "entrega: F5 continua salvando",
+			"%.0f" % dados.tempo_jogado)
+
+	_m.teclas_de_desenvolvimento = true
+	_ok(_m.texto_das_teclas().contains("F4"), "debug: o HUD cita as teclas")
+	_tecla_f(KEY_F3)
+	_ok(_m._sobreposicao.visible, "debug: F3 mostra as zonas")
+	_tecla_f(KEY_F3)
+	_tecla_f(KEY_F4)
+	await get_tree().process_frame
+	_ok(g.estado.em_encontro(), "debug: F4 forca encontro")
+	g._encerrar("teste")
+	await _ate_inativo(g)
+	_etapas += 1
+
+
+func _tecla_f(tecla: Key) -> void:
+	var ev := InputEventKey.new()
+	ev.keycode = tecla
+	ev.pressed = true
+	_m._unhandled_input(ev)
 
 
 func _tecla(ui: InterfaceEncontro, acao: String) -> void:

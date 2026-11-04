@@ -199,13 +199,16 @@ func _montagem() -> bool:
 	var teclas := String(_constante("TEXTO_TECLAS"))
 	_ok(teclas.contains("Q itens  F usar"), "HUD de teclas inclui 'Q itens  F usar'")
 	var hud := _m.get("_hud_dica") as Control
-	_ok(hud != null and _texto_do_hud(hud) == teclas, "HUD mostra a linha de teclas")
-	var largura: float = TemaEncontro.fonte().get_string_size(teclas,
+	_ok(hud != null and _texto_do_hud(hud) == _m.call("texto_das_teclas"),
+			"HUD mostra a linha de teclas")
+	# A linha mais longa e a de debug: se ela couber, a de entrega tambem cabe.
+	var largura: float = TemaEncontro.fonte().get_string_size(
+			teclas + String(_constante("TEXTO_TECLAS_DEV")),
 			HORIZONTAL_ALIGNMENT_LEFT, -1, TemaEncontro.TAM_TEXTO).x
 	var tela: float = get_viewport().get_visible_rect().size.x
 	_ok(14.0 + largura <= tela, "linha de teclas cabe na tela",
 			"%.0f px de %.0f" % [14.0 + largura, tela])
-	for nome: String in ["TEXTO_TECLAS", "TEXTO_PESCA_COM_VARA", "TEXTO_PESCA_EQUIPAR",
+	for nome: String in ["TEXTO_TECLAS", "TEXTO_TECLAS_DEV", "TEXTO_PESCA_COM_VARA", "TEXTO_PESCA_EQUIPAR",
 			"TEXTO_PESCA_SEM_VARA", "TEXTO_FISGOU", "TEXTO_SEM_SALVAR_PESCA"]:
 		var faltando := _glifos_faltando(String(_constante(nome)))
 		_ok(faltando == "", "glifos de %s na fonte pixel" % nome, faltando)

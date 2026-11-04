@@ -37,12 +37,15 @@ extends Node2D
 ##   F    usar o item na mao — com a vara, pescar (lido pelo GerenciadorPesca)
 ##   P    pular a licao do Anselmo (lido pelo GerenciadorTutorial)
 ##
-## Teclas de desenvolvimento:
+##   F5   grava a partida no slot de onde ela veio (atalho; o caminho normal e
+##        ESC -> SALVAR)
+##
+## Teclas de desenvolvimento, so no editor e na build de debug (ver
+## teclas_de_desenvolvimento). Na build de entrega nao existem: a F4 forcaria encontros
+## e distorceria um playtest.
 ##   F3   liga/desliga a sobreposicao das zonas de encontro e da grade
 ##   F2   volta ao visualizador do bestiario (RF07/RF08)
 ##   F4   forca um encontro na zona mais proxima (nao espera o sorteio)
-##   F5   grava a partida no slot de onde ela veio (atalho; o caminho normal e
-##        ESC -> SALVAR)
 
 const CENA_BESTIARIO := "res://presentation/bestiario_viewer.tscn"
 const CENA_MENU := "res://presentation/menu/menu_principal.tscn"
@@ -53,7 +56,8 @@ const BANDEIRA_VENCEU := "jogo_vencido"
 
 ## Linha de teclas do HUD. Constante (e nao literal em _montar_hud) para o teste
 ## de integracao conferir os glifos contra a fonte pixel.
-const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   M mapa   ESC pausa   F3 zonas   F2 bestiário   F4 encontro"
+const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   M mapa   ESC pausa"
+const TEXTO_TECLAS_DEV := "   F3 zonas   F2 bestiário   F4 encontro"
 
 ## Respostas ao pedido {"servico": {"tipo": "pesca"}} do Anselmo ("Posso pescar
 ## agora?"). A fala dele nao cita tecla nenhuma — conta com esta nota —, e a
@@ -93,6 +97,9 @@ var tutorial: GerenciadorTutorial
 var guardioes: CatalogoGuardioes
 var tela_inicial: TelaEscolhaInicial
 var tela_desfecho: TelaDesfecho
+
+## F2, F3 e F4 valem? Verdadeiro no editor e na build de debug, falso na de entrega.
+var teclas_de_desenvolvimento: bool = OS.is_debug_build()
 
 var _depuracao: bool = false
 var _sobreposicao: SobreposicaoDepuracao
@@ -947,7 +954,13 @@ func _unhandled_input(evento: InputEvent) -> void:
 		return
 	if not (evento is InputEventKey) or not evento.pressed or evento.echo:
 		return
-	match (evento as InputEventKey).keycode:
+	var tecla: Key = (evento as InputEventKey).keycode
+	if tecla == KEY_F5:
+		_salvar_agora()
+		return
+	if not teclas_de_desenvolvimento:
+		return
+	match tecla:
 		KEY_F3:
 			_depuracao = not _depuracao
 			if _sobreposicao != null:
@@ -962,8 +975,6 @@ func _unhandled_input(evento: InputEvent) -> void:
 			# Conferir o roteiro do encontro nao pode depender de o sorteio cair no
 			# momento em que alguem esta olhando.
 			_forcar_encontro()
-		KEY_F5:
-			_salvar_agora()
 
 
 func _montar_hud() -> void:
@@ -973,7 +984,7 @@ func _montar_hud() -> void:
 	# HUD na fonte pixel do encontro: o jogo tem UMA tipografia. O contorno da
 	# engine nao funciona em fonte de bitmap, entao a legibilidade sobre a grama
 	# vem de uma sombra de 2px desenhada por baixo (TemaEncontro.rotulo_sombreado).
-	_hud_dica = _rotulo_de_hud(TEXTO_TECLAS, Vector2(14, 10))
+	_hud_dica = _rotulo_de_hud(texto_das_teclas(), Vector2(14, 10))
 	camada.add_child(_hud_dica)
 
 	# Nota transitoria: avisos curtos que nao merecem uma caixa (servico ainda
@@ -991,6 +1002,10 @@ func _montar_hud() -> void:
 	# O objetivo fica sempre a vista: e o que diz ao jogador para onde este mundo vai.
 	_hud_objetivo = _rotulo_de_hud("", Vector2(14, 46))
 	camada.add_child(_hud_objetivo)
+
+
+func texto_das_teclas() -> String:
+	return TEXTO_TECLAS + (TEXTO_TECLAS_DEV if teclas_de_desenvolvimento else "")
 
 
 ## Rotulo do HUD: texto claro sobre uma copia escura deslocada 2px. Devolve o

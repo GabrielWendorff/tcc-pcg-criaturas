@@ -151,9 +151,12 @@ Duas camadas, por motivos diferentes:
 | F5 | atalho de gravação (o mesmo que ESC → SALVAR) |
 | **M** | abre e fecha o mapa geral |
 | ESC | sai da conversa · fecha o mapa (só abre a pausa quando nada está na frente) |
-| F3 | sobrepõe zonas de encontro, terreno bloqueado e etiquetas das casas |
-| F2 | volta ao visualizador do bestiário (RF07/RF08) |
-| F4 | força um encontro na zona mais próxima |
+| F3 (só debug) | sobrepõe zonas de encontro, terreno bloqueado e etiquetas das casas |
+| F2 (só debug) | volta ao visualizador do bestiário (RF07/RF08) |
+| F4 (só debug) | força um encontro na zona mais próxima |
+
+F2, F3 e F4 valem no editor e na build de debug (`OS.is_debug_build()`). Na build de
+entrega não existem nem aparecem no HUD, para não distorcer um playtest.
 
 ## Quem tem o controle
 
