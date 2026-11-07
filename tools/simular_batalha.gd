@@ -29,14 +29,14 @@ const SEEDS_INVENCIVEL := 30
 
 var _prob: TabelasProbabilidade
 var _tabelas: TabelasBatalha
-var _guardiao: Dictionary
+var _guardioes: Array = []
 
 
 func _initialize() -> void:
 	_prob = TabelasProbabilidade.carregar()
 	_tabelas = TabelasBatalha.carregar()
-	_guardiao = CatalogoGuardioes.carregar().por_id("dulce")
-	if _prob == null or _tabelas == null or _guardiao.is_empty():
+	_guardioes = CatalogoGuardioes.carregar().guardioes
+	if _prob == null or _tabelas == null or _guardioes.is_empty():
 		print("FALHOU: dados nao carregaram")
 		quit(1)
 		return
@@ -48,7 +48,9 @@ func _initialize() -> void:
 		n_seeds = int(args[i_seeds + 1])
 
 	var t0 := Time.get_ticks_msec()
-	var ok := _medir_guardia(n_seeds)
+	var ok := true
+	for g: Dictionary in _guardioes:
+		ok = _medir_guardia(n_seeds, g) and ok
 	_medir_selvagem(mini(n_seeds, 50))
 	ok = _medir_invencivel() and ok
 	ok = _medir_determinismo() and ok
@@ -57,7 +59,7 @@ func _initialize() -> void:
 	quit(0 if ok else 1)
 
 
-func _medir_guardia(n_seeds: int) -> bool:
+func _medir_guardia(n_seeds: int, guardiao: Dictionary) -> bool:
 	var ger := GeradorCriaturas.new(_prob)
 	var vitorias: int = 0
 	var turnos: int = 0
@@ -69,8 +71,8 @@ func _medir_guardia(n_seeds: int) -> bool:
 		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
 		var equipe := _equipe_mediana(bes, semente)
 		var dulce := SelecaoBestiario.equipe_guardiao(bes, _tabelas,
-				_guardiao["elementos"], int(_guardiao["tamanho_equipe"]),
-				float(_guardiao["percentil_forca"]))
+				guardiao["elementos"], int(guardiao["tamanho_equipe"]),
+				float(guardiao["percentil_forca"]))
 		for r in repeticoes:
 			var res := _duelar(equipe, dulce, "guardiao", semente + r)
 			batalhas += 1
@@ -82,14 +84,15 @@ func _medir_guardia(n_seeds: int) -> bool:
 				vitorias_solo += 1
 	var media: float = float(turnos) / batalhas
 	var taxa: float = float(vitorias) / batalhas
-	print("Guardia (%d seeds, %d batalhas)" % [n_seeds, batalhas])
+	var meta: Array = guardiao.get("meta_vitorias", [VITORIAS_MIN, VITORIAS_MAX])
+	print("%s (%d seeds, %d batalhas)" % [String(guardiao["nome"]), n_seeds, batalhas])
 	print("  turnos por batalha: %.2f  (meta %.0f a %.0f)" % [media, TURNOS_MIN, TURNOS_MAX])
 	print("  vitorias equipe de 3: %.1f%%  (meta %.0f%% a %.0f%%)"
-			% [taxa * 100.0, VITORIAS_MIN * 100.0, VITORIAS_MAX * 100.0])
+			% [taxa * 100.0, float(meta[0]) * 100.0, float(meta[1]) * 100.0])
 	print("  vitorias so com a inicial: %.1f%%  (informativo)"
 			% (float(vitorias_solo) / batalhas * 100.0))
 	return media >= TURNOS_MIN and media <= TURNOS_MAX \
-			and taxa >= VITORIAS_MIN and taxa <= VITORIAS_MAX
+			and taxa >= float(meta[0]) and taxa <= float(meta[1])
 
 
 func _medir_selvagem(n_seeds: int) -> void:

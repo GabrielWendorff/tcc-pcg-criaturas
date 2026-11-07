@@ -1,0 +1,159 @@
+{
+ "_meta": {
+  "descricao": "Interior da fabrica do Distrito da Chamine. Camada 1 — fixo.",
+  "gerado_por": "tools/mapas/gerar_fabrica.py",
+  "aviso": "Saida de ferramenta. Nao editar a mao — edite o script.",
+  "versao": 2
+ },
+ "celula": [
+  32,
+  16
+ ],
+ "dimensoes": {
+  "largura": 15,
+  "profundidade": 13
+ },
+ "legenda": {
+  ".": "grama",
+  "c": "caminho",
+  "t": "terra",
+  "s": "areia",
+  "a": "agua",
+  "r": "rocha",
+  "g": "grama_alta",
+  "k": "calcada",
+  "l": "lavoura",
+  "p": "ponte"
+ },
+ "bloqueia": [
+  "a",
+  "r"
+ ],
+ "spawn_jogador": [
+  7,
+  11
+ ],
+ "terreno": [
+  "rrrrrrrrrrrrrrr",
+  "rkkkkkkkkkkkkkr",
+  "rkkkkkkkkkkkkkr",
+  "rkkaakkkkkkkkkr",
+  "rkkakkkkkkaakkr",
+  "rkkkkkkkkkkakkr",
+  "rkkkkkkkkkkkkkr",
+  "rkkkkkkkkkkkkkr",
+  "rkkkaakkkkakkkr",
+  "rkkkkakkkkaakkr",
+  "rkkkkkkkkkkkkkr",
+  "rkkkkkkkkkkkkkr",
+  "rrrrrrrkrrrrrrr"
+ ],
+ "regioes": [
+  {
+   "id": "fabrica",
+   "nome": "Fábrica Velha",
+   "descricao": "Três turnos, uma sirene e agora só goteira.",
+   "icone": "chamine",
+   "cor": "#8e8c8a",
+   "retangulo": [
+    1,
+    1,
+    13,
+    12
+   ]
+  }
+ ],
+ "casas": [],
+ "arvores": [],
+ "pedras": [],
+ "penhascos": [],
+ "decoracao": [
+  {
+   "prop": "maquinario",
+   "celula": [
+    2,
+    6
+   ]
+  },
+  {
+   "prop": "maquinario",
+   "celula": [
+    12,
+    6
+   ]
+  },
+  {
+   "prop": "maquinario",
+   "celula": [
+    2,
+    10
+   ]
+  },
+  {
+   "prop": "barril",
+   "celula": [
+    1,
+    1
+   ]
+  },
+  {
+   "prop": "barril",
+   "celula": [
+    13,
+    1
+   ]
+  },
+  {
+   "prop": "barril_agua",
+   "celula": [
+    12,
+    10
+   ]
+  },
+  {
+   "prop": "caixa",
+   "celula": [
+    2,
+    1
+   ]
+  },
+  {
+   "prop": "caixa",
+   "celula": [
+    12,
+    1
+   ]
+  },
+  {
+   "prop": "caixa",
+   "celula": [
+    1,
+    2
+   ]
+  },
+  {
+   "prop": "caixa",
+   "celula": [
+    13,
+    11
+   ]
+  }
+ ],
+ "pontos_encontro": [],
+ "id": "fabrica",
+ "mundo_aberto": false,
+ "portas": [
+  {
+   "celula": [
+    7,
+    12
+   ],
+   "destino": "mundo",
+   "chegada": [
+    65,
+    59
+   ],
+   "direcao": "baixo"
+  }
+ ]
+}

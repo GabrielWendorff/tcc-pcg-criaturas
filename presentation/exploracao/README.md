@@ -243,3 +243,24 @@ criaturas — e não conhece o formato do arquivo. A seção "jogador" guarda ta
 **item na mão** (`DadosPartida.item_equipado`), reposto antes do retorno cedo de
 `_repor_jogador` e só se a bolsa ainda o tem; a lição de pesca concluída é uma
 bandeira do `EstadoMundo` e viaja na seção "estado do mundo".
+
+## Portas e interiores
+
+Um mapa pode ter portas para outro (`"portas"` no JSON do mapa): pisar na célula da porta
+leva ao `destino`, na célula de `chegada`. A troca é a mesma de carregar um save, sem
+tocar no disco: o estado vivo vai para `Save.partida`, que muda de mapa, e a cena se
+remonta a partir dela. Por isso salvar dentro de um interior e recarregar volta lá para
+dentro.
+
+| porta | de | para | requer |
+|---|---|---|---|
+| fábrica | calçada em frente, `[65, 58]` | `fabrica` `[7, 11]` | selo da Dulce |
+| saída | `fabrica` `[7, 12]` | mundo `[65, 59]` | — |
+
+Num interior (`"mundo_aberto": false`) não há mapa geral nem pesca, e só aparecem os NPCs
+cujo `"mapa"` é ele. Perto de uma porta aparece o balão ENTRAR ou SAIR.
+
+```bash
+python3 tools/mapas/gerar_fabrica.py   # regera e valida o interior
+```
+

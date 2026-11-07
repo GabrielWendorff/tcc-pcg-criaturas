@@ -114,7 +114,9 @@ Pontos concretos em aberto:
   bandeira no `EstadoMundo` e um provedor registrado na cena — a condição de
   diálogo `{"missao": "...", "igual": "ativa"}` passa a funcionar sem que
   `presentation/dialogo/regras/` mude.
-- **Interiores de casa.** As 15 construções têm colisão e um campo `papel`; não
+- **Interiores de casa.** *(A fábrica ganhou interior em 07/11: ver
+  `presentation/exploracao/README.md`, "Portas e interiores". As outras casas seguem
+  sem.)* As 15 construções têm colisão e um campo `papel`; não
   há interior. Entrar numa casa exigiria uma segunda cena — e aí, sim, um
   carregamento, que é o que o mundo contínuo evitou até aqui.
 - **Arte de arbusto.** Não foi gerada: seria asset sem uso. Hoje a zona de
@@ -323,7 +325,8 @@ depois de fisgar**.
 
 ### Em aberto nesta etapa
 
-- **Faltam 2 guardiões e o duelo final** (até 16/11, pelo plano). Quem faz o duelo final
+- **Falta 1 guardião e o duelo final** (até 16/11, pelo plano). O Otávio, na fábrica,
+  entrou em 07/11 como segundo guardião; falta o Anselmo. Quem faz o duelo final
   ainda não foi decidido. Hoje `selos_para_vencer` é 1 e vencer a Dulce encerra o jogo.
 - **Os percentis são medidos, não sentidos.** O simulador joga com IA. O valor da Dulce
   (0,9) sai dele, e pode estar errado para pessoas: conferir no playtest.

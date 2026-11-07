@@ -71,7 +71,8 @@ def _npcs_declarados():
     if not os.path.exists(CAMINHO_NPCS):
         return []
     with open(CAMINHO_NPCS, encoding="utf-8") as f:
-        return json.load(f).get("npcs", [])
+        # So os NPCs DESTE mapa: quem mora num interior e validado pelo gerador dele.
+        return [n for n in json.load(f).get("npcs", []) if n.get("mapa", "mundo") == "mundo"]
 
 
 def main():
@@ -91,6 +92,15 @@ def main():
                   "fazenda numa grade continua. Camada 1 — fixo, independente da "
                   "world_seed.",
         gerado_por="tools/mapas/gerar_mundo.py")
+    dados["id"] = "mundo"
+    dados["mundo_aberto"] = True
+    # Portas para interiores. A da fabrica so abre com o selo da Dulce: e o que
+    # garante a ordem dos guardioes (o Otavio espera la dentro).
+    dados["portas"] = [{
+        "celula": [65, 58], "destino": "fabrica", "chegada": [7, 11], "direcao": "cima",
+        "requer": "selo_dulce",
+        "aviso": "O portão está trancado. Um bilhete preso nele: \"Só entra quem traz o selo do sítio. — Otávio\"",
+    }]
 
     destino = os.path.join(RAIZ, "autoral", "mapas", "mundo.json")
     os.makedirs(os.path.dirname(destino), exist_ok=True)

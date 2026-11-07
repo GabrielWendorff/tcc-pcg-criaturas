@@ -84,6 +84,11 @@ var limites: StaticBody2D
 var erro: String = ""
 var carregado: bool = false
 
+## Qual mapa e este ("mundo", "fabrica"...): o id do JSON, ou o nome do arquivo.
+var id_mapa: String = ""
+## Mundo aberto (mapa geral, pesca, encontros) ou interior.
+var mundo_aberto: bool = true
+
 var _mapa: Dictionary = {}
 var _atlas: Dictionary = {}
 var _props: Dictionary = {}
@@ -112,8 +117,14 @@ static func losango_da_celula(tam: Vector2i) -> PackedVector2Array:
 ## script `extends SceneTree`, por exemplo, ele so roda no primeiro frame, e um
 ## chamador que conferisse `erro` logo apos o add_child leria um mundo vazio sem
 ## nenhum erro registrado.
+## Mapa que o _ready carrega. Quem quer outro (um interior) define ANTES de por o
+## no na arvore: o _ready carrega sozinho, e um carregar() depois seria ignorado
+## (e idempotente) e deixaria o mundo no mapa padrao.
+var caminho: String = CAMINHO_MAPA
+
+
 func _ready() -> void:
-	if not carregado and not carregar():
+	if not carregado and not carregar(caminho):
 		push_error("MundoIso: " + erro)
 
 
@@ -159,6 +170,8 @@ func _ler_dados(caminho_mapa: String) -> bool:
 		return false
 	_props = _props.get("props", {})
 
+	id_mapa = String(_mapa.get("id", caminho_mapa.get_file().get_basename()))
+	mundo_aberto = bool(_mapa.get("mundo_aberto", true))
 	var c: Array = _mapa.get("celula", [32, 16])
 	celula = Vector2i(int(c[0]), int(c[1]))
 	largura = int(_mapa["dimensoes"]["largura"])
@@ -474,6 +487,20 @@ func celula_para_mundo(c: Vector2i, W: int = 1, D: int = 1) -> Vector2:
 
 func mundo_para_celula(pos: Vector2) -> Vector2i:
 	return chao.local_to_map(pos)
+
+
+## A porta nesta celula, ou {} — {celula, destino, chegada, direcao, requer?, aviso?}.
+## Portas ligam este mapa a outro (um interior e o mundo); quem atravessa e a cena.
+func porta_em(c: Vector2i) -> Dictionary:
+	for p: Dictionary in _mapa.get("portas", []):
+		var pc: Array = p.get("celula", [])
+		if pc.size() >= 2 and Vector2i(int(pc[0]), int(pc[1])) == c:
+			return p
+	return {}
+
+
+func portas() -> Array:
+	return _mapa.get("portas", [])
 
 
 func spawn_do_jogador() -> Vector2:

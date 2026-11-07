@@ -26,7 +26,7 @@ extends RefCounted
 ## agenda, o JSON ja pode declara-las sem que este arquivo mude.
 
 const CONHECIDOS := ["id", "nome", "papel", "dialogo", "celula", "direcao",
-	"folha", "retrato", "alcance", "regiao", "servico", "bloqueia"]
+	"folha", "retrato", "alcance", "regiao", "servico", "bloqueia", "mapa"]
 
 const DIRECOES := ["baixo", "esquerda", "direita", "cima"]
 
@@ -40,6 +40,8 @@ var folha: String = ""
 var retrato: String = ""
 var alcance: float = 1.6
 var regiao: String = ""
+## Em qual mapa o NPC mora ("mundo" ou um interior). So aparece nele.
+var mapa: String = "mundo"
 var servico: Dictionary = {}
 var bloqueia: bool = true
 var extra: Dictionary = {}
@@ -58,6 +60,7 @@ static func de_dicionario(d: Dictionary) -> DadosNpc:
 	n.retrato = String(d.get("retrato", ""))
 	n.alcance = float(d.get("alcance", 1.6))
 	n.regiao = String(d.get("regiao", ""))
+	n.mapa = String(d.get("mapa", "mundo"))
 	n.servico = d.get("servico", {})
 	n.bloqueia = bool(d.get("bloqueia", true))
 	for chave: String in d.keys():

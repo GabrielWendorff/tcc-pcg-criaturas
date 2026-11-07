@@ -6,6 +6,7 @@ Princípio adotado de Spelunky (templates autorais + aleatoriedade controlada).
 ```
 autoral/
 ├── mapas/mundo.json      o mundo inteiro: 4 regiões numa grade 96×88
+├── mapas/fabrica.json    o interior da fábrica (tools/mapas/gerar_fabrica.py)
 ├── npcs/npcs.json        quem mora onde, com que arte e que árvore de diálogo
 │   ├── <id>_1x.png       folha de caminhada (4 direções × 4 quadros)
 │   └── retratos/*.png    busto 32×32 para a caixa de diálogo

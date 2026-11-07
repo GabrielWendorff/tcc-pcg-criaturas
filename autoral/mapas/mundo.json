@@ -12744,5 +12744,23 @@
    "celulas_de_grama_alta": 35,
    "arbustos_sugeridos": 6
   }
+ ],
+ "id": "mundo",
+ "mundo_aberto": true,
+ "portas": [
+  {
+   "celula": [
+    65,
+    58
+   ],
+   "destino": "fabrica",
+   "chegada": [
+    7,
+    11
+   ],
+   "direcao": "cima",
+   "requer": "selo_dulce",
+   "aviso": "O portão está trancado. Um bilhete preso nele: \"Só entra quem traz o selo do sítio. — Otávio\""
+  }
  ]
 }

@@ -50,6 +50,9 @@ extends Node2D
 const CENA_BESTIARIO := "res://presentation/bestiario_viewer.tscn"
 const CENA_MENU := "res://presentation/menu/menu_principal.tscn"
 const CENA_MUNDO := "res://presentation/exploracao/mundo.tscn"
+const DIR_MAPAS := "res://autoral/mapas/"
+const META_CHEGADA_POR_PORTA := "chegada_por_porta"
+const DURACAO_PORTA := 0.35
 
 const BANDEIRA_INICIAL := "recebeu_inicial"
 const BANDEIRA_VENCEU := "jogo_vencido"
@@ -125,6 +128,14 @@ var _apos_conversa: Callable
 var _duelo_atual: Dictionary = {}
 ## A criatura fisgada foi para a batalha: a pesca espera ela terminar.
 var _pesca_em_batalha: bool = false
+var _atravessando: bool = false
+## Ultima celula verificada para porta: a porta dispara ao PISAR nela, nao a cada
+## quadro parado em cima (o aviso de trancado nao pode repetir sem parar).
+var _ultima_celula_de_porta := Vector2i(-1, -1)
+## Balao "ENTRAR"/"SAIR" sobre cada porta, visivel quando o jogador chega perto: sem
+## ele, nada na fachada diz que a fabrica tem entrada.
+var _avisos_de_porta: Array = []
+const DISTANCIA_AVISO_PORTA := 2.5
 var _tween_nota: Tween
 var _regiao_corrente: String = ""
 ## O HUD foi pedido visivel? (_mostrar_hud). Guardado porque as duas linhas de
@@ -140,10 +151,11 @@ func _ready() -> void:
 
 	mundo = MundoIso.new()
 	mundo.name = "Mundo"
+	mundo.caminho = _caminho_do_mapa()
 	add_child(mundo)
 	# Explicito, e nao pelo _ready do proprio MundoIso: e daqui que se conhece a
 	# ordem — o jogador e a camera dependem de o mapa ja estar montado.
-	mundo.carregar()
+	mundo.carregar(_caminho_do_mapa())
 	if mundo.erro != "":
 		_mostrar_erro(mundo.erro)
 		return
@@ -183,6 +195,10 @@ func _ready() -> void:
 	_montar_arco()
 	_ligar_save()
 	_atualizar_objetivo()
+	# Nasce sobre a celula de chegada, que nao e porta; a seguinte ja pode ser.
+	_ultima_celula_de_porta = mundo.mundo_para_celula(jogador.position)
+	_montar_avisos_de_porta()
+	_clarear_chegada()
 
 
 ## Primeira criatura, guardioes, vitoria e derrota.
@@ -375,7 +391,8 @@ func _ao_fisgar(criatura: Criatura) -> void:
 ## conhece o MundoIso, e a cena de teste (tools/cena_teste_pesca.gd) entrega um
 ## poligono no lugar.
 func _e_agua(p: Vector2) -> bool:
-	return mundo.terreno_em(mundo.mundo_para_celula(p)) == "agua"
+	# Interior nao tem pesca: as pocas da fabrica sao chao molhado, nao rio.
+	return mundo.mundo_aberto and mundo.terreno_em(mundo.mundo_para_celula(p)) == "agua"
 
 
 func _regiao_em(p: Vector2) -> String:
@@ -447,7 +464,108 @@ func _dono_da_tela() -> String:
 	return ""
 
 
+## O mapa da partida (Save.partida.mapa), ou o mundo quando nao ha partida ou o
+## arquivo nao existe.
+func _caminho_do_mapa() -> String:
+	var id := Save.partida.mapa if Save.em_partida() else DadosPartida.MAPA_PADRAO
+	var caminho := DIR_MAPAS + "%s.json" % id
+	return caminho if FileAccess.file_exists(caminho) else DIR_MAPAS + "mundo.json"
+
+
+## Portas: pisar na celula de uma porta leva ao outro mapa. A troca e a mesma de
+## carregar um save, sem tocar no disco: o estado vivo vai para Save.partida, que
+## muda de mapa, e a cena se remonta a partir dela.
+func _verificar_porta() -> void:
+	if _atravessando or jogador == null or mundo == null:
+		return
+	var c := mundo.mundo_para_celula(jogador.position)
+	if c == _ultima_celula_de_porta:
+		return
+	_ultima_celula_de_porta = c
+	var porta := mundo.porta_em(c)
+	if porta.is_empty() or _dono_da_tela() != "":
+		return
+	var requer := String(porta.get("requer", ""))
+	if requer != "" and not estado_mundo.ativa(requer):
+		_nota(String(porta.get("aviso", "Trancado.")))
+		return
+	_atravessar(porta)
+
+
+func _atravessar(porta: Dictionary) -> void:
+	if not Save.em_partida():
+		_nota("Sem partida em curso: portas só funcionam numa partida do menu.")
+		return
+	_atravessando = true
+	jogador.congelar(true)
+	Save.coletar()
+	var chegada: Array = porta.get("chegada", [0, 0])
+	Save.partida.mapa = String(porta.get("destino", DadosPartida.MAPA_PADRAO))
+	Save.partida.celula = Vector2i(int(chegada[0]), int(chegada[1]))
+	Save.partida.direcao = String(porta.get("direcao", "baixo"))
+	Save.set_meta(META_CHEGADA_POR_PORTA, true)
+	var veu := ColorRect.new()
+	veu.color = Color(TemaEncontro.CONTORNO, 0.0)
+	veu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var camada := CanvasLayer.new()
+	camada.layer = 99
+	camada.add_child(veu)
+	add_child(camada)
+	var t := create_tween()
+	t.tween_property(veu, "color:a", 1.0, DURACAO_PORTA)
+	await t.finished
+	_trocar_de_cena(CENA_MUNDO)
+
+
+func _montar_avisos_de_porta() -> void:
+	for p: Dictionary in mundo.portas():
+		var c: Array = p.get("celula", [0, 0])
+		# Num no proprio, na porta: o balao anima a propria posicao (o balanco), e
+		# solto no mundo ele balancaria em torno da origem do mapa.
+		var lugar := Node2D.new()
+		lugar.position = mundo.celula_para_mundo(Vector2i(int(c[0]), int(c[1])))
+		mundo.entidades.add_child(lugar)
+		var ind := IndicadorInteracao.new()
+		lugar.add_child(ind)
+		ind.configurar("", "ENTRAR" if String(p.get("destino", "")) != "mundo" else "SAIR")
+		ind.mostrar(false)
+		_avisos_de_porta.append(ind)
+
+
+func _atualizar_avisos_de_porta() -> void:
+	if jogador == null:
+		return
+	var c := Vector2(mundo.mundo_para_celula(jogador.position))
+	var portas := mundo.portas()
+	for i in _avisos_de_porta.size():
+		var pc: Array = portas[i].get("celula", [0, 0])
+		(_avisos_de_porta[i] as IndicadorInteracao).mostrar(
+				c.distance_to(Vector2(int(pc[0]), int(pc[1]))) <= DISTANCIA_AVISO_PORTA
+				and _dono_da_tela() == "")
+
+
+## Chegou por uma porta: a tela clareia em vez de aparecer de uma vez.
+func _clarear_chegada() -> void:
+	if not Save.has_meta(META_CHEGADA_POR_PORTA):
+		return
+	Save.remove_meta(META_CHEGADA_POR_PORTA)
+	var veu := ColorRect.new()
+	veu.color = Color(TemaEncontro.CONTORNO, 1.0)
+	veu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var camada := CanvasLayer.new()
+	camada.layer = 99
+	camada.add_child(veu)
+	add_child(camada)
+	var t := create_tween()
+	t.tween_property(veu, "color:a", 0.0, DURACAO_PORTA)
+	t.tween_callback(camada.queue_free)
+
+
 func _process(_delta: float) -> void:
+	_verificar_porta()
+	_atualizar_avisos_de_porta()
 	# O marcador do jogador so precisa acompanhar enquanto a carta esta aberta —
 	# e, com o jogador congelado, ele nem se move. Atualizar assim mesmo mantem a
 	# tela correta se algo mais mover o personagem (uma teleportacao futura).
@@ -506,7 +624,7 @@ func _repor_estado(d: DadosPartida) -> void:
 
 
 func _colher_jogador(d: DadosPartida) -> void:
-	d.mapa = DadosPartida.MAPA_PADRAO
+	d.mapa = mundo.id_mapa if mundo.id_mapa != "" else DadosPartida.MAPA_PADRAO
 	d.celula = mundo.mundo_para_celula(jogador.position)
 	d.direcao = jogador.direcao
 	d.regiao = _regiao_corrente
@@ -999,6 +1117,9 @@ func _regiao_da_celula(c: Vector2i) -> RegiaoMundo:
 func _alternar_mapa() -> void:
 	if mapa == null:
 		return
+	if not mundo.mundo_aberto:
+		_nota("Aqui dentro não tem mapa.")
+		return
 	var dono := _dono_da_tela()
 	if dono == "mapa":
 		mapa.fechar()
@@ -1084,9 +1205,13 @@ func _montar_hud() -> void:
 	_hud_dica.offset_left = 14.0
 	_hud_dica.offset_top = -30.0
 	camada.add_child(_hud_dica)
-	var some := create_tween()
-	some.tween_interval(SEGUNDOS_DE_CONTROLES)
-	some.tween_property(_hud_dica, "modulate:a", 0.0, 1.0)
+	# Quem acabou de passar por uma porta ja viu os controles: eles nao reaparecem.
+	if Save.has_meta(META_CHEGADA_POR_PORTA):
+		_hud_dica.modulate.a = 0.0
+	else:
+		var some := create_tween()
+		some.tween_interval(SEGUNDOS_DE_CONTROLES)
+		some.tween_property(_hud_dica, "modulate:a", 0.0, 1.0)
 
 	# Nota transitoria: avisos curtos que nao merecem uma caixa (servico ainda
 	# nao implementado, regiao descoberta). Some sozinha.

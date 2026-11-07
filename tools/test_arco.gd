@@ -21,6 +21,7 @@ extends Node
 ##  11. card do objetivo, controles so no comeco e na pausa, tela cheia
 ##  12. o bestiario da seed na pausa e na tecla N, com marca nas capturadas
 ##  13. gold, kit da Mirela, loja, recompensa por selvagem e premio da guardia
+##  14. a fabrica: portao trancado sem o selo, interior com o Otavio, duelo, volta
 ##
 ## Grava em user://saves_teste_arco/, nunca nos saves reais. Um vigia derruba o teste se
 ## algo travar, e o resultado so e positivo se a ultima linha de cada etapa for alcancada.
@@ -33,7 +34,7 @@ const TETO_TOTAL := 120.0
 
 ## Quantas funcoes _testar_* existem. Um erro de script dentro de uma delas devolve null
 ## ao chamador e a execucao segue: so a ultima linha de cada etapa prova que ela rodou.
-const ETAPAS := 13
+const ETAPAS := 14
 
 var _falhas: int = 0
 var _verificacoes: int = 0
@@ -111,6 +112,7 @@ func _rodar() -> void:
 	await _testar_hud_e_tela_cheia()
 	await _testar_bestiario()
 	await _testar_economia()
+	await _testar_fabrica()
 
 
 # ------------------------------------------------------------------- etapas
@@ -281,6 +283,14 @@ func _testar_vitoria() -> void:
 	await _ate_inativo(g)
 	await get_tree().process_frame
 	_ok(_m.estado_mundo.ativa("selo_dulce"), "a vitoria da o selo")
+	_ok(not _m.estado_mundo.ativa("jogo_vencido") and not _m.tela_desfecho.aberta(),
+			"um selo so nao encerra o jogo: falta o Otavio")
+	_ok(_m._objetivo_atual().contains("Otávio"), "o objetivo passa para o Otavio",
+			_m._objetivo_atual())
+	# A tela final, com os dados da seed, aparece quando os selos pedidos estao todos.
+	_m.estado_mundo.definir("selo_otavio", true)
+	_m._ao_vencer_duelo(_m.guardioes.por_id("otavio"))
+	await get_tree().process_frame
 	_ok(_m.estado_mundo.ativa("jogo_vencido"), "com os selos pedidos, o jogo foi vencido")
 	_ok(_m.tela_desfecho.aberta(), "a tela final abriu")
 	_ok(_m.tela_desfecho._titulo.text == "VITÓRIA", "e diz vitoria")
@@ -670,6 +680,96 @@ func _testar_economia() -> void:
 		if not fonte.has_char(amostra.unicode_at(i)) and not amostra[i] in faltando:
 			faltando.append(amostra[i])
 	_ok(faltando.is_empty(), "a fonte cobre o texto das lojas", " ".join(faltando))
+	_etapas += 1
+
+
+func _testar_fabrica() -> void:
+	print("\n14. A fabrica e o segundo guardiao")
+	var porta := Vector2i(65, 58)
+	_ok(_m.mundo.porta_em(porta).get("destino", "") == "fabrica", "a porta da fabrica existe")
+	_ok(_m.dialogos.npc_por_id("otavio") == null, "o Otavio nao esta mais no patio")
+
+	# Sem o selo, o portao nao abre. (A etapa 5 ja deu os dois selos: zera.)
+	_m.estado_mundo.definir("selo_otavio", false)
+	_m.estado_mundo.definir("jogo_vencido", false)
+	_m.estado_mundo.definir("selo_dulce", false)
+	_m.jogador.position = _m.mundo.celula_para_mundo(Vector2i(65, 60))
+	_m._ultima_celula_de_porta = Vector2i(65, 60)
+	await get_tree().process_frame
+	_m.jogador.position = _m.mundo.celula_para_mundo(porta)
+	_m._verificar_porta()
+	_ok(not _m._atravessando, "sem o selo da Dulce, o portao fica trancado")
+
+	# Com o selo, entra.
+	_m.estado_mundo.definir("selo_dulce", true)
+	_m._ultima_celula_de_porta = Vector2i(-1, -1)
+	var velha := get_tree().current_scene
+	_m._verificar_porta()
+	_ok(_m._atravessando, "com o selo, atravessa")
+	await _ate_trocar_de_cena(velha)
+	_m = get_tree().current_scene as Node2D
+	await get_tree().process_frame
+	_ok(_m.mundo.id_mapa == "fabrica" and not _m.mundo.mundo_aberto, "esta dentro da fabrica")
+	_ok(_m.mundo.mundo_para_celula(_m.jogador.position) == Vector2i(7, 11), "na celula de chegada")
+	var otavio: Npc = _m.dialogos.npc_por_id("otavio")
+	_ok(otavio != null and _m.dialogos.npc_por_id("mirela") == null,
+			"la dentro esta o Otavio, e so ele")
+	_ok(_m.encontros.equipe.ativos.size() == 3, "a equipe veio junto",
+			"%d" % _m.encontros.equipe.ativos.size())
+	_ok(not _m._e_agua(_m.mundo.celula_para_mundo(Vector2i(3, 3))), "as pocas nao viram pesca")
+	_m._alternar_mapa()
+	_ok(not _m.mapa.aberto(), "nao ha mapa geral aqui dentro")
+	_ok(_m._objetivo_atual().contains("Otávio"), "o objetivo aponta o Otavio", _m._objetivo_atual())
+
+	# O duelo com o Otavio e a vitoria final, com os dois selos.
+	_m.estado_mundo.definir("jogo_vencido", false)
+	var g: GerenciadorEncontro = _m.encontros
+	_acelerar(g)
+	g.equipe.curar_todos()
+	_m._on_servico_pedido({"tipo": "duelo", "guardiao": "otavio"}, null)
+	_m._ao_terminar_conversa(null)
+	_ok(g.em_duelo() and g.motor.lado_inimigo.size() == 2, "o Otavio duela com 2 criaturas")
+	for c: Combatente in g.motor.lado_inimigo:
+		_ok(c.criatura.elemento in ["eletrico", "agua"], "%s e eletrico ou agua" % c.nome())
+	await _ate_o_menu(g)
+	for c: Combatente in g.motor.lado_inimigo:
+		c.vida = 1
+		c.ficha.esquiva = 0.0
+	for i in 12:
+		if not g.estado.em_encontro():
+			break
+		g.motor.jogador().vida = g.motor.jogador().ficha.vida
+		g.motor.jogador().ficha.velocidade = 999.0
+		g._on_lista({"tipo": "golpe", "golpe": g.tabelas_batalha.de_reserva()})
+		await _ate_decisao(g)
+	await _ate_inativo(g)
+	await get_tree().process_frame
+	_ok(_m.estado_mundo.ativa("selo_otavio"), "a vitoria da o selo do Otavio")
+	_ok(_m.tela_desfecho.aberta() and _m.tela_desfecho._titulo.text == "VITÓRIA",
+			"com os dois selos, a vitoria do jogo")
+	_m.tela_desfecho._ao_escolher(0)
+	await get_tree().process_frame
+
+	# A saida devolve o jogador a frente da fabrica.
+	velha = get_tree().current_scene
+	_m._ultima_celula_de_porta = Vector2i(-1, -1)
+	_m.jogador.position = _m.mundo.celula_para_mundo(Vector2i(7, 12))
+	_m._verificar_porta()
+	await _ate_trocar_de_cena(velha)
+	_m = get_tree().current_scene as Node2D
+	await get_tree().process_frame
+	_ok(_m.mundo.id_mapa == "mundo" and _m.mundo.mundo_para_celula(_m.jogador.position) == Vector2i(65, 59),
+			"a saida volta para a frente da fabrica")
+
+	# Salvar la dentro e recarregar volta la para dentro.
+	Save.partida.mapa = "fabrica"
+	Save.partida.celula = Vector2i(7, 9)
+	velha = get_tree().current_scene
+	_m._trocar_de_cena.call_deferred(_m.CENA_MUNDO)
+	await _ate_trocar_de_cena(velha)
+	_m = get_tree().current_scene as Node2D
+	await get_tree().process_frame
+	_ok(_m.mundo.id_mapa == "fabrica", "um save feito la dentro carrega la dentro")
 	_etapas += 1
 
 

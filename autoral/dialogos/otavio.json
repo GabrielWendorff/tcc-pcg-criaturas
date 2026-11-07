@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "descricao": "Ex-operario do distrito industrial — historia do lugar. Demonstra dialogo condicionado por bandeira posta por OUTRO NPC (ouviu_sobre_fabrica).",
+  "descricao": "Ex-operario, guardiao da fabrica (segundo guardiao). Espera dentro dela; o portao so abre com o selo da Dulce.",
   "aviso": "Conteudo AUTORAL (Camada 1)."
  },
  "id": "otavio",
@@ -8,33 +8,89 @@
  "inicio": "raiz",
  "nos": {
   "raiz": {
-   "falas": ["Cuidado com o ferro velho. Aquilo ali corta antes de você ver que cortou."],
+   "falas": [
+    "Então você passou pela Dulce. Entrou aqui porque eu deixei o portão destrancado para quem traz o selo dela."
+   ],
    "variantes": [
     {
-     "se": {"todos": [{"bandeira": "ouviu_sobre_fabrica"}, {"nao": {"falou_com": "otavio"}}]},
+     "se": {
+      "todos": [
+       {
+        "bandeira": "ouviu_sobre_fabrica"
+       },
+       {
+        "nao": {
+         "falou_com": "otavio"
+        }
+       }
+      ]
+     },
      "falas": [
-      "Você é o que andou perguntando da fábrica na vila, não é?",
-      "Pergunte de uma vez, então. Eu trabalhei lá dentro dezoito anos."
+      "Você é o que andou perguntando da fábrica na vila, não é? E ainda passou pela Dulce.",
+      "Pergunte de uma vez, então. Eu trabalhei aqui dentro dezoito anos."
      ]
     },
     {
-     "se": {"falou_com": "otavio"},
-     "falas": ["De volta ao pátio. Sente na caixa, que o banco está molhado."]
+     "se": {
+      "falou_com": "otavio"
+     },
+     "falas": [
+      "De volta à fábrica. Cuidado com a poça perto da prensa, é mais funda do que parece."
+     ]
     }
    ],
-   "efeitos": {"definir": {"conheceu_otavio": true}},
+   "efeitos": {
+    "definir": {
+     "conheceu_otavio": true
+    }
+   },
    "seguinte": "assuntos"
   },
   "assuntos": {
    "pergunta": "O que você quer perguntar?",
    "escolhas": [
-    {"texto": "Sobre a fábrica", "destino": "fabrica"},
-    {"texto": "Sobre os galpões", "destino": "galpoes"},
-    {"texto": "Por que fechou?", "destino": "fechou",
-     "se": {"bandeira": "ouviu_a_historia"}},
-    {"texto": "Sobre o rio aqui embaixo", "destino": "rio",
-     "se": {"bandeira": "ouviu_sobre_rio"}},
-    {"texto": "Preciso ir.", "destino": "despedida"}
+    {
+     "texto": "Vim desafiar o guardião da fábrica.",
+     "destino": "desafio",
+     "se": {
+      "nao": {
+       "bandeira": "selo_otavio"
+      }
+     }
+    },
+    {
+     "texto": "Quero uma revanche.",
+     "destino": "revanche",
+     "se": {
+      "bandeira": "selo_otavio"
+     }
+    },
+    {
+     "texto": "Sobre a fábrica",
+     "destino": "fabrica"
+    },
+    {
+     "texto": "Sobre os galpões",
+     "destino": "galpoes"
+    },
+    {
+     "texto": "Por que fechou?",
+     "destino": "fechou",
+     "se": {
+      "bandeira": "ouviu_a_historia"
+     }
+    },
+    {
+     "texto": "Sobre o rio aqui embaixo",
+     "destino": "rio",
+     "se": {
+      "bandeira": "ouviu_sobre_rio"
+     }
+    },
+    {
+     "texto": "Preciso ir.",
+     "destino": "despedida"
+    }
    ]
   },
   "fabrica": {
@@ -42,7 +98,11 @@
     "Três turnos, sirene às cinco, e a chaminé apitando antes da sirene.",
     "Metade da vila trabalhou ali. A outra metade vendia para quem trabalhava."
    ],
-   "efeitos": {"definir": {"ouviu_a_historia": true}},
+   "efeitos": {
+    "definir": {
+     "ouviu_a_historia": true
+    }
+   },
    "seguinte": "assuntos"
   },
   "galpoes": {
@@ -57,7 +117,11 @@
     "Não fechou de uma vez. Foi um turno de cada vez, até sobrar o meu.",
     "No último dia eu apaguei a luz e devolvi a chave. Ninguém veio buscar."
    ],
-   "efeitos": {"definir": {"sabe_do_fechamento": true}},
+   "efeitos": {
+    "definir": {
+     "sabe_do_fechamento": true
+    }
+   },
    "seguinte": "assuntos"
   },
   "rio": {
@@ -68,7 +132,34 @@
    "seguinte": "assuntos"
   },
   "despedida": {
-   "falas": ["Vá pela rua de pedra. A do barro alaga com qualquer chuva."],
+   "falas": [
+    "Vá pela rua de pedra. A do barro alaga com qualquer chuva."
+   ],
+   "fim": true
+  },
+  "desafio": {
+   "falas": [
+    "Dezoito anos aqui dentro, e estes dois foram os únicos que ficaram comigo quando apagaram a chaminé.",
+    "Faísca e goteira: é o que sobrou desta fábrica. Se aguentar os dois, o selo é seu."
+   ],
+   "efeitos": {
+    "servico": {
+     "tipo": "duelo",
+     "guardiao": "otavio"
+    }
+   },
+   "fim": true
+  },
+  "revanche": {
+   "falas": [
+    "A sirene não toca mais, mas a gente ainda sabe brigar. Vamos."
+   ],
+   "efeitos": {
+    "servico": {
+     "tipo": "duelo",
+     "guardiao": "otavio"
+    }
+   },
    "fim": true
   }
  }

@@ -100,15 +100,16 @@
    "nome": "Otávio",
    "papel": "Ex-operário",
    "dialogo": "otavio",
-   "regiao": "industrial",
+   "regiao": "fabrica",
    "celula": [
-    70,
-    60
+    7,
+    5
    ],
    "direcao": "baixo",
    "alcance": 1.8,
    "folha": "res://autoral/npcs/otavio_1x.png",
-   "retrato": "res://autoral/npcs/retratos/otavio.png"
+   "retrato": "res://autoral/npcs/retratos/otavio.png",
+   "mapa": "fabrica"
   }
  ]
 }
