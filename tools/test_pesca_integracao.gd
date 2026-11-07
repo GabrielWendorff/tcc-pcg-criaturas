@@ -278,8 +278,7 @@ func _beira_sem_vara() -> bool:
 			"(premissa) iscas com marcador 'pesca', vara fora da bolsa")
 	_ok(String(_m.call("_dica_de_pesca")) == String(_constante("TEXTO_PESCA_SEM_VARA")),
 			"servico 'pesca' sem vara nenhuma: manda falar com o Anselmo")
-	_ok(not _texto_do_hud(_m.get("_hud_bolsa") as Control).contains("vara"),
-			"HUD da bolsa nao anuncia vara que nao existe")
+	_ok(not bool(_m.call("_vara_na_bolsa")), "a cena nao toma iscas por vara")
 	return true
 
 
@@ -346,8 +345,7 @@ func _com_vara() -> void:
 	_ok(Bolsa.tem(VARA), "Bolsa tem a vara")
 	_ok(String(_m.call("_dica_de_pesca")) == String(_constante("TEXTO_PESCA_EQUIPAR")),
 			"servico 'pesca' com a vara so na bolsa: manda equipar")
-	_ok(_texto_do_hud(_m.get("_hud_bolsa") as Control).contains("vara"),
-			"HUD da bolsa mostra a vara")
+	_ok(bool(_m.call("_vara_na_bolsa")), "a cena ve a vara na bolsa")
 	_equipados.clear()
 	_jogador.equipar(Bolsa.item(VARA))
 	_ok(_equipados.size() == 1 and _equipados[0] == VARA, "item_equipado_mudou('%s')" % VARA,

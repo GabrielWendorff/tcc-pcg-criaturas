@@ -346,7 +346,9 @@ depois de fisgar**.
 - **Encontro selvagem é caro.** Lutar até o fim custa em média 42% da vida. Sem loja, a
   reposição é a cura gratuita da Mirela, que pode ficar longe. Dado para o playtest.
 - **Sem loja, poções acabam.** Continua fora do escopo; a cura da Mirela evita o jogo travar.
-- **Bestiário sem tela própria no jogo.** A vitrine do algoritmo (RF07, RF08) segue no plano.
+- **Bestiário no jogo: entregue em 06/11** (tecla N e pausa), com as 100 criaturas, ficha e
+  marca nas capturadas. Ainda falta a **vitrine do algoritmo** (primários → probabilidades →
+  derivados, e coerente ou atípica), que depende da nota por criatura do gerador v2.
 - **Sem animação de golpe.** O alvo só treme. Polimento, depois da vitrine.
 - **Testes ainda quebrados, de antes desta etapa:** `test_interacao` aborta sob `-s`,
   `test_bolsa` não compila, e `test_save` falha em `autoload registrado` (efeito do `-s`).

@@ -11,6 +11,7 @@
       "npc": "dulce",
       "nome": "Dulce",
       "titulo": "GUARDIÃ DO SÍTIO",
+      "onde": "no sítio ao sul da vila",
       "selo": "selo_dulce",
       "elementos": ["terra", "planta"],
       "tamanho_equipe": 2,

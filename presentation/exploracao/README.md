@@ -149,6 +149,8 @@ Duas camadas, por motivos diferentes:
 | **B** | abre a bolsa direto (fechar devolve o jogo, sem passar pela pausa) |
 | **ESC** | menu de pausa: continuar · bolsa · opções · salvar · menu principal |
 | F5 | atalho de gravação (o mesmo que ESC → SALVAR) |
+| F11 | tela cheia (também em Opções); vale em qualquer tela |
+| **N** | bestiário da seed, com marca nas capturadas (também na pausa) |
 | **M** | abre e fecha o mapa geral |
 | ESC | sai da conversa · fecha o mapa (só abre a pausa quando nada está na frente) |
 | F3 (só debug) | sobrepõe zonas de encontro, terreno bloqueado e etiquetas das casas |
@@ -157,6 +159,14 @@ Duas camadas, por motivos diferentes:
 
 F2, F3 e F4 valem no editor e na build de debug (`OS.is_debug_build()`). Na build de
 entrega não existem nem aparecem no HUD, para não distorcer um playtest.
+
+**HUD.** O objetivo fica num card no canto superior direito, que pisca quando muda. Os controles
+aparecem no rodapé só nos primeiros 12 segundos e depois ficam no menu de pausa.
+
+**Sair da cena sempre por chamada adiada.** `change_scene_to_file` tira a cena da árvore na
+hora; chamado de dentro de um evento de entrada, ele derrubava a build de entrega (falha de
+segmentação ao voltar ao save depois de uma derrota). Toda saída passa por `_trocar_de_cena`,
+chamada fora do evento.
 
 ## Quem tem o controle
 

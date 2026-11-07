@@ -50,6 +50,12 @@ const DEFINICOES := [
 		"padrao": true,
 	},
 	{
+		"id": "tela_cheia",
+		"rotulo": "Tela cheia",
+		"descricao": "Ocupa a tela inteira. Também alterna com F11, em qualquer tela.",
+		"padrao": false,
+	},
+	{
 		"id": "velocidade_texto",
 		"rotulo": "Velocidade do texto",
 		"descricao": "Ritmo da máquina de escrever nos diálogos.",
@@ -79,6 +85,32 @@ func _ready() -> void:
 		_por_id[def.id] = def
 		_valores[def.id] = def.padrao
 	_carregar()
+	_aplicar_tela_cheia()
+	mudou.connect(func(id: String, _v: Variant) -> void:
+		if id == "tela_cheia":
+			_aplicar_tela_cheia())
+
+
+## F11 alterna a tela cheia em qualquer tela, inclusive no menu e com o jogo pausado.
+func _input(evento: InputEvent) -> void:
+	if evento is InputEventKey and evento.pressed and not evento.echo \
+			and (evento as InputEventKey).keycode == KEY_F11:
+		alternar("tela_cheia")
+		get_viewport().set_input_as_handled()
+
+
+## A opcao e a fonte da verdade; a janela so a obedece. Sem janela (headless, testes)
+## nao ha o que mudar.
+func _aplicar_tela_cheia() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var cheia: bool = ligada("tela_cheia", false)
+	var modo := DisplayServer.window_get_mode()
+	var esta_cheia: bool = modo == DisplayServer.WINDOW_MODE_FULLSCREEN \
+			or modo == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+	if cheia != esta_cheia:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if cheia
+				else DisplayServer.WINDOW_MODE_WINDOWED)
 
 
 # -------------------------------------------------------------------- leitura

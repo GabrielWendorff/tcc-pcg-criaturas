@@ -80,6 +80,7 @@ pagaria desempenho sem ganho para este objetivo.
 | `texto_batalha.gd` | como os números viram texto, igual em todas as telas |
 | `tela_escolha_inicial.gd` | 1 entre 3, com o que cada corpo faz em batalha |
 | `tela_equipe.gd` | equipe e depósito, no menu de pausa |
+| `tela_bestiario.gd` | o bestiário da seed (N ou pausa), com marca nas capturadas; existe também na build de entrega |
 | `tela_desfecho.gd` | vitória e derrota |
 
 A batalha em si é desenhada por `presentation/encontro/interface_encontro.gd` e

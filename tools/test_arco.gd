@@ -18,6 +18,8 @@ extends Node
 ##   8. a fonte cobre o texto que so a batalha escreve
 ##   9. a batalha pelas teclas do jogador, e nao por chamadas internas
 ##  10. F2, F3 e F4 so existem no editor e na build de debug; F5 vale sempre
+##  11. card do objetivo, controles so no comeco e na pausa, tela cheia
+##  12. o bestiario da seed na pausa e na tecla N, com marca nas capturadas
 ##
 ## Grava em user://saves_teste_arco/, nunca nos saves reais. Um vigia derruba o teste se
 ## algo travar, e o resultado so e positivo se a ultima linha de cada etapa for alcancada.
@@ -30,7 +32,7 @@ const TETO_TOTAL := 120.0
 
 ## Quantas funcoes _testar_* existem. Um erro de script dentro de uma delas devolve null
 ## ao chamador e a execucao segue: so a ultima linha de cada etapa prova que ela rodou.
-const ETAPAS := 10
+const ETAPAS := 12
 
 var _falhas: int = 0
 var _verificacoes: int = 0
@@ -105,6 +107,8 @@ func _rodar() -> void:
 	_testar_glifos()
 	await _testar_teclado()
 	await _testar_teclas_de_desenvolvimento()
+	await _testar_hud_e_tela_cheia()
+	await _testar_bestiario()
 
 
 # ------------------------------------------------------------------- etapas
@@ -282,6 +286,7 @@ func _testar_vitoria() -> void:
 	_ok(_m._dono_da_tela() == "desfecho", "a tela final tem a tela")
 	_ok(_m.jogador.congelado, "o jogador espera")
 	_m.tela_desfecho._ao_escolher(0)
+	await get_tree().process_frame
 	_ok(not _m.jogador.congelado and not _m.tela_desfecho.aberta(), "continuar explorando")
 	_ok(_m._objetivo_atual().contains("concluído"), "objetivo concluido", _m._objetivo_atual())
 
@@ -324,8 +329,13 @@ func _testar_derrota() -> void:
 	var opcoes: Array = _m.tela_desfecho._opcoes
 	_ok(String(opcoes[0]["texto"]).contains("SAVE"), "oferece voltar ao save", str(opcoes[0]))
 
+	# Regressao: trocar de cena DENTRO do evento de entrada derrubava a build de entrega
+	# (falha de segmentacao ao voltar ao save). As saidas da cena tem de ser adiadas.
+	_ok(_conexao_adiada(_m.tela_desfecho.opcao_escolhida), "a escolha do desfecho e tratada adiada")
+	_ok(_conexao_adiada(_m.pausa.sair_pedido), "sair pela pausa e tratado adiado")
 	var cena_velha := get_tree().current_scene
 	_m.tela_desfecho._ao_escolher(0)
+	_ok(get_tree().current_scene == cena_velha, "a cena nao sai da arvore no mesmo quadro da escolha")
 	await _ate_trocar_de_cena(cena_velha)
 	_m = get_tree().current_scene as Node2D
 	_ok(_m != cena_velha, "a cena foi recarregada")
@@ -489,6 +499,104 @@ func _testar_teclas_de_desenvolvimento() -> void:
 	g._encerrar("teste")
 	await _ate_inativo(g)
 	_etapas += 1
+
+
+func _testar_hud_e_tela_cheia() -> void:
+	print("\n11. HUD, pausa e tela cheia")
+	var faixa: Control = _m._hud_objetivo
+	_ok(faixa != null and faixa.visible, "o card do objetivo esta na tela")
+	_ok(_m._texto_objetivo.text == _m._objetivo_atual() and _m._texto_objetivo.text != "",
+			"o card mostra o objetivo", _m._texto_objetivo.text)
+	_ok(_m._texto_equipe.text.contains("DE PÉ"), "e quantas da equipe estao de pe",
+			_m._texto_equipe.text)
+	await get_tree().process_frame
+	var tela: float = get_viewport().get_visible_rect().size.x
+	var r: Rect2 = faixa.get_global_rect()
+	_ok(r.end.x <= tela and tela - r.end.x < 20.0, "o card fica no canto direito",
+			"%.0f..%.0f de %.0f px" % [r.position.x, r.end.x, tela])
+	_ok(r.position.y < 20.0 and r.position.x > tela * 0.5, "no alto da tela, sem cobrir o centro")
+	_ok(not _m._texto_objetivo.text.contains("Mirela"), "(premissa) objetivo apos a primeira criatura")
+	var antes: String = _m._texto_objetivo.text
+	_m.estado_mundo.definir("jogo_vencido", false)
+	_m.estado_mundo.definir("selo_dulce", false)
+	_m._atualizar_objetivo()
+	_ok(_m._texto_objetivo.text != antes, "o objetivo muda com o estado do mundo", _m._texto_objetivo.text)
+	_ok(_m._hud_objetivo.modulate != Color.WHITE, "e o card pisca quando muda")
+
+	_ok(_m._hud_dica.get_parent() != null and _m._hud_dica.modulate.a < 1.0
+			or _m.SEGUNDOS_DE_CONTROLES > 0.0, "a linha de controles existe e some depois do comeco")
+	_ok(_m._hud_dica.get_global_rect().position.y > tela * 0.0
+			and _m._hud_dica.get_global_rect().position.y > get_viewport().get_visible_rect().size.y * 0.5,
+			"a linha de controles fica no rodape, nao no topo")
+	_m.pausa.abrir()
+	_ok(_m.pausa._controles.text == _m.texto_das_teclas(), "a pausa mostra os controles")
+	_m.pausa.fechar()
+
+	_ok(Opcoes.definicao("tela_cheia") != null, "a opcao de tela cheia existe")
+	var original: Variant = Opcoes.ler("tela_cheia")
+	var f11 := InputEventKey.new()
+	f11.keycode = KEY_F11
+	f11.pressed = true
+	Opcoes._input(f11)
+	_ok(Opcoes.ler("tela_cheia") != original, "F11 alterna a tela cheia")
+	Opcoes._input(f11)
+	_ok(Opcoes.ler("tela_cheia") == original, "e alterna de volta")
+	_etapas += 1
+
+
+func _testar_bestiario() -> void:
+	print("\n12. Bestiario da seed")
+	var g: GerenciadorEncontro = _m.encontros
+	var tela: TelaBestiario = _m.pausa.tela_bestiario
+	_ok(_m.texto_das_teclas().contains("N bestiário"), "os controles citam a tecla N")
+	var n := InputEventAction.new()
+	n.action = "abrir_bestiario"
+	n.pressed = true
+	_m._unhandled_input(n)
+	await get_tree().process_frame
+	_ok(tela.aberta() and get_tree().paused, "N abre o bestiario, com o jogo pausado")
+	_ok(tela._celulas.size() == g.bestiario.size(), "todas as criaturas da seed",
+			"%d" % tela._celulas.size())
+	var com_marca: int = 0
+	var certas: bool = true
+	for i in tela._celulas.size():
+		var marcada: bool = tela._celulas[i].find_child("Capturada", true, false) != null
+		if marcada:
+			com_marca += 1
+		if marcada != g.inventario.ja_capturou(g.bestiario[i]):
+			certas = false
+	_ok(certas, "a marca aparece exatamente nas capturadas")
+	_ok(com_marca == tela.total_capturadas() and com_marca > 0, "e o total confere",
+			"%d marcadas" % com_marca)
+	_ok(tela._subtitulo.text.contains("CAPTURADAS %d DE %d" % [com_marca, g.bestiario.size()]),
+			"o topo mostra seed e capturadas", tela._subtitulo.text)
+	var direita := InputEventAction.new()
+	direita.action = "mover_direita"
+	direita.pressed = true
+	tela._unhandled_input(direita)
+	_ok(tela._indice == 1 and tela._ficha_texto.text.contains(g.bestiario[1].nome().to_upper()),
+			"a seta muda a ficha", g.bestiario[1].nome())
+	tela._unhandled_input(n)
+	await get_tree().process_frame
+	_ok(not tela.aberta() and not get_tree().paused, "N de novo fecha e devolve o jogo")
+	_m.pausa.abrir()
+	var i_bes: int = -1
+	for i in MenuPausa.OPCOES_RAIZ.size():
+		if MenuPausa.OPCOES_RAIZ[i]["id"] == "bestiario":
+			i_bes = i
+	_m.pausa._ao_escolher(i_bes)
+	_ok(tela.aberta(), "a pausa tambem abre o bestiario")
+	tela.fechar()
+	_ok(_m.pausa.aberto() and _m.pausa._bloco.visible, "e fechar volta ao menu da pausa")
+	_m.pausa.fechar()
+	_etapas += 1
+
+
+func _conexao_adiada(sinal: Signal) -> bool:
+	for c: Dictionary in sinal.get_connections():
+		if int(c["flags"]) & CONNECT_DEFERRED:
+			return true
+	return false
 
 
 func _tecla_f(tecla: Key) -> void:

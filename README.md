@@ -58,7 +58,8 @@ godot --path .
 ```
 
 Controles: setas ou WASD para andar, **E** para falar e confirmar, **Q** para a roda de itens, **F** para
-usar o item na mão, **B** para a bolsa, **M** para o mapa e **ESC** para a pausa.
+usar o item na mão, **B** para a bolsa, **N** para o bestiário da seed, **M** para o mapa,
+**F11** para tela cheia e **ESC** para a pausa.
 
 ## Testes
 
