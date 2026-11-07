@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "descricao": "Economia do jogo, em gold. Balanceamento: nenhum numero daqui aparece em codigo. O que cada loja VENDE e autoral e mora em autoral/lojas/lojas.json; o PRECO de cada item e daqui, igual em toda loja que o venda.",
+    "versao": 1
+  },
+  "gold_inicial": 150,
+  "kit_inicial": {
+    "_descricao": "O que a Mirela entrega junto com a primeira criatura. Sem isto, a primeira ida ao mato nao tem captura possivel: a carga inicial da bolsa e vazia e as lojas ficam longe da praca.",
+    "itens": { "esfera_simples": 5, "pocao_simples": 2 }
+  },
+  "recompensa_selvagem": {
+    "_descricao": "Gold por derrotar uma criatura selvagem: base + por_forca * forca da criatura (FichaCombate.forca). Criatura mais forte rende mais: a economia tambem le a saida do gerador.",
+    "base": 6,
+    "por_forca": 0.08
+  },
+  "precos": {
+    "esfera_simples": 10,
+    "esfera_reforcada": 25,
+    "rede_de_caca": 20,
+    "armadilha_de_aco": 25,
+    "redoma_aquatica": 25,
+    "prisma_selante": 60,
+    "osso": 5,
+    "carne_seca": 6,
+    "petisco_felino": 6,
+    "peixe_seco": 6,
+    "minhoca": 3,
+    "sementes": 3,
+    "queijo_curado": 6,
+    "nectar_floral": 5,
+    "fruta_madura": 4,
+    "larva_viva": 5,
+    "pocao_simples": 15,
+    "pocao_forte": 40,
+    "elixir_de_folego": 80
+  }
+}

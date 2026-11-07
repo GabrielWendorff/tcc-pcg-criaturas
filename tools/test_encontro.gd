@@ -261,8 +261,11 @@ func _testar_inventario(captura: TabelasCaptura) -> void:
 	print("\nInventario")
 	var inv := InventarioJogador.inicial(captura)
 	var simples := captura.dispositivo("esfera_simples")
+	# A bolsa comeca sem consumiveis: dispositivos e iscas vem do kit da Mirela e das
+	# lojas (data/economia/). O teste abastece o proprio estoque.
+	_ok(inv.quantidade(simples.id) == 0, "a carga inicial nao traz dispositivos")
+	_abastecer(inv, captura)
 	var antes := inv.quantidade(simples.id)
-	_ok(antes > 0, "carga inicial veio do JSON", "%dx %s" % [antes, simples.nome])
 
 	_ok(inv.consumir(simples.id), "consumir com estoque")
 	_ok(inv.quantidade(simples.id) == antes - 1, "quantidade caiu em 1")
@@ -372,6 +375,7 @@ func _testar_fluxo_completo() -> void:
 	_ok(g.bestiario.size() == N, "bestiario da partida gerado", "%d criaturas" % N)
 	_ok(ms < 2000.0, "montagem dentro da meta de desempenho", "%.0f ms" % ms)
 	_acelerar(g)
+	_abastecer(g.inventario, g.captura)
 	await get_tree().process_frame
 
 	# Sem criatura de pe nao ha encontro.
@@ -685,6 +689,11 @@ func _ate_decisao(g: GerenciadorEncontro) -> void:
 	var parou := func() -> bool:
 		return g.estado.aceita_entrada() or not g.estado.em_encontro()
 	await _ate(g, parou)
+
+
+func _abastecer(inv: InventarioJogador, captura: TabelasCaptura) -> void:
+	for item in (captura.dispositivos as Array) + (captura.iscas as Array):
+		inv.adicionar(item.id, 6)
 
 
 func _curar(g: GerenciadorEncontro) -> void:

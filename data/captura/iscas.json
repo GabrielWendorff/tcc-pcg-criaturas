@@ -12,7 +12,7 @@
       "cor": "e8ecf2",
       "tipos_preferidos": ["canino"],
       "bonus": 0.45,
-      "quantidade_inicial": 4
+      "quantidade_inicial": 0
     },
     {
       "id": "carne_seca",
@@ -22,7 +22,7 @@
       "cor": "e14b4b",
       "tipos_preferidos": ["canino", "reptil", "gato"],
       "bonus": 0.32,
-      "quantidade_inicial": 5
+      "quantidade_inicial": 0
     },
     {
       "id": "petisco_felino",
@@ -32,7 +32,7 @@
       "cor": "e8cf4b",
       "tipos_preferidos": ["gato"],
       "bonus": 0.45,
-      "quantidade_inicial": 4
+      "quantidade_inicial": 0
     },
     {
       "id": "peixe_seco",
@@ -42,7 +42,7 @@
       "cor": "4bd6d6",
       "tipos_preferidos": ["gato", "anfibio"],
       "bonus": 0.40,
-      "quantidade_inicial": 4
+      "quantidade_inicial": 0
     },
     {
       "id": "minhoca",
@@ -52,7 +52,7 @@
       "cor": "8a5a3c",
       "tipos_preferidos": ["peixe", "anfibio", "ave"],
       "bonus": 0.40,
-      "quantidade_inicial": 5
+      "quantidade_inicial": 0
     },
     {
       "id": "sementes",
@@ -62,7 +62,7 @@
       "cor": "e8cf4b",
       "tipos_preferidos": ["ave", "roedor"],
       "bonus": 0.45,
-      "quantidade_inicial": 5
+      "quantidade_inicial": 0
     },
     {
       "id": "queijo_curado",
@@ -72,7 +72,7 @@
       "cor": "e8cf4b",
       "tipos_preferidos": ["roedor"],
       "bonus": 0.45,
-      "quantidade_inicial": 3
+      "quantidade_inicial": 0
     },
     {
       "id": "nectar_floral",
@@ -82,7 +82,7 @@
       "cor": "9b5be8",
       "tipos_preferidos": ["inseto"],
       "bonus": 0.45,
-      "quantidade_inicial": 4
+      "quantidade_inicial": 0
     },
     {
       "id": "fruta_madura",
@@ -92,7 +92,7 @@
       "cor": "5bbf5b",
       "tipos_preferidos": ["inseto", "roedor", "ave"],
       "bonus": 0.28,
-      "quantidade_inicial": 5
+      "quantidade_inicial": 0
     },
     {
       "id": "larva_viva",
@@ -102,7 +102,7 @@
       "cor": "e8863a",
       "tipos_preferidos": ["reptil", "anfibio", "ave", "peixe"],
       "bonus": 0.34,
-      "quantidade_inicial": 4
+      "quantidade_inicial": 0
     }
   ]
 }

@@ -12,6 +12,7 @@
       "nome": "Dulce",
       "titulo": "GUARDIÃ DO SÍTIO",
       "onde": "no sítio ao sul da vila",
+      "premio_gold": 150,
       "selo": "selo_dulce",
       "elementos": ["terra", "planta"],
       "tamanho_equipe": 2,

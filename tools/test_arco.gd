@@ -20,6 +20,7 @@ extends Node
 ##  10. F2, F3 e F4 so existem no editor e na build de debug; F5 vale sempre
 ##  11. card do objetivo, controles so no comeco e na pausa, tela cheia
 ##  12. o bestiario da seed na pausa e na tecla N, com marca nas capturadas
+##  13. gold, kit da Mirela, loja, recompensa por selvagem e premio da guardia
 ##
 ## Grava em user://saves_teste_arco/, nunca nos saves reais. Um vigia derruba o teste se
 ## algo travar, e o resultado so e positivo se a ultima linha de cada etapa for alcancada.
@@ -32,7 +33,7 @@ const TETO_TOTAL := 120.0
 
 ## Quantas funcoes _testar_* existem. Um erro de script dentro de uma delas devolve null
 ## ao chamador e a execucao segue: so a ultima linha de cada etapa prova que ela rodou.
-const ETAPAS := 12
+const ETAPAS := 13
 
 var _falhas: int = 0
 var _verificacoes: int = 0
@@ -109,6 +110,7 @@ func _rodar() -> void:
 	await _testar_teclas_de_desenvolvimento()
 	await _testar_hud_e_tela_cheia()
 	await _testar_bestiario()
+	await _testar_economia()
 
 
 # ------------------------------------------------------------------- etapas
@@ -117,6 +119,9 @@ func _testar_inicio() -> void:
 	print("\n1. Partida nova")
 	var g: GerenciadorEncontro = _m.encontros
 	_ok(g.equipe.vazia(), "comeca sem equipe")
+	_ok(Bolsa.gold == Bolsa.economia.gold_inicial(), "comeca com o gold inicial", "%d" % Bolsa.gold)
+	_ok(Bolsa.quantidade("esfera_simples") == 0 and Bolsa.quantidade("pocao_simples") == 0,
+			"e sem dispositivos nem pocoes")
 	_ok(not g.pode_comecar(), "sem equipe, nenhum encontro comeca")
 	_ok(_m._objetivo_atual().contains("Mirela"), "o objetivo aponta a Mirela", _m._objetivo_atual())
 	_ok(not _opcoes_de("dulce", "assuntos").has("Vim desafiar a guardiã do sítio."),
@@ -156,6 +161,10 @@ func _testar_primeira_criatura() -> void:
 	_ok(not _m.jogador.congelado, "o jogador anda de novo")
 	_ok(g.pode_comecar(), "agora ha encontros")
 	_ok(g.inventario.ja_capturou(escolhida), "e ela conta na colecao")
+	var kit: Dictionary = Bolsa.economia.kit_inicial()
+	_ok(Bolsa.quantidade("esfera_simples") == int(kit["esfera_simples"])
+			and Bolsa.quantidade("pocao_simples") == int(kit["pocao_simples"]),
+			"o kit da Mirela vem junto com a criatura", str(kit))
 	_ok(ArquivoSave.ler(SLOT)["estado"] == ArquivoSave.Estado.OK,
 			"salvou sozinho: a derrota sempre tem para onde voltar")
 	_ok(_m._objetivo_atual().contains("Dulce"), "o objetivo passa para a Dulce", _m._objetivo_atual())
@@ -589,6 +598,78 @@ func _testar_bestiario() -> void:
 	tela.fechar()
 	_ok(_m.pausa.aberto() and _m.pausa._bloco.visible, "e fechar volta ao menu da pausa")
 	_m.pausa.fechar()
+	_etapas += 1
+
+
+func _testar_economia() -> void:
+	print("\n13. Gold, loja e recompensas")
+	var g: GerenciadorEncontro = _m.encontros
+	Bolsa.ganhar_gold(100)
+	var gold: int = Bolsa.gold
+	_ok(_m._texto_da_equipe().contains("%d GOLD" % gold), "o card mostra o gold", _m._texto_da_equipe())
+
+	# Loja da vila, pelo servico do dialogo: abre DEPOIS de a conversa fechar.
+	_m._on_servico_pedido({"tipo": "loja", "loja": "vila"}, null)
+	_ok(not _m.tela_loja.aberta(), "a loja espera a conversa fechar")
+	_m._ao_terminar_conversa(null)
+	_ok(_m.tela_loja.aberta() and _m._dono_da_tela() == "loja", "e entao abre, com a tela")
+	_ok(_m.jogador.congelado, "o jogador espera")
+	_ok(_m.tela_loja._titulo.text == "ARMAZÉM DA VILA", "e a loja certa", _m.tela_loja._titulo.text)
+	var esferas: int = Bolsa.quantidade("esfera_simples")
+	var preco: int = Bolsa.economia.preco("esfera_simples")
+	_m.tela_loja._indice = 0
+	var erro: String = _m.tela_loja.comprar_selecionado()
+	_ok(erro == "" and Bolsa.quantidade("esfera_simples") == esferas + 1, "comprar poe o item na bolsa", erro)
+	_ok(Bolsa.gold == gold - preco, "e cobra o preco", "%d -> %d" % [gold, Bolsa.gold])
+	Bolsa._definir_gold(preco - 1)
+	erro = _m.tela_loja.comprar_selecionado()
+	_ok(erro.contains("insuficiente") and Bolsa.quantidade("esfera_simples") == esferas + 1
+			and Bolsa.gold == preco - 1, "sem gold, nao compra nem cobra", erro)
+	var esc := InputEventAction.new()
+	esc.action = "ui_cancel"
+	esc.pressed = true
+	_m.tela_loja._unhandled_input(esc)
+	_ok(not _m.tela_loja.aberta() and not _m.jogador.congelado, "ESC fecha a loja e solta o jogador")
+
+	# Selvagem derrotado paga pela forca dele.
+	var c: Criatura = g.bestiario[60]
+	var forca := FichaCombate.de_criatura(c, g.tabelas_batalha).forca(g.tabelas_batalha)
+	var antes: int = Bolsa.gold
+	_m._on_encontro_terminado("derrotada", c)
+	_ok(Bolsa.gold == antes + Bolsa.economia.recompensa_selvagem(forca),
+			"derrotar um selvagem paga pela forca dele", "+%d" % (Bolsa.gold - antes))
+	antes = Bolsa.gold
+	_m._on_encontro_terminado("capturada", c)
+	_ok(Bolsa.gold == antes, "capturar nao paga")
+
+	# A guardia paga so na primeira vitoria.
+	var dulce: Dictionary = _m.guardioes.por_id("dulce")
+	_m.estado_mundo.definir("selo_dulce", false)
+	antes = Bolsa.gold
+	_m._ao_vencer_duelo(dulce)
+	_ok(Bolsa.gold == antes + int(dulce["premio_gold"]), "a primeira vitoria paga o premio",
+			"+%d" % (Bolsa.gold - antes))
+	antes = Bolsa.gold
+	_m._ao_vencer_duelo(dulce)
+	_ok(Bolsa.gold == antes, "a revanche nao paga de novo")
+	if _m.tela_desfecho.aberta():
+		_m.tela_desfecho.fechar()
+		_m.jogador.congelar(false)
+
+	# O gold vai para o save.
+	_ok(Save.salvar() == "", "gravou")
+	var dados: DadosPartida = ArquivoSave.ler(SLOT)["dados"]
+	_ok(dados.gold == Bolsa.gold, "o gold esta no save", "%d" % dados.gold)
+
+	var fonte := TemaEncontro.fonte()
+	var amostra: String = TelaLoja.TEXTO_RODAPE
+	for l: Dictionary in _m.lojas.lojas:
+		amostra += String(l["nome"])
+	var faltando := PackedStringArray()
+	for i in amostra.length():
+		if not fonte.has_char(amostra.unicode_at(i)) and not amostra[i] in faltando:
+			faltando.append(amostra[i])
+	_ok(faltando.is_empty(), "a fonte cobre o texto das lojas", " ".join(faltando))
 	_etapas += 1
 
 

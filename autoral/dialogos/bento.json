@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "descricao": "Padeiro do distrito — padaria e comida local. A LOJA NAO EXISTE: {servico: loja} e o gancho.",
+  "descricao": "Padeiro do distrito — padaria e comida local. 'loja' abre a loja 'padaria' quando a conversa fecha.",
   "aviso": "Conteudo AUTORAL (Camada 1)."
  },
  "id": "bento",
@@ -52,9 +52,9 @@
    "seguinte": "assuntos"
   },
   "loja": {
-   "falas": ["Hoje não tem o que vender: a prateleira está vazia e a próxima fornada ainda é madrugada."],
+   "falas": ["Pão eu não vendo para bicho, mas o resto da prateleira é deles. Carne, queijo, peixe seco: escolha."],
    "efeitos": {"servico": {"tipo": "loja", "loja": "padaria"}},
-   "seguinte": "assuntos"
+   "fim": true
   },
   "despedida": {
    "falas": ["Leve o cheiro, que é de graça."],

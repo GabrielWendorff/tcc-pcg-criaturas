@@ -272,8 +272,9 @@ func _beira_sem_vara() -> bool:
 			"o aviso chega a nota do HUD")
 	_ok(_pesca.estado.e(EstadoPesca.Estado.OCIOSO) and not _jogador.congelado,
 			"sem vara: continua OCIOSO e livre")
-	# As minhocas da carga inicial tambem tem o marcador "pesca": nem o HUD nem a
-	# dica do Anselmo podem toma-las por uma vara.
+	# As minhocas tambem tem o marcador "pesca": nem a cena nem a dica do Anselmo
+	# podem toma-las por uma vara. A bolsa comeca vazia, entao o teste as poe la.
+	Bolsa.adicionar("minhoca", 5)
 	_ok(Bolsa.tem_marcador("pesca") and not Bolsa.tem(VARA),
 			"(premissa) iscas com marcador 'pesca', vara fora da bolsa")
 	_ok(String(_m.call("_dica_de_pesca")) == String(_constante("TEXTO_PESCA_SEM_VARA")),

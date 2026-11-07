@@ -184,6 +184,11 @@ um campo que ainda não foi inventado.
 2, separadas de propósito: valem para o jogador, não para a partida — trocar de
 slot não pode religar um efeito que ele desligou.
 
+## `gold`
+
+O dinheiro do jogador, guardado pela `Bolsa` na raiz do save (`"gold": 178`). `-1` (ou
+ausente) é save de antes da economia: a carga põe o gold inicial, e não zero.
+
 ## `equipe`, `armazenadas` e `hp`
 
 A equipe ativa vai em `equipe`, o depósito em `armazenadas`, e `hp` guarda a vida atual

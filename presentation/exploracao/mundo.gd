@@ -100,6 +100,8 @@ var tutorial: GerenciadorTutorial
 var guardioes: CatalogoGuardioes
 var tela_inicial: TelaEscolhaInicial
 var tela_desfecho: TelaDesfecho
+var tela_loja: TelaLoja
+var lojas: CatalogoLojas
 
 ## F2, F3 e F4 valem? Verdadeiro no editor e na build de debug, falso na de entrega.
 var teclas_de_desenvolvimento: bool = OS.is_debug_build()
@@ -197,6 +199,16 @@ func _montar_arco() -> void:
 			jogador.congelar(false)
 			if dialogos != null:
 				dialogos.suspender(false))
+
+	lojas = CatalogoLojas.carregar()
+	tela_loja = TelaLoja.new()
+	tela_loja.name = "TelaLoja"
+	add_child(tela_loja)
+	tela_loja.fechada.connect(func() -> void:
+			jogador.congelar(false)
+			if dialogos != null:
+				dialogos.suspender(false))
+	Bolsa.gold_mudou.connect(_ao_mudar_gold)
 
 	tela_desfecho = TelaDesfecho.new()
 	tela_desfecho.name = "TelaDesfecho"
@@ -420,6 +432,8 @@ func _dono_da_tela() -> String:
 		return "desfecho"
 	if tela_inicial != null and tela_inicial.aberta():
 		return "escolha"
+	if tela_loja != null and tela_loja.aberta():
+		return "loja"
 	if encontros != null and encontros.estado.em_encontro():
 		return "encontro"
 	if dialogos != null and dialogos.em_conversa():
@@ -706,6 +720,10 @@ func _on_servico_pedido(pedido: Dictionary, npc: Npc) -> void:
 		"escolher_inicial":
 			_apos_conversa = _abrir_escolha_inicial
 			return
+		"loja":
+			var id_loja := String(pedido.get("loja", ""))
+			_apos_conversa = _abrir_loja.bind(id_loja)
+			return
 		"curar_equipe":
 			encontros.equipe.curar_todos()
 			_nota("Equipe recuperada.")
@@ -735,9 +753,28 @@ func _abrir_escolha_inicial() -> void:
 			encontros.catalogo, encontros.tabelas_batalha)
 
 
+func _abrir_loja(id_loja: String) -> void:
+	var loja := lojas.loja(id_loja) if lojas != null else {}
+	if loja.is_empty():
+		push_warning("loja desconhecida: " + id_loja)
+		return
+	jogador.congelar(true)
+	dialogos.suspender(true)
+	tela_loja.abrir(loja)
+
+
+## Metodo, e nao lambda: a Bolsa e autoload e sobrevive a esta cena.
+func _ao_mudar_gold(_valor: int) -> void:
+	_atualizar_objetivo()
+
+
 func _ao_escolher_inicial(c: Criatura) -> void:
 	encontros.equipe.adicionar(Combatente.de_criatura(c, encontros.tabelas_batalha))
 	encontros.inventario.guardar_criatura(c)
+	# O kit vem junto: a bolsa comeca vazia, e sem ele a primeira ida ao mato nao
+	# teria captura possivel.
+	for id: String in Bolsa.economia.kit_inicial():
+		Bolsa.adicionar(id, int(Bolsa.economia.kit_inicial()[id]))
 	estado_mundo.definir(BANDEIRA_INICIAL)
 	jogador.congelar(false)
 	dialogos.suspender(false)
@@ -785,7 +822,8 @@ func _objetivo_atual() -> String:
 func _texto_da_equipe() -> String:
 	if encontros == null or encontros.equipe == null or encontros.equipe.vazia():
 		return ""
-	return "EQUIPE %d/%d DE PÉ" % [encontros.equipe.vivos(), encontros.equipe.ativos.size()]
+	return "EQUIPE %d/%d DE PÉ     %d GOLD" % [encontros.equipe.vivos(),
+			encontros.equipe.ativos.size(), Bolsa.gold]
 
 
 ## Atualiza o card. Quando o objetivo MUDA, ele pisca: e a unica forma de o jogador
@@ -1150,13 +1188,35 @@ func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 	match desfecho:
 		"derrota":
 			_mostrar_derrota()
+		"derrotada":
+			_recompensar_selvagem(criatura)
 		"duelo_vencido":
 			_ao_vencer_duelo(duelo)
 
 
+## Gold por derrotar um selvagem, proporcional a forca dele: criatura mais forte que o
+## gerador produziu vale mais. Capturar nao paga: e o outro caminho do encontro.
+func _recompensar_selvagem(c: Criatura) -> void:
+	if c == null or encontros == null:
+		return
+	var forca := FichaCombate.de_criatura(c, encontros.tabelas_batalha).forca(encontros.tabelas_batalha)
+	var gold := Bolsa.economia.recompensa_selvagem(forca)
+	Bolsa.ganhar_gold(gold)
+	_nota("+%d gold" % gold)
+
+
 func _ao_vencer_duelo(guardiao: Dictionary) -> void:
-	estado_mundo.definir(String(guardiao.get("selo", "")))
-	_nota("%s entregou o selo." % String(guardiao.get("nome", "")))
+	var selo := String(guardiao.get("selo", ""))
+	# O premio so vem na primeira vitoria: a revanche nao pode virar fonte de gold.
+	var premio: int = 0
+	if not estado_mundo.ativa(selo):
+		premio = int(guardiao.get("premio_gold", 0))
+		Bolsa.ganhar_gold(premio)
+	estado_mundo.definir(selo)
+	if premio > 0:
+		_nota("%s entregou o selo e %d gold." % [String(guardiao.get("nome", "")), premio])
+	else:
+		_nota("%s entregou o selo." % String(guardiao.get("nome", "")))
 	if guardioes.venceu_o_jogo(estado_mundo) and not estado_mundo.ativa(BANDEIRA_VENCEU):
 		estado_mundo.definir(BANDEIRA_VENCEU)
 		_autosalvar()

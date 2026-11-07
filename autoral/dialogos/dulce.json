@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "descricao": "Fazendeira — lavoura, mantimentos e o campo. Loja e gancho, nao implementacao.",
+  "descricao": "Fazendeira — lavoura, mantimentos e o campo. Guardia do sitio. 'loja' abre a loja 'fazenda' quando a conversa fecha.",
   "aviso": "Conteudo AUTORAL (Camada 1)."
  },
  "id": "dulce",
@@ -68,9 +68,9 @@
    "seguinte": "assuntos"
   },
   "loja": {
-   "falas": ["Por enquanto é só o que está no pé. Quando a colheita entrar, a gente conversa de preço."],
+   "falas": ["O que está no pé, eu vendo. Minhoca, semente, fruta e néctar: bicho de campo gosta."],
    "efeitos": {"servico": {"tipo": "loja", "loja": "fazenda"}},
-   "seguinte": "assuntos"
+   "fim": true
   },
   "despedida": {
    "falas": ["Feche a porteira ao sair, por favor."],

@@ -87,6 +87,9 @@ var estado_mundo: Dictionary = {}
 ## id do item -> quantidade. Mesmo espaco de nomes de InventarioJogador.
 var itens: Dictionary = {}
 
+## Dinheiro do jogador. -1 = save de antes do gold existir: a Bolsa poe o gold inicial.
+var gold: int = -1
+
 var equipe: Array[CriaturaSalva] = []
 var armazenadas: Array[CriaturaSalva] = []
 
@@ -138,6 +141,7 @@ static func de_dicionario(bruto: Dictionary) -> DadosPartida:
 
 	d.estado_mundo = (dados.get("estado_mundo", {}) as Dictionary).duplicate(true)
 	d.itens = (dados.get("itens", {}) as Dictionary).duplicate(true)
+	d.gold = int(dados.get("gold", -1))
 	d.equipe = _ler_criaturas(dados.get("equipe", []))
 	d.armazenadas = _ler_criaturas(dados.get("armazenadas", []))
 
@@ -168,6 +172,7 @@ func para_dicionario() -> Dictionary:
 		},
 		"estado_mundo": estado_mundo.duplicate(true),
 		"itens": itens.duplicate(true),
+		"gold": gold,
 		"equipe": _escrever_criaturas(equipe),
 		"armazenadas": _escrever_criaturas(armazenadas),
 		"tempo_jogado": tempo_jogado,
