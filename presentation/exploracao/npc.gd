@@ -91,17 +91,54 @@ func mostrar_indicador(sim: bool) -> void:
 ## Vira-se para um ponto do mundo. Chamado quando a conversa comeca: um NPC que
 ## fala de costas para quem o chamou desmente a propria caixa de dialogo.
 func olhar_para(alvo: Vector2) -> void:
-	var d := alvo - global_position
-	# Compara no CHAO, nao na tela: em projecao 2:1, 16px verticais valem 32px
-	# horizontais, e sem desfazer isso todo alvo parece estar ao norte ou ao sul.
-	var vertical := absf(d.y) * 2.0 > absf(d.x)
-	var nova := ("baixo" if d.y > 0.0 else "cima") if vertical \
-			else ("direita" if d.x > 0.0 else "esquerda")
+	var nova := direcao_na_tela(alvo - global_position,
+			dados.direcao if dados != null else "baixo")
 	if _sprite != null:
 		_sprite.animation = "parado_" + nova
 		_sprite.frame = 0
 	if dados != null:
 		dados.direcao = nova
+
+
+## Uma das 4 direcoes da folha para um deslocamento `d` em pixels. Compara no
+## CHAO, nao na tela: em projecao 2:1, 16px verticais valem 32px horizontais, e
+## sem desfazer isso todo alvo parece estar ao norte ou ao sul. `atual` volta
+## quando nao ha deslocamento.
+static func direcao_na_tela(d: Vector2, atual: String) -> String:
+	if d.length_squared() < 0.01:
+		return atual
+	var vertical := absf(d.y) * 2.0 > absf(d.x)
+	return ("baixo" if d.y > 0.0 else "cima") if vertical \
+			else ("direita" if d.x > 0.0 else "esquerda")
+
+
+## Caminha pelos pontos (pixels do mundo) a `velocidade` pixels por segundo, com a
+## animacao de andar. Para cutscene: o NPC nao tem fisica, e o tween so move a
+## posicao. Devolve o tween; ao fim ele fica parado olhando na ultima direcao.
+func andar_por(pontos: Array, velocidade: float) -> Tween:
+	var t := create_tween()
+	var de := position
+	for p: Vector2 in pontos:
+		var dir := direcao_na_tela(p - de, dados.direcao if dados != null else "baixo")
+		t.tween_callback(animar_andando.bind(dir, true))
+		t.tween_property(self, "position", p, de.distance_to(p) / maxf(velocidade, 1.0))
+		de = p
+	t.tween_callback(func() -> void:
+			animar_andando(dados.direcao if dados != null else "baixo", false))
+	return t
+
+
+func animar_andando(dir: String, andando: bool) -> void:
+	if dados != null:
+		dados.direcao = dir
+	if _sprite == null:
+		return
+	_sprite.animation = ("andar_" if andando else "parado_") + dir
+	if andando:
+		_sprite.play()
+	else:
+		_sprite.stop()
+		_sprite.frame = 0
 
 
 ## Distancia ate um ponto do mundo medida em CELULAS DO CHAO.

@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "descricao": "Chegada de onibus (Camada 1, autoral): o tempo e o texto da cutscene de abertura. ONDE as coisas acontecem (boca do tunel, parada, desembarque, caminho da Mirela) esta em autoral/mapas/mundo.json, chave 'chegada', escrito e validado por tools/mapas/gerar_mundo.py. O que a Mirela diz esta em autoral/dialogos/mirela.json, nos 'chegada', 'sem_criatura' e 'apos_escolha'.",
+    "quando": "So em partida nova: sem posicao gravada e sem a primeira criatura. Pulavel com P e confirmacao; quem pula ainda recebe a escolha da criatura.",
+    "duracoes": "Segundos.",
+    "dicas_primeira_batalha": "Mostradas uma vez, na primeira batalha contra selvagem, no lugar das explicacoes que a Mirela deu (ou que quem pulou a chegada nao ouviu)."
+  },
+  "npc": "mirela",
+  "no_chegada": "chegada",
+  "no_apos_escolha": "apos_escolha",
+  "bandeira": "chegou_de_onibus",
+  "duracoes": {
+    "abrir": 0.9,
+    "onibus_chegando": 4.2,
+    "espera_porta": 0.5,
+    "descer": 0.3,
+    "onibus_partindo": 3.0,
+    "fechar": 0.5
+  },
+  "velocidade_mirela": 52.0,
+  "pular": {
+    "aviso": "[P] pular chegada",
+    "pergunta": "Pular a chegada? A Mirela ainda te dá a primeira criatura.",
+    "sim": "Pular",
+    "nao": "Continuar"
+  },
+  "dicas_primeira_batalha": {
+    "titulo": "Primeira batalha",
+    "menu": "GOLPES enfraquece a criatura. Quando ela estiver fraca, CAPTURAR. Se a vida dela zerar, ela foge.",
+    "roda": "Escolha o dispositivo com as SETAS e confirme com E. Falhar gasta o turno, e cada dispositivo combina melhor com um tipo de corpo."
+  }
+}

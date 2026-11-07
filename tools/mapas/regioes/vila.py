@@ -34,6 +34,24 @@ REGIAO = {
 PRACA = (19.0 + OX, 17.0 + OY)
 SPAWN = (19 + OX, 19 + OY)
 
+# Chegada de onibus (cutscene de abertura). O tunel e cavado na rocha da borda
+# oeste, na altura da estrada que atravessa a praca; ligacoes.py o poe depois de
+# pintar a borda. As demais posicoes sao a coreografia da cena, em coordenadas de
+# grade (floats no eixo do onibus): o gerador confere que cada uma e chao livre.
+# A parada fica a leste da casa_oeste de proposito: parado em frente a ela, o
+# onibus e o jogador sumiam atras do telhado.
+TUNEL = (0, 17 + OY - 1)              # canto da pegada 2 x 3 do prop "tunel"
+ESTRADA_DO_TUNEL_ATE = 6 + OX + 1     # a calcada ja existe dali para leste
+CHEGADA = {
+    "boca": [2.0, 19.5],              # face do tunel, no eixo da estrada
+    "parada": [15.4, 19.5],           # centro do onibus parado
+    "desembarque": [16, 20],          # celula ao lado da porta
+    "encontro": [18, 20],             # onde a Mirela para, de frente para o jogador
+    # Da praca ate o jogador, contornando o poco e a placa: trechos retos, sem
+    # pathfinding. O ultimo ponto e o "encontro".
+    "caminho_mirela": [[23, 20], [18, 20]],
+}
+
 # Casas da vila. `papel` e o gancho de NPC/loja/missao que ja existia no mapa
 # antigo e que agora tem quem o leia: autoral/npcs/npcs.json posiciona gente
 # perto delas.

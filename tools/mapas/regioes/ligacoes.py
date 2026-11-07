@@ -22,6 +22,8 @@ tile e justamente o que segura o jogador no resto do rio.
 
 from mundo_lib import ruido
 
+from regioes import vila
+
 # (nome, pontos, largura, terreno). A ordem importa: a ponte e pintada depois da
 # estrada que a alimenta, para que as pontas fiquem rentes ao caminho.
 ESTRADAS = [
@@ -86,6 +88,19 @@ def construir(m):
             limite = 2 + int(1.9 * ruido(gx // 3, gy // 3, 1))
             if d < limite:
                 m.pintar(gx, gy, "r")
+
+    # --- tunel da chegada: a boca no paredao oeste e a estrada ate a vila ---
+    # Depois da rocha (o tunel E rocha) e antes dos penhascos e das matas: a
+    # estrada tem de existir quando eles procuram onde nascer, ou uma arvore
+    # fecharia o caminho do onibus. A geometria vai para mundo.json ("chegada"),
+    # e e de la que a cutscene a le.
+    tx, ty = vila.TUNEL
+    for gy in range(ty, ty + 3):
+        for gx in range(tx, tx + 2):
+            m.pintar(gx, gy, "r")
+        for gx in range(tx + 2, vila.ESTRADA_DO_TUNEL_ATE):
+            m.pintar(gx, gy, "c")
+    m.por_prop("penhascos", "tunel", tx, ty)
 
     # --- penhascos: o paredao que fecha o mapa ---
     # Vao na primeira fileira de rocha colada ao terreno pisavel, e nao no meio

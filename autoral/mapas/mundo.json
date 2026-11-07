@@ -52,9 +52,9 @@
   "rrr.................ttttsscccsssaasggggssgsssaaaaaaas.....ttttt.......gggg....................rr",
   "rrr.........ttt...tttttttcc..s..ssggggggssss.ssaaaaaass..ttttttt.......tttttttt...............rr",
   "rrr.........ttt..ttttttttt.......sgggg.g...s.ssssaaaaaassttttttt...ttttttt.ttttttttt..........rr",
-  "rr......ccccccccctttttttttcccccccc.gg......g.ssssaaaaaasttttttttt.tttt..........ttttt........rrr",
-  "rr.....cccccccccctttttttttccccccccc....g.....ss.saaaaaasttttttttt............................rrr",
-  "rr......ccccccccctttttttttcccccccc..g....ccccccccaapppppttttttttt............................rrr",
+  "rrccccccccccccccctttttttttcccccccc.gg......g.ssssaaaaaasttttttttt.tttt..........ttttt........rrr",
+  "rrccccccccccccccctttttttttccccccccc....g.....ss.saaaaaasttttttttt............................rrr",
+  "rrccccccccccccccctttttttttcccccccc..g....ccccccccaapppppttttttttt............................rrr",
   "rrr......g..ttt..ttttttttc.tt.....ggg...cccccccccaappppttttttttttt............................rr",
   "rrr...ggggggttt..ctttttttcctt....ggggg..gccccccccccpppppttttttttttt...........................rr",
   "rrr...ggggggg...ccc.tttttccc....gggggg.......gg..sssaaas......ttttt...........................rr",
@@ -1208,20 +1208,6 @@
   {
    "prop": "pinheiro_01",
    "celula": [
-    3,
-    18
-   ]
-  },
-  {
-   "prop": "arvore_01",
-   "celula": [
-    4,
-    18
-   ]
-  },
-  {
-   "prop": "pinheiro_01",
-   "celula": [
     89,
     18
    ]
@@ -1231,20 +1217,6 @@
    "celula": [
     90,
     18
-   ]
-  },
-  {
-   "prop": "pinheiro_02",
-   "celula": [
-    2,
-    19
-   ]
-  },
-  {
-   "prop": "pinheiro_01",
-   "celula": [
-    2,
-    20
    ]
   },
   {
@@ -3079,13 +3051,6 @@
    "celula": [
     86,
     16
-   ]
-  },
-  {
-   "prop": "arvore_01",
-   "celula": [
-    2,
-    18
    ]
   },
   {
@@ -4610,13 +4575,6 @@
    ]
   },
   {
-   "prop": "pedra_01",
-   "celula": [
-    4,
-    20
-   ]
-  },
-  {
    "prop": "pedra_02",
    "celula": [
     39,
@@ -5634,6 +5592,13 @@
  ],
  "penhascos": [
   {
+   "prop": "tunel",
+   "celula": [
+    0,
+    18
+   ]
+  },
+  {
    "prop": "penhasco_01",
    "celula": [
     2,
@@ -6504,7 +6469,7 @@
   {
    "prop": "penhasco_01",
    "celula": [
-    1,
+    93,
     18
    ]
   },
@@ -6512,28 +6477,7 @@
    "prop": "penhasco_01",
    "celula": [
     93,
-    18
-   ]
-  },
-  {
-   "prop": "penhasco_02",
-   "celula": [
-    1,
     19
-   ]
-  },
-  {
-   "prop": "penhasco_01",
-   "celula": [
-    93,
-    19
-   ]
-  },
-  {
-   "prop": "penhasco_02",
-   "celula": [
-    1,
-    20
    ]
   },
   {
@@ -8506,6 +8450,13 @@
   {
    "prop": "penhasco_01",
    "celula": [
+    0,
+    17
+   ]
+  },
+  {
+   "prop": "penhasco_01",
+   "celula": [
     95,
     17
    ]
@@ -8515,13 +8466,6 @@
    "celula": [
     94,
     19
-   ]
-  },
-  {
-   "prop": "penhasco_01",
-   "celula": [
-    0,
-    20
    ]
   },
   {
@@ -12762,5 +12706,33 @@
    "requer": "selo_dulce",
    "aviso": "O portão está trancado. Um bilhete preso nele: \"Só entra quem traz o selo do sítio. — Otávio\""
   }
- ]
+ ],
+ "chegada": {
+  "boca": [
+   2.0,
+   19.5
+  ],
+  "parada": [
+   15.4,
+   19.5
+  ],
+  "desembarque": [
+   16,
+   20
+  ],
+  "encontro": [
+   18,
+   20
+  ],
+  "caminho_mirela": [
+   [
+    23,
+    20
+   ],
+   [
+    18,
+    20
+   ]
+  ]
+ }
 }

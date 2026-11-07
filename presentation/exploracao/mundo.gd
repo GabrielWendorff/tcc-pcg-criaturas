@@ -56,6 +56,7 @@ const DURACAO_PORTA := 0.35
 
 const BANDEIRA_INICIAL := "recebeu_inicial"
 const BANDEIRA_VENCEU := "jogo_vencido"
+const BANDEIRA_DICAS_BATALHA := "viu_dicas_batalha"
 
 ## Linha de teclas do HUD. Constante (e nao literal em _montar_hud) para o teste
 ## de integracao conferir os glifos contra a fonte pixel.
@@ -105,6 +106,8 @@ var tela_inicial: TelaEscolhaInicial
 var tela_desfecho: TelaDesfecho
 var tela_loja: TelaLoja
 var lojas: CatalogoLojas
+## Chegada de onibus. So existe numa partida nova; null nas demais.
+var chegada: CutsceneChegada
 
 ## F2, F3 e F4 valem? Verdadeiro no editor e na build de debug, falso na de entrega.
 var teclas_de_desenvolvimento: bool = OS.is_debug_build()
@@ -137,6 +140,7 @@ var _ultima_celula_de_porta := Vector2i(-1, -1)
 var _avisos_de_porta: Array = []
 const DISTANCIA_AVISO_PORTA := 2.5
 var _tween_nota: Tween
+var _tween_controles: Tween
 var _regiao_corrente: String = ""
 ## O HUD foi pedido visivel? (_mostrar_hud). Guardado porque as duas linhas de
 ## cima tambem cedem a dica do tutorial, quadro a quadro (ver _process).
@@ -194,6 +198,8 @@ func _ready() -> void:
 	_montar_pausa()
 	_montar_arco()
 	_ligar_save()
+	_preparar_dicas_de_batalha()
+	_talvez_chegar_de_onibus()
 	_atualizar_objetivo()
 	# Nasce sobre a celula de chegada, que nao e porta; a seguinte ja pode ser.
 	_ultima_celula_de_porta = mundo.mundo_para_celula(jogador.position)
@@ -214,7 +220,9 @@ func _montar_arco() -> void:
 	tela_inicial.cancelada.connect(func() -> void:
 			jogador.congelar(false)
 			if dialogos != null:
-				dialogos.suspender(false))
+				dialogos.suspender(false)
+			if chegada != null:
+				chegada.escolha_cancelada())
 
 	lojas = CatalogoLojas.carregar()
 	tela_loja = TelaLoja.new()
@@ -443,6 +451,8 @@ func _montar_tutorial() -> void:
 func _dono_da_tela() -> String:
 	if tutorial != null and tutorial.perguntando():
 		return "tutorial"
+	if chegada != null and chegada.dona_da_tela():
+		return "chegada"
 	if pausa != null and pausa.aberto():
 		return "pausa"
 	if tela_desfecho != null and tela_desfecho.aberta():
@@ -898,6 +908,8 @@ func _ao_escolher_inicial(c: Criatura) -> void:
 	dialogos.suspender(false)
 	_autosalvar()
 	_nota("%s agora anda com você." % c.nome())
+	if chegada != null:
+		chegada.escolha_feita()
 
 
 func _comecar_duelo(id_guardiao: String) -> void:
@@ -914,6 +926,58 @@ func _comecar_duelo(id_guardiao: String) -> void:
 	encontros.iniciar_duelo(guardiao, SelecaoBestiario.equipe_guardiao(encontros.bestiario,
 			encontros.tabelas_batalha, guardiao.get("elementos", []),
 			int(guardiao.get("tamanho_equipe", 2)), float(guardiao.get("percentil_forca", 0.5))))
+
+
+## Partida nova (sem posicao gravada e sem a primeira criatura) comeca pela chegada de
+## onibus. Precisa de partida: aberta direto pelo editor ou por teste sem Save, a cena
+## comeca no spawn, como sempre comecou.
+func _talvez_chegar_de_onibus() -> void:
+	if not Save.em_partida() or Save.partida.tem_posicao() or mundo.chegada().is_empty():
+		return
+	if estado_mundo.ativa(BANDEIRA_INICIAL) or encontros == null or not encontros.equipe.vazia():
+		return
+	chegada = CutsceneChegada.new()
+	chegada.name = "Chegada"
+	add_child(chegada)
+	if not chegada.preparar(mundo, jogador, camera, dialogos):
+		push_warning("chegada de onibus desligada: " + chegada.erro)
+		chegada.queue_free()
+		chegada = null
+		return
+	if estado_mundo.ativa(String(chegada.dados.get("bandeira", ""))):
+		chegada.queue_free()
+		chegada = null
+		return
+	chegada.permissao_pulo = func() -> bool:
+		return _dono_da_tela() in ["", "chegada", "dialogo"]
+	chegada.escolha_pedida.connect(_ao_chegada_pedir_escolha)
+	chegada.terminada.connect(_ao_terminar_chegada)
+	_mostrar_hud(false)
+	chegada.iniciar()
+
+
+func _ao_chegada_pedir_escolha() -> void:
+	if encontros.equipe.vazia():
+		_abrir_escolha_inicial()
+	else:
+		chegada.escolha_feita()
+
+
+func _ao_terminar_chegada(_pulada: bool) -> void:
+	estado_mundo.definir(String(chegada.dados.get("bandeira", "chegou_de_onibus")))
+	_mostrar_hud(true)
+	_mostrar_controles_por_um_tempo()
+	_atualizar_objetivo()
+	_autosalvar()
+
+
+## Dicas da primeira batalha contra selvagem: uma vez por partida, venha o jogador da
+## chegada completa, da chegada pulada ou de um save antigo.
+func _preparar_dicas_de_batalha() -> void:
+	if encontros == null or estado_mundo == null or estado_mundo.ativa(BANDEIRA_DICAS_BATALHA):
+		return
+	var dicas: Dictionary = CutsceneChegada.carregar_dados().get("dicas_primeira_batalha", {})
+	encontros.dicas_de_estreia = dicas.duplicate()
 
 
 ## Grava sem avisar quando da; sem slot (cena aberta direto) nao faz nada.
@@ -1209,9 +1273,7 @@ func _montar_hud() -> void:
 	if Save.has_meta(META_CHEGADA_POR_PORTA):
 		_hud_dica.modulate.a = 0.0
 	else:
-		var some := create_tween()
-		some.tween_interval(SEGUNDOS_DE_CONTROLES)
-		some.tween_property(_hud_dica, "modulate:a", 0.0, 1.0)
+		_mostrar_controles_por_um_tempo()
 
 	# Nota transitoria: avisos curtos que nao merecem uma caixa (servico ainda
 	# nao implementado, regiao descoberta). Some sozinha.
@@ -1220,6 +1282,17 @@ func _montar_hud() -> void:
 	_hud_nota.modulate.a = 0.0
 
 	camada.add_child(_montar_card_objetivo())
+
+
+## A linha de controles aparece e some depois de SEGUNDOS_DE_CONTROLES. De novo ao fim
+## da chegada de onibus: durante a cena o HUD esta escondido, e o tempo teria passado.
+func _mostrar_controles_por_um_tempo() -> void:
+	if _tween_controles != null and _tween_controles.is_valid():
+		_tween_controles.kill()
+	_hud_dica.modulate.a = 1.0
+	_tween_controles = create_tween()
+	_tween_controles.tween_interval(SEGUNDOS_DE_CONTROLES)
+	_tween_controles.tween_property(_hud_dica, "modulate:a", 0.0, 1.0)
 
 
 ## O objetivo num card no canto superior direito, com letra maior: e o que diz ao
@@ -1310,6 +1383,12 @@ func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 
 	var duelo := _duelo_atual
 	_duelo_atual = {}
+	# A dica do menu sai do dicionario ao ser mostrada: se saiu, a primeira batalha
+	# contra selvagem aconteceu e as dicas nao voltam.
+	if encontros != null and not encontros.dicas_de_estreia.is_empty() \
+			and not encontros.dicas_de_estreia.has("menu"):
+		encontros.dicas_de_estreia = {}
+		estado_mundo.definir(BANDEIRA_DICAS_BATALHA)
 	match desfecho:
 		"derrota":
 			_mostrar_derrota()

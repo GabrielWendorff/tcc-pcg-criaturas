@@ -157,6 +157,9 @@ MATERIAIS = {
     "metal":       (0x8d, 0x96, 0xa2),
     "ferrugem":    (0x9a, 0x5f, 0x33),
     "milho":       (0xd2, 0xbb, 0x5c),
+    # --- chegada de onibus (cutscene de abertura) -----------------------------
+    "onibus":      (0xd8, 0x9a, 0x3c),
+    "vidro":       (0x86, 0xa9, 0xbe),
 }
 
 CONTORNO = (0x24, 0x22, 0x30)      # contorno geral dos props

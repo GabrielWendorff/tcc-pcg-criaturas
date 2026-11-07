@@ -264,3 +264,11 @@ cujo `"mapa"` é ele. Perto de uma porta aparece o balão ENTRAR ou SAIR.
 python3 tools/mapas/gerar_fabrica.py   # regera e valida o interior
 ```
 
+
+## Chegada de ônibus
+
+Partida nova não começa no spawn: começa com o ônibus saindo do túnel da borda oeste
+da vila (`presentation/chegada/`). Durante o ônibus e a caminhada da Mirela o dono da tela
+é `"chegada"`: sem pausa, sem mapa, sem conversa por E. Na conversa e na escolha, os donos
+de sempre. O túnel é um prop (`tunel`) e a coreografia está em `mundo.json` → `chegada`,
+validada pelo gerador do mapa.

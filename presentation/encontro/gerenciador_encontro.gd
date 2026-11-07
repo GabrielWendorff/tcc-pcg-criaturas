@@ -61,6 +61,10 @@ var inventario: InventarioJogador
 var estado := EstadoEncontro.new()
 
 var erro: String = ""
+## Dicas da primeira batalha contra selvagem: {titulo, menu, roda}. Quem preenche e a
+## cena (autoral/cutscenes/chegada.json), uma vez por partida; cada chave aparece uma
+## vez e sai daqui. Vazio, nenhuma dica.
+var dicas_de_estreia: Dictionary = {}
 
 var _jogador: Jogador
 var _camera: CameraExploracao
@@ -333,7 +337,19 @@ func _roteiro_de_abertura(token: int) -> void:
 	_interface.definir_stats(motor.inimigo().ficha)
 	_interface.mostrar_jogador(motor.jogador())
 	_atualizar_barras()
+	if not em_duelo():
+		_mostrar_dica_estreia("menu")
 	_devolver_menu("")
+
+
+## Mostra a dica `chave` de dicas_de_estreia, se houver. Cada uma aparece uma vez:
+## mostrada, sai do dicionario.
+func _mostrar_dica_estreia(chave: String) -> void:
+	if not dicas_de_estreia.has(chave):
+		return
+	_interface.mostrar_dica_estreia(String(dicas_de_estreia.get("titulo", "")),
+			String(dicas_de_estreia[chave]))
+	dicas_de_estreia.erase(chave)
 
 
 ## O encontro que iniciou esta rotina ainda e o encontro corrente?
@@ -446,6 +462,7 @@ func _abrir_roda_de_dispositivo() -> void:
 		return
 	if not estado.mudar_para(EstadoEncontro.Estado.RODA_DISPOSITIVO):
 		return
+	_mostrar_dica_estreia("roda")
 	await _interface.abrir_roda("Escolha o dispositivo", captura.dispositivos,
 			inventario, _ficha_de_dispositivo, cfg.duracao_abertura_roda)
 

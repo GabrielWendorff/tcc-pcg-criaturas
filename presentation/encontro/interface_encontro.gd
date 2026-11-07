@@ -51,6 +51,7 @@ const OPCOES_DUELO := [
 ]
 
 const CAMINHO_VINHETA := "res://arte/ui/vinheta.png"
+const LARGURA_DICA_ESTREIA := 560.0
 
 const LARGURA_FICHA := 306.0
 const TAMANHO_RETRATO := 188.0
@@ -106,6 +107,9 @@ var _indice: int = 0
 var _menu_ativo: bool = false
 
 var _criatura: Criatura
+var _dica_estreia: PanelContainer
+var _dica_estreia_titulo: Label
+var _dica_estreia_texto: Label
 
 
 func _ready() -> void:
@@ -155,6 +159,48 @@ func _montar() -> void:
 	_roda.escolhido.connect(func(item): item_escolhido.emit(item))
 	_roda.cancelado.connect(func(): roda_cancelada.emit())
 	_raiz.add_child(_roda)
+	_montar_dica_estreia()
+
+
+## Pergaminho no topo com a dica da primeira batalha. Acima da roda de proposito: a
+## dica da roda e lida com ela aberta.
+func _montar_dica_estreia() -> void:
+	_dica_estreia = PanelContainer.new()
+	_dica_estreia.name = "DicaEstreia"
+	_dica_estreia.add_theme_stylebox_override("panel", TemaEncontro.moldura("pergaminho"))
+	_dica_estreia.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dica_estreia.anchor_left = 0.5
+	_dica_estreia.anchor_right = 0.5
+	_dica_estreia.offset_left = -LARGURA_DICA_ESTREIA * 0.5
+	_dica_estreia.offset_right = LARGURA_DICA_ESTREIA * 0.5
+	_dica_estreia.offset_top = 10.0
+	_dica_estreia.visible = false
+	_raiz.add_child(_dica_estreia)
+	var coluna := VBoxContainer.new()
+	coluna.add_theme_constant_override("separation", 2)
+	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dica_estreia.add_child(coluna)
+	_dica_estreia_titulo = TemaEncontro.rotulo("", TemaEncontro.TINTA, TemaEncontro.Corpo.TITULO)
+	coluna.add_child(_dica_estreia_titulo)
+	_dica_estreia_texto = TemaEncontro.rotulo("", TemaEncontro.TINTA)
+	_dica_estreia_texto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_dica_estreia_texto.custom_minimum_size = Vector2(LARGURA_DICA_ESTREIA - 32.0, 0)
+	coluna.add_child(_dica_estreia_texto)
+
+
+## Dica da primeira batalha (ver GerenciadorEncontro.dicas_de_estreia). Texto vazio
+## esconde.
+func mostrar_dica_estreia(titulo: String, texto: String) -> void:
+	_dica_estreia_titulo.text = titulo.to_upper()
+	_dica_estreia_titulo.visible = titulo != ""
+	_dica_estreia_texto.text = texto
+	# Sobra de altura do texto anterior: zerar deixa o painel voltar ao minimo.
+	_dica_estreia.offset_bottom = _dica_estreia.offset_top
+	_dica_estreia.visible = texto != ""
+
+
+func dica_estreia_visivel() -> bool:
+	return _dica_estreia != null and _dica_estreia.visible
 
 
 func _montar_ficha() -> Control:
@@ -318,6 +364,7 @@ func abrir(criatura: Criatura, catalogo: CatalogoCorpos, tabelas: TabelasCaptura
 
 func fechar(duracao: float) -> void:
 	_menu_ativo = false
+	mostrar_dica_estreia("", "")
 	_limpar_icone()
 	var t := create_tween()
 	t.tween_property(_raiz, "modulate:a", 0.0, duracao)

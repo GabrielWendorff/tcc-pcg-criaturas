@@ -7,7 +7,8 @@ extends Node
 ## em test_batalha e o gerenciador em test_encontro; aqui se confere o caminho que o
 ## jogador faz, pelos servicos do dialogo e pelas telas:
 ##
-##   1. partida nova: sem equipe nao ha encontro, e o objetivo aponta a Mirela
+##   1. partida nova: abre na chegada de onibus (pulada aqui); sem equipe nao ha
+##      encontro, e o objetivo aponta a Mirela
 ##   2. a Mirela oferece 3 criaturas da seed; a escolhida entra na equipe; salva sozinho
 ##   3. cura gratuita da Mirela, poção pela bolsa e tela de equipe
 ##   4. o save guarda a equipe e a vida, e recarregar devolve as duas
@@ -120,6 +121,17 @@ func _rodar() -> void:
 func _testar_inicio() -> void:
 	print("\n1. Partida nova")
 	var g: GerenciadorEncontro = _m.encontros
+	# A chegada de onibus tem teste proprio (test_chegada). Aqui ela e pulada e a
+	# escolha adiada, para o resto do arco seguir pela oferta da Mirela na praca.
+	_ok(_m.chegada != null and _m.chegada.ativa(), "comeca pela chegada de onibus")
+	_m.chegada.pular()
+	await get_tree().process_frame
+	_ok(_m.tela_inicial.aberta(), "pular a chegada leva a escolha")
+	var adiar := InputEventAction.new()
+	adiar.action = "ui_cancel"
+	adiar.pressed = true
+	_m.tela_inicial._unhandled_input(adiar)
+	_ok(not _m.chegada.ativa() and not _m.jogador.congelado, "adiar a escolha encerra a chegada")
 	_ok(g.equipe.vazia(), "comeca sem equipe")
 	_ok(Bolsa.gold == Bolsa.economia.gold_inicial(), "comeca com o gold inicial", "%d" % Bolsa.gold)
 	_ok(Bolsa.quantidade("esfera_simples") == 0 and Bolsa.quantidade("pocao_simples") == 0,

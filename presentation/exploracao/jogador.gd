@@ -70,6 +70,8 @@ var _sprite: AnimatedSprite2D
 ## _ready (a cena repoe o save logo apos criar o jogador), quando a mao ainda
 ## nao existe. Ela o recebe ao ser montada.
 var _item: ItemJogo = null
+## Caminhada roteirizada em curso (andar_ate). Enquanto existe, a entrada nao move.
+var _roteiro: Tween = null
 
 
 func _ready() -> void:
@@ -112,6 +114,8 @@ func item_atual() -> ItemJogo:
 func _physics_process(delta: float) -> void:
 	# get_vector ja normaliza a diagonal e ja cancela acoes opostas. Normalizar
 	# de novo depois quebraria justamente essa diagonal.
+	if _roteiro != null:
+		return  # quem anda e o tween de andar_ate; a animacao ja foi posta la
 	var entrada := Vector2.ZERO if congelado else Input.get_vector(
 			"mover_esquerda", "mover_direita", "mover_cima", "mover_baixo")
 	var alvo := Vector2(entrada.x, entrada.y * RAZAO_ISO) * VELOCIDADE
@@ -142,6 +146,40 @@ func congelar(sim: bool) -> void:
 		velocity = Vector2.ZERO
 		andando = false
 		_aplicar_animacao()
+
+
+## Caminha ate `destino` (pixels do mundo) em `duracao` segundos, sem entrada do
+## jogador e sem fisica: e roteiro, para cutscene. Congela o jogador; quem chama
+## descongela quando a cena acabar. Devolve o tween para quem quiser esperar.
+func andar_ate(destino: Vector2, duracao: float) -> Tween:
+	parar_roteiro()
+	congelar(true)
+	direcao = Npc.direcao_na_tela(destino - position, direcao)
+	andando = true
+	_aplicar_animacao()
+	_roteiro = create_tween()
+	_roteiro.tween_property(self, "position", destino, maxf(duracao, 0.01))
+	_roteiro.tween_callback(func() -> void:
+			_roteiro = null
+			andando = false
+			_aplicar_animacao())
+	return _roteiro
+
+
+## Interrompe a caminhada roteirizada onde estiver (pular a cutscene).
+func parar_roteiro() -> void:
+	if _roteiro != null and _roteiro.is_valid():
+		_roteiro.kill()
+	_roteiro = null
+	if andando:
+		andando = false
+		_aplicar_animacao()
+
+
+## Vira-se para um ponto do mundo, parado.
+func olhar_para(alvo: Vector2) -> void:
+	direcao = Npc.direcao_na_tela(alvo - position, direcao)
+	_aplicar_animacao()
 
 
 ## Direcao encarada a partir da entrada, em 4 valores.

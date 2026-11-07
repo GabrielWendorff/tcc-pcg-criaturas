@@ -361,17 +361,7 @@ func adicionar_prop(categoria: String, item: Dictionary) -> Node2D:
 	no.name = "%s_%d_%d" % [nome_prop, int(c[0]), int(c[1])]
 	no.position = celula_para_mundo(Vector2i(int(c[0]), int(c[1])),
 			int(cels[0]), int(cels[1]))
-
-	var sprite := Sprite2D.new()
-	sprite.texture = textura
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	# centered = false + offset: a chave do y-sort e a position do NO, nunca o
-	# desenho. Com centered = true a chave viraria a cintura do sprite, e uma
-	# arvore alta passaria atras de uma pedra baixa que esta mais ao fundo.
-	sprite.centered = false
-	var ancora: Array = meta["ancora"]
-	sprite.offset = Vector2(-int(ancora[0]), -int(ancora[1]))
-	no.add_child(sprite)
+	no.add_child(_sprite_ancorado(textura, meta))
 
 	var colisao: Dictionary = meta.get("colisao", {})
 	if String(colisao.get("tipo", "nenhuma")) == "poligono":
@@ -397,6 +387,30 @@ func adicionar_prop(categoria: String, item: Dictionary) -> Node2D:
 	container.add_child(no)
 	no.add_to_group(GRUPO_DE_CATEGORIA[categoria])
 	return no
+
+
+## Sprite de um prop do catalogo, com a ancora na origem, sem no, colisao nem lugar
+## no mapa. E como a cutscene da chegada poe o onibus no mundo: mesma arte e mesma
+## convencao de ancora dos props fixos. null se o prop nao existe.
+func sprite_de_prop(nome_prop: String) -> Sprite2D:
+	var meta: Dictionary = _props.get(nome_prop, {})
+	if meta.is_empty():
+		return null
+	var textura: Texture2D = load(DIR_PROPS + String(meta["arquivo"]))
+	return _sprite_ancorado(textura, meta) if textura != null else null
+
+
+func _sprite_ancorado(textura: Texture2D, meta: Dictionary) -> Sprite2D:
+	var sprite := Sprite2D.new()
+	sprite.texture = textura
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	# centered = false + offset: a chave do y-sort e a position do NO, nunca o
+	# desenho. Com centered = true a chave viraria a cintura do sprite, e uma
+	# arvore alta passaria atras de uma pedra baixa que esta mais ao fundo.
+	sprite.centered = false
+	var ancora: Array = meta["ancora"]
+	sprite.offset = Vector2(-int(ancora[0]), -int(ancora[1]))
+	return sprite
 
 
 # ------------------------------------------------------- pontos de encontro
@@ -483,6 +497,21 @@ func celula_para_mundo(c: Vector2i, W: int = 1, D: int = 1) -> Vector2:
 			(c.x - c.y + 1) * celula.x * 0.5, (c.x + c.y + 1) * celula.y * 0.5)
 	return base + Vector2((W - D) * celula.x * 0.25,
 			(W + D) * celula.y * 0.25 - celula.y * 0.5)
+
+
+## Ponto da grade em coordenadas FRACIONARIAS -> pixels do mundo. (gx + 0.5, gy +
+## 0.5) e o centro da celula (gx, gy), o mesmo de celula_para_mundo. Para o que se
+## move entre celulas: o onibus anda no eixo da estrada, nao de centro em centro.
+func grade_para_mundo(p: Vector2) -> Vector2:
+	var origem := celula_para_mundo(Vector2i.ZERO)
+	var d := p - Vector2(0.5, 0.5)
+	return origem + Vector2((d.x - d.y) * celula.x * 0.5, (d.x + d.y) * celula.y * 0.5)
+
+
+## Coreografia da chegada de onibus, gravada pelo gerador do mapa ({} se este mapa
+## nao tem): boca do tunel, parada, desembarque e caminho da Mirela.
+func chegada() -> Dictionary:
+	return _mapa.get("chegada", {})
 
 
 func mundo_para_celula(pos: Vector2) -> Vector2i:
