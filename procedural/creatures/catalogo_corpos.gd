@@ -19,10 +19,19 @@ extends RefCounted
 const CAMINHO_ANCORAS := "res://arte/corpos/corpos_ancoras.json"
 const DIR_CORPOS := "res://arte/corpos/"
 
-## Onde mora a arte de cada feature morfologica e como seus arquivos se chamam:
-## <dir>/<prefixo>_<indice+1>_<nome_do_modelo>.png. Features ausentes deste mapa
-## (escamas, asas, nadadeiras) continuam sendo sorteadas e medidas normalmente
-## pelo gerador — apenas ainda nao sao desenhadas. O mapa cresce com a arte.
+## Asas, nadadeiras e escamas: arte e encaixe declarados por
+## tools/arte/gerar_apendices.py. Cada peca tem um PIVO (o pixel dela que fica sobre
+## a ancora do corpo) e uma ORDEM de desenho, de tras para frente.
+const CAMINHO_APENDICES := "res://arte/apendices/apendices.json"
+const DIR_APENDICES := "res://arte/apendices/"
+
+## Ordem de desenho das garras entre os demais tracos: depois das escamas e das
+## nadadeiras, antes das asas.
+const ORDEM_GARRAS := 20
+
+## Onde mora a arte das GARRAS e como seus arquivos se chamam:
+## <dir>/<prefixo>_<indice+1>_<nome_do_modelo>.png. Os demais tracos vem de
+## CAMINHO_APENDICES.
 const ARTE_DE_FEATURE := {
 	"garras": {"dir": "res://arte/garras/", "prefixo": "garra"},
 }
@@ -48,6 +57,7 @@ var escala_apendice: float = 0.5
 
 var _sprites: Dictionary = {}          # body_id -> metadados do JSON
 var _texturas_feature: Dictionary = {} # feature -> Array[String] de caminhos
+var _apendices: Dictionary = {}        # o manifesto de arte/apendices/
 
 var erro: String = ""
 
@@ -87,6 +97,10 @@ func _carregar(tabelas: TabelasProbabilidade, caminho: String) -> bool:
 					arte["prefixo"], i + 1, tabelas.nome_modelo(feature, i)
 				]))
 			_texturas_feature[feature] = caminhos
+	if FileAccess.file_exists(CAMINHO_APENDICES):
+		var ap: Variant = JSON.parse_string(FileAccess.get_file_as_string(CAMINHO_APENDICES))
+		if ap is Dictionary:
+			_apendices = ap
 	return true
 
 
@@ -129,7 +143,61 @@ func textura_feature(feature: String, indice_modelo: int) -> Texture2D:
 
 
 func tem_arte(feature: String) -> bool:
-	return ARTE_DE_FEATURE.has(feature)
+	return ARTE_DE_FEATURE.has(feature) or _apendices.has(feature)
+
+
+## Tudo o que se desenha por cima do corpo desta criatura, em pixels de arte e na
+## ordem de desenho (de tras para frente): escamas, nadadeiras, garras, asas.
+## [{tex, rect}]. So entra o traco que o gerador sorteou: o quadro nunca mostra o
+## que a ficha nao tem, nem esconde o que ela tem.
+func quadros_de_tracos(c: Criatura) -> Array:
+	var itens: Array = []
+	for feature: String in c.morfologia:
+		if not c.morfologia[feature]:
+			continue
+		var modelo: int = int(c.variantes.get(feature, 0))
+		if feature == "garras":
+			var tex := textura_feature(feature, modelo)
+			if tex == null:
+				continue
+			var tam: Vector2 = tex.get_size() * escala_apendice
+			for ancora in ancoras_de_feature(c.body_id, feature):
+				# A ancora e a PONTA da garra: centro horizontal, base vertical. O 1px
+				# de sobreposicao evita a fresta de quando ela apenas encosta.
+				itens.append({"ordem": ORDEM_GARRAS, "tex": tex,
+						"rect": Rect2(ancora - Vector2(tam.x * 0.5, tam.y - 1.0), tam)})
+			continue
+		var regra: Dictionary = _apendices.get(feature, {})
+		if regra.is_empty():
+			continue
+		var ordem: int = int(regra.get("ordem", 10))
+		if regra.has("sobreposicao"):
+			var modelos: Array = regra.get("modelos", [])
+			if modelo >= modelos.size():
+				continue
+			var caminho := DIR_APENDICES + String(regra["sobreposicao"]).format({
+				"corpo": c.body_id, "n": "%02d" % (modelo + 1), "nome": modelos[modelo]})
+			var sob: Texture2D = load(caminho) if ResourceLoader.exists(caminho) else null
+			if sob != null:
+				itens.append({"ordem": ordem, "tex": sob,
+						"rect": Rect2(Vector2.ZERO, sob.get_size())})
+			continue
+		var escala: float = float(_apendices.get("escala", 1.0))
+		for p: Dictionary in regra.get("pecas", []):
+			var ancora: Variant = meta(c.body_id).get(String(p.get("slot", "")))
+			var arquivos: Array = p.get("arquivos", [])
+			if ancora == null or modelo >= arquivos.size():
+				continue
+			var tex: Texture2D = load(DIR_APENDICES + String(arquivos[modelo]))
+			if tex == null:
+				continue
+			var pivo: Array = p["pivos"][modelo]
+			var origem := Vector2(ancora[0], ancora[1]) - Vector2(pivo[0], pivo[1]) * escala
+			itens.append({"ordem": ordem, "tex": tex,
+					"rect": Rect2(origem, tex.get_size() * escala)})
+	itens.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["ordem"]) < int(b["ordem"]))
+	return itens
 
 
 ## Pontos, em pixels de arte, onde a feature se apoia neste corpo. Vazio so quando o

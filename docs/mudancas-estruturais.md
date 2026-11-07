@@ -5,6 +5,21 @@ Refatorações que não alteram o modelo não entram aqui.
 
 ---
 
+## 2026-11-07 — Arte dos quatro traços: o modelo NÃO mudou, as figuras sim
+
+Nada no modelo generativo mudou: o bestiário de uma seed é o mesmo. Mudou o que se
+vê dele. Escamas, asas e nadadeiras passaram a ser desenhadas, cada uma no seu
+encaixe (`arte/README.md`), e a ave e o peixe perderam a asa e as nadadeiras que
+estavam **pintadas no corpo**: uma ave que não sorteou `asas` aparecia com asa, e um
+peixe sem `nadadeiras`, com nadadeiras. Agora o quadro mostra exatamente a ficha.
+
+**Para o artigo:** as figuras de criaturas e as folhas de contato precisam ser
+refeitas, e a frase "só garras têm arte" deixa de valer. É também o que habilita o
+teste cego do playtest: escamas, asas e nadadeiras são os exemplos centrais da tese
+(água + peixe → escamas e nadadeiras), e até aqui não apareciam na tela.
+
+---
+
 ## 2026-11-03 — Batalha e guardiões: o modelo NÃO mudou, mas a Camada 1 passa a ler a Camada 2
 
 ### O que mudou

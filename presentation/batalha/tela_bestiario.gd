@@ -12,9 +12,12 @@ signal fechada()
 
 ## Acima do menu de pausa (96), como a bolsa e a equipe.
 const CAMADA := 97
-const COLUNAS := 7
-const LADO_CELULA := 76.0
-const LADO_RETRATO := 72.0
+## A celula comporta a criatura em escala 2x mesmo com asa e garras: o renderizador
+## so usa escala inteira, e uma caixa maior que metade da celula cairia para 1x e
+## deixaria a criatura alada minuscula ao lado das outras.
+const COLUNAS := 6
+const LADO_CELULA := 96.0
+const LADO_RETRATO := 92.0
 const ALTURA_CORPO := 420.0
 const LARGURA_FICHA := 330.0
 const TAMANHO_RETRATO_FICHA := 144.0

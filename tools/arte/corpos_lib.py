@@ -134,6 +134,22 @@ def perna(x, y_topo, y_base, larg=2, pe=0):
     return runs
 
 
+# ------------------------------------------------------------------ medicao
+def topo(runs, x):
+    """Primeira linha ocupada na coluna x (a borda de cima da silhueta ali)."""
+    ys = [y for y, x0, x1 in runs if x0 <= x <= x1]
+    return min(ys) if ys else None
+
+
+def ancora_no_topo(runs, x, afundar=1):
+    """Ponto de acoplagem sobre o dorso: a borda de cima na coluna x, afundado
+    `afundar` px para dentro, para o apendice nascer do corpo e nao flutuar sobre
+    o contorno."""
+    x = int(round(x))
+    t = topo(runs, x)
+    return [x, (t if t is not None else 16) + afundar]
+
+
 # ------------------------------------------------------------------ raster
 def rasterizar(runs, detalhes=(), fundo=(), tam=S):
     """runs -> grade de indices, com sombreamento (luz no topo-esquerda) e contorno.

@@ -5,32 +5,16 @@ que já foi identificado como necessário e deliberadamente deixado para depois.
 
 ---
 
-## 1. Âncoras `dorso` e `tronco` nos corpos
+## 1 e 2. Encaixes nos corpos e arte de escamas, asas e nadadeiras — entregues
 
-**Estado:** em aberto, bloqueia o item 2.
+**Estado:** entregue em 07/11/2026. Os corpos declaram `dorso`, `dorso_tras` e `flanco`,
+medidos na silhueta (o `tronco` virou desnecessário: as escamas são uma sobreposição
+recortada por corpo, não uma peça ancorada). `tools/arte/gerar_apendices.py` desenha
+asas e nadadeiras (4 modelos cada) e as escamas (4 modelos × 32 corpos). Ver
+`arte/README.md`.
 
-`arte/corpos/corpos_ancoras.json` declara hoje apenas `pe_frente`, `pe_tras`,
-`cabeca` e `cauda`. Asas e nadadeiras precisam de um ponto de inserção dorsal, e
-escamas de um ponto de tronco (o centro da massa do corpo, que num insetoide fica
-bem atrás do centro geométrico do quadro).
-
-Exige acrescentar as duas chaves nas 8 funções de `tools/arte/corpos_tipos.py` —
-é geometria por arquétipo, não uma fórmula única: o dorso de uma ave (acima da
-asa) não se calcula como o de um peixe (topo da dorsal).
-
-Depois de acrescentar, basta estender `CatalogoCorpos.SLOTS_DE_FEATURE`.
-
-## 2. Arte de escamas, asas e nadadeiras
-
-**Estado:** em aberto.
-
-As três features continuam sendo sorteadas, exportadas e medidas normalmente pelo
-gerador — só não são desenhadas. A ficha da criatura marca `(sem arte)` para que o
-quadro nunca contradiga o dado.
-
-Cada uma precisa de 4 máscaras (os 4 modelos de `data/feature_variants.json`) e de
-uma entrada em `CatalogoCorpos.ARTE_DE_FEATURE`. O eixo semântico de cada conjunto
-já está definido no JSON (ex.: escamas vão de *fina* a *blindada/cristal*).
+Em aberto: a asa é desenhada só do lado de perto; um par visível (a de trás, mais
+escura, atrás do corpo) pediria uma camada abaixo do corpo no renderizador.
 
 ## 3. Silhueta do anfíbio ainda lê como bloco
 

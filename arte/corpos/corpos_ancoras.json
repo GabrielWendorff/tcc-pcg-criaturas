@@ -42,6 +42,18 @@
       "cauda": [
         2,
         13
+      ],
+      "dorso": [
+        14,
+        19
+      ],
+      "dorso_tras": [
+        11,
+        19
+      ],
+      "flanco": [
+        14,
+        23
       ]
     },
     "gato_2_medio": {
@@ -65,6 +77,18 @@
       "cauda": [
         2,
         15
+      ],
+      "dorso": [
+        15,
+        19
+      ],
+      "dorso_tras": [
+        11,
+        19
+      ],
+      "flanco": [
+        14,
+        22
       ]
     },
     "gato_3_esbelto": {
@@ -88,6 +112,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        15,
+        19
+      ],
+      "dorso_tras": [
+        10,
+        19
+      ],
+      "flanco": [
+        14,
+        22
       ]
     },
     "gato_4_alongado": {
@@ -111,6 +147,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        15,
+        19
+      ],
+      "dorso_tras": [
+        10,
+        19
+      ],
+      "flanco": [
+        14,
+        22
       ]
     },
     "canino_1_compacto": {
@@ -134,6 +182,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        14,
+        16
+      ],
+      "dorso_tras": [
+        10,
+        17
+      ],
+      "flanco": [
+        14,
+        21
       ]
     },
     "canino_2_medio": {
@@ -157,6 +217,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        15,
+        15
+      ],
+      "dorso_tras": [
+        10,
+        17
+      ],
+      "flanco": [
+        14,
+        21
       ]
     },
     "canino_3_esbelto": {
@@ -180,6 +252,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        15,
+        16
+      ],
+      "dorso_tras": [
+        10,
+        17
+      ],
+      "flanco": [
+        14,
+        20
       ]
     },
     "canino_4_alongado": {
@@ -203,6 +287,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        15,
+        16
+      ],
+      "dorso_tras": [
+        9,
+        17
+      ],
+      "flanco": [
+        14,
+        20
       ]
     },
     "roedor_1_compacto": {
@@ -226,6 +322,18 @@
       "cauda": [
         2,
         29
+      ],
+      "dorso": [
+        12,
+        16
+      ],
+      "dorso_tras": [
+        10,
+        23
+      ],
+      "flanco": [
+        13,
+        27
       ]
     },
     "roedor_2_medio": {
@@ -249,6 +357,18 @@
       "cauda": [
         2,
         29
+      ],
+      "dorso": [
+        12,
+        17
+      ],
+      "dorso_tras": [
+        10,
+        23
+      ],
+      "flanco": [
+        13,
+        27
       ]
     },
     "roedor_3_esbelto": {
@@ -272,6 +392,18 @@
       "cauda": [
         2,
         29
+      ],
+      "dorso": [
+        12,
+        18
+      ],
+      "dorso_tras": [
+        10,
+        24
+      ],
+      "flanco": [
+        13,
+        28
       ]
     },
     "roedor_4_alongado": {
@@ -295,6 +427,18 @@
       "cauda": [
         2,
         29
+      ],
+      "dorso": [
+        12,
+        18
+      ],
+      "dorso_tras": [
+        9,
+        25
+      ],
+      "flanco": [
+        13,
+        28
       ]
     },
     "reptil_1_compacto": {
@@ -317,6 +461,18 @@
       ],
       "cauda": [
         2,
+        26
+      ],
+      "dorso": [
+        16,
+        23
+      ],
+      "dorso_tras": [
+        13,
+        22
+      ],
+      "flanco": [
+        16,
         26
       ]
     },
@@ -341,6 +497,18 @@
       "cauda": [
         2,
         26
+      ],
+      "dorso": [
+        17,
+        23
+      ],
+      "dorso_tras": [
+        13,
+        23
+      ],
+      "flanco": [
+        16,
+        25
       ]
     },
     "reptil_3_esbelto": {
@@ -363,6 +531,18 @@
       ],
       "cauda": [
         2,
+        25
+      ],
+      "dorso": [
+        17,
+        22
+      ],
+      "dorso_tras": [
+        13,
+        22
+      ],
+      "flanco": [
+        16,
         25
       ]
     },
@@ -387,6 +567,18 @@
       "cauda": [
         2,
         25
+      ],
+      "dorso": [
+        17,
+        23
+      ],
+      "dorso_tras": [
+        12,
+        22
+      ],
+      "flanco": [
+        17,
+        25
       ]
     },
     "anfibio_1_compacto": {
@@ -407,7 +599,19 @@
         20,
         20
       ],
-      "cauda": null
+      "cauda": null,
+      "dorso": [
+        15,
+        24
+      ],
+      "dorso_tras": [
+        12,
+        22
+      ],
+      "flanco": [
+        15,
+        27
+      ]
     },
     "anfibio_2_medio": {
       "tipo": "anfibio",
@@ -427,7 +631,19 @@
         21,
         19
       ],
-      "cauda": null
+      "cauda": null,
+      "dorso": [
+        15,
+        24
+      ],
+      "dorso_tras": [
+        12,
+        24
+      ],
+      "flanco": [
+        15,
+        26
+      ]
     },
     "anfibio_3_esbelto": {
       "tipo": "anfibio",
@@ -447,7 +663,19 @@
         21,
         19
       ],
-      "cauda": null
+      "cauda": null,
+      "dorso": [
+        15,
+        23
+      ],
+      "dorso_tras": [
+        12,
+        23
+      ],
+      "flanco": [
+        15,
+        26
+      ]
     },
     "anfibio_4_alongado": {
       "tipo": "anfibio",
@@ -467,7 +695,19 @@
         22,
         19
       ],
-      "cauda": null
+      "cauda": null,
+      "dorso": [
+        15,
+        23
+      ],
+      "dorso_tras": [
+        12,
+        23
+      ],
+      "flanco": [
+        16,
+        25
+      ]
     },
     "ave_1_compacto": {
       "tipo": "ave",
@@ -490,6 +730,18 @@
       "cauda": [
         5,
         14
+      ],
+      "dorso": [
+        15,
+        17
+      ],
+      "dorso_tras": [
+        12,
+        17
+      ],
+      "flanco": [
+        15,
+        22
       ]
     },
     "ave_2_medio": {
@@ -513,6 +765,18 @@
       "cauda": [
         4,
         13
+      ],
+      "dorso": [
+        15,
+        16
+      ],
+      "dorso_tras": [
+        12,
+        17
+      ],
+      "flanco": [
+        15,
+        21
       ]
     },
     "ave_3_esbelto": {
@@ -536,6 +800,18 @@
       "cauda": [
         4,
         12
+      ],
+      "dorso": [
+        15,
+        16
+      ],
+      "dorso_tras": [
+        12,
+        17
+      ],
+      "flanco": [
+        15,
+        20
       ]
     },
     "ave_4_alongado": {
@@ -559,6 +835,18 @@
       "cauda": [
         4,
         11
+      ],
+      "dorso": [
+        15,
+        16
+      ],
+      "dorso_tras": [
+        12,
+        16
+      ],
+      "flanco": [
+        15,
+        20
       ]
     },
     "peixe_1_compacto": {
@@ -582,6 +870,18 @@
       "cauda": [
         2,
         16
+      ],
+      "dorso": [
+        15,
+        11
+      ],
+      "dorso_tras": [
+        14,
+        11
+      ],
+      "flanco": [
+        16,
+        18
       ]
     },
     "peixe_2_medio": {
@@ -605,6 +905,18 @@
       "cauda": [
         1,
         16
+      ],
+      "dorso": [
+        15,
+        12
+      ],
+      "dorso_tras": [
+        14,
+        12
+      ],
+      "flanco": [
+        16,
+        18
       ]
     },
     "peixe_3_esbelto": {
@@ -628,6 +940,18 @@
       "cauda": [
         1,
         16
+      ],
+      "dorso": [
+        15,
+        12
+      ],
+      "dorso_tras": [
+        14,
+        12
+      ],
+      "flanco": [
+        16,
+        18
       ]
     },
     "peixe_4_alongado": {
@@ -651,6 +975,18 @@
       "cauda": [
         1,
         16
+      ],
+      "dorso": [
+        15,
+        13
+      ],
+      "dorso_tras": [
+        14,
+        13
+      ],
+      "flanco": [
+        16,
+        18
       ]
     },
     "inseto_1_compacto": {
@@ -674,6 +1010,18 @@
       "cauda": [
         2,
         18
+      ],
+      "dorso": [
+        15,
+        14
+      ],
+      "dorso_tras": [
+        7,
+        13
+      ],
+      "flanco": [
+        8,
+        19
       ]
     },
     "inseto_2_medio": {
@@ -697,6 +1045,18 @@
       "cauda": [
         2,
         18
+      ],
+      "dorso": [
+        16,
+        14
+      ],
+      "dorso_tras": [
+        7,
+        15
+      ],
+      "flanco": [
+        8,
+        19
       ]
     },
     "inseto_3_esbelto": {
@@ -720,6 +1080,18 @@
       "cauda": [
         2,
         18
+      ],
+      "dorso": [
+        17,
+        14
+      ],
+      "dorso_tras": [
+        8,
+        15
+      ],
+      "flanco": [
+        9,
+        19
       ]
     },
     "inseto_4_alongado": {
@@ -743,6 +1115,18 @@
       "cauda": [
         2,
         18
+      ],
+      "dorso": [
+        18,
+        14
+      ],
+      "dorso_tras": [
+        8,
+        16
+      ],
+      "flanco": [
+        9,
+        19
       ]
     }
   }

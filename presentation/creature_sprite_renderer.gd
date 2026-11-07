@@ -19,11 +19,9 @@ extends Control
 ## round(1.0*4)=4 e pintava o quadro inteiro de cor_brilho, sem nunca descartar o
 ## transparente. O no com textura propria e o que faz TEXTURE apontar para a mascara.
 ##
-## Features ainda sem arte (escamas, asas, nadadeiras) continuam sorteadas e medidas
-## pelo gerador; aqui elas simplesmente nao sao desenhadas. Preferiu-se omitir a
-## desenhar um placeholder vetorial por cima do pixel art: a mistura das duas
-## linguagens visuais confunde a leitura da silhueta, que e justamente o que a arte
-## veio corrigir. Ver CatalogoCorpos.ARTE_DE_FEATURE.
+## Os quatro tracos tem arte: escamas (sobre o corpo, recortadas pela silhueta),
+## nadadeiras (dorso e flanco), garras (nos pes) e asas (no ombro). Cada um so aparece
+## se o gerador o sorteou, no modelo sorteado. Ver CatalogoCorpos.quadros_de_tracos.
 
 const SHADER_PALETA := preload("res://arte/shaders/paleta_indexada.gdshader")
 
@@ -134,25 +132,10 @@ func _montar_quadros() -> Array:
 		return []
 
 	var quadros: Array = [{"tex": corpo, "rect": Rect2(Vector2.ZERO, corpo.get_size())}]
-
-	# Itera o mapa de arte (ordem de declaracao fixa) e nao criatura.morfologia: a
-	# ordem de desenho e ordem de sobreposicao, e nao pode depender da ordem de
-	# insercao de um Dictionary.
-	for feature in CatalogoCorpos.ARTE_DE_FEATURE:
-		if not criatura.morfologia.get(feature, false):
-			continue
-		var tex := catalogo.textura_feature(feature, criatura.variantes[feature])
-		if tex == null:
-			continue
-		var tam: Vector2 = tex.get_size() * catalogo.escala_apendice
-		for ancora in catalogo.ancoras_de_feature(criatura.body_id, feature):
-			# A ancora e a PONTA do apendice: centro horizontal, base vertical. O 1px
-			# de sobreposicao evita a fresta que aparece quando ele apenas encosta no
-			# contorno do corpo.
-			quadros.append({
-				"tex": tex,
-				"rect": Rect2(ancora - Vector2(tam.x * 0.5, tam.y - 1.0), tam),
-			})
+	# Escamas, nadadeiras, garras e asas, ja na ordem de desenho e na posicao do
+	# encaixe de cada uma neste corpo (CatalogoCorpos.quadros_de_tracos).
+	for q: Dictionary in catalogo.quadros_de_tracos(criatura):
+		quadros.append({"tex": q["tex"], "rect": q["rect"]})
 	return quadros
 
 

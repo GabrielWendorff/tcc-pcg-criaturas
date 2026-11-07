@@ -1,0 +1,108 @@
+{
+  "_meta": {
+    "descricao": "Arte de asas, nadadeiras e escamas, gerada por tools/arte/gerar_apendices.py. Nunca editar a mao. 'pivo' e o pixel da peca que fica sobre a ancora do corpo; 'ordem' e a ordem de desenho, de tras para frente.",
+    "versao": 1
+  },
+  "escala": 1.0,
+  "asas": {
+    "ordem": 30,
+    "pecas": [
+      {
+        "slot": "dorso",
+        "arquivos": [
+          "asa_01_emplumadas.png",
+          "asa_02_membranosas.png",
+          "asa_03_insetoides.png",
+          "asa_04_energia.png"
+        ],
+        "pivos": [
+          [
+            9,
+            10
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            9,
+            10
+          ]
+        ]
+      }
+    ]
+  },
+  "nadadeiras": {
+    "ordem": 10,
+    "pecas": [
+      {
+        "slot": "dorso_tras",
+        "arquivos": [
+          "nadadeira_dorsal_01_curtas.png",
+          "nadadeira_dorsal_02_largas.png",
+          "nadadeira_dorsal_03_espinhosas.png",
+          "nadadeira_dorsal_04_translucidas.png"
+        ],
+        "pivos": [
+          [
+            4,
+            4
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            4,
+            7
+          ]
+        ]
+      },
+      {
+        "slot": "flanco",
+        "arquivos": [
+          "nadadeira_peitoral_01_curtas.png",
+          "nadadeira_peitoral_02_largas.png",
+          "nadadeira_peitoral_03_espinhosas.png",
+          "nadadeira_peitoral_04_translucidas.png"
+        ],
+        "pivos": [
+          [
+            4,
+            1
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            7,
+            1
+          ]
+        ]
+      }
+    ]
+  },
+  "escamas": {
+    "ordem": 5,
+    "sobreposicao": "escamas/escamas_{corpo}_{n}_{nome}.png",
+    "modelos": [
+      "lisas",
+      "granuladas",
+      "placas",
+      "cristalinas"
+    ]
+  }
+}

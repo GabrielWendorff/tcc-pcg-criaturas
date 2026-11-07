@@ -64,6 +64,12 @@ func _ready() -> void:
 	pausa._mostrar_equipe()
 	await _capturar("equipe", 0.3)
 	pausa.fechar()
+	pausa.abrir_no_bestiario()
+	await _capturar("bestiario", 0.4)
+	for i in 3:
+		pausa.tela_bestiario._selecionar(pausa.tela_bestiario._indice + 7 * 3)
+	await _capturar("bestiario_meio", 0.3)
+	pausa.fechar()
 	print("FIM")
 	get_tree().quit(0)
 
