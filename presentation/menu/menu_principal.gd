@@ -18,9 +18,13 @@ extends Control
 ## duas paginas no mesmo quadro — o mesmo defeito que GerenciadorDialogo
 ## documenta entre a caixa de fala e o menu de escolhas.
 ##
-## O TITULO VEM DE project.godot (`application/config/name`). Nao ha nome de jogo
-## inventado em codigo: trocar o nome e trocar uma linha nas configuracoes do
-## projeto, e nenhuma tela fica para tras.
+## O TITULO VEM DE project.godot (`application/config/nome_exibido`), e nao de
+## `config/name`: o Godot usa `config/name` como nome da pasta dos saves e das
+## opcoes, e por-lhe acentos mudaria a pasta e esconderia os saves de quem ja jogou.
+## O nome interno fica sem acento; o que aparece na tela e na janela, com.
+##
+## O FUNDO e a vila de verdade (FundoMundoMenu). Se o mapa nao carregar, o ceu
+## desenhado (FundoMenu) entra no lugar: o menu nunca deixa de abrir por causa dele.
 
 const CENA_JOGO := "res://presentation/exploracao/mundo.tscn"
 
@@ -38,13 +42,13 @@ const OPCOES_RAIZ := [
 ]
 
 const DICAS := {
-	Pagina.RAIZ: "↑↓ escolher     E / ENTER confirmar",
-	Pagina.SLOTS: "←→ escolher     E / ENTER confirmar     DEL apagar     ESC voltar",
-	Pagina.SEED: "↑↓ escolher     E / ENTER confirmar     ESC voltar",
-	Pagina.OPCOES: "↑↓ escolher     ←→ / E alternar     ESC voltar",
+	Pagina.RAIZ: "SETAS escolher     E / ENTER confirmar",
+	Pagina.SLOTS: "SETAS escolher     E / ENTER confirmar     DEL apagar     ESC voltar",
+	Pagina.SEED: "SETAS escolher     E / ENTER confirmar     ESC voltar",
+	Pagina.OPCOES: "SETAS escolher     E alternar     ESC voltar",
 }
 
-var _fundo: FundoMenu
+var _fundo: Control
 var _raiz: Control
 var _menu: MenuEscolhas
 var _slots: PainelSlots
@@ -69,9 +73,16 @@ func _ready() -> void:
 	Save.encerrar_partida()
 	Save.recarregar_resumos()
 
-	_fundo = FundoMenu.new()
-	_fundo.name = "Fundo"
-	add_child(_fundo)
+	var vila := FundoMundoMenu.new()
+	vila.name = "Fundo"
+	add_child(vila)
+	_fundo = vila
+	if not vila.pronto():
+		vila.queue_free()
+		_fundo = FundoMenu.new()
+		_fundo.name = "FundoReserva"
+		add_child(_fundo)
+		move_child(_fundo, 0)
 
 	_montar_titulo()
 	_montar_raiz()
@@ -120,9 +131,19 @@ func _montar_titulo() -> void:
 	caixa.offset_bottom = 180
 	caixa.alignment = BoxContainer.ALIGNMENT_CENTER
 	caixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Faixa escura atras do titulo: sobre a vila em movimento, o lema em corpo pequeno
+	# se perdia no calcamento.
+	var faixa := ColorRect.new()
+	faixa.name = "FaixaTitulo"
+	faixa.color = Color(TemaEncontro.CONTORNO, 0.62)
+	faixa.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	faixa.offset_top = 40
+	faixa.offset_bottom = 196
+	faixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(faixa)
 	add_child(caixa)
 
-	var nome := String(ProjectSettings.get_setting("application/config/name", "RPG"))
+	var nome := nome_do_jogo()
 	# Sombreado, e nao sobre painel: o titulo fica direto sobre o ceu desenhado,
 	# e fonte de bitmap nao aceita o contorno da engine (ver TemaEncontro).
 	var titulo := TemaEncontro.rotulo_sombreado(nome.to_upper(), TemaEncontro.OURO,
@@ -130,12 +151,21 @@ func _montar_titulo() -> void:
 	titulo.name = "Nome"
 	titulo.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	caixa.add_child(titulo)
+	# Mede de novo ja na arvore: fora dela o Label ainda nao resolveu a fonte de
+	# cartaz, o tamanho minimo saia com a metade da largura e o titulo transbordava
+	# para a direita, descentralizado.
+	TemaEncontro.escrever_sombreado(titulo, nome.to_upper())
 
 	var linha := TemaEncontro.rotulo_sombreado("cada seed, um bestiário",
 			TemaEncontro.PERG_E)
 	linha.name = "Lema"
 	linha.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	caixa.add_child(linha)
+
+
+static func nome_do_jogo() -> String:
+	return String(ProjectSettings.get_setting("application/config/nome_exibido",
+			ProjectSettings.get_setting("application/config/name", "RPG")))
 
 
 func _montar_raiz() -> void:

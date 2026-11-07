@@ -85,6 +85,11 @@ func _ready() -> void:
 		_por_id[def.id] = def
 		_valores[def.id] = def.padrao
 	_carregar()
+	# O nome com acento na barra da janela. `config/name` fica sem acento porque e
+	# o nome da pasta dos saves (ver menu_principal.gd).
+	get_tree().root.title = String(ProjectSettings.get_setting(
+			"application/config/nome_exibido",
+			ProjectSettings.get_setting("application/config/name", "")))
 	_aplicar_tela_cheia()
 	mudou.connect(func(id: String, _v: Variant) -> void:
 		if id == "tela_cheia":
