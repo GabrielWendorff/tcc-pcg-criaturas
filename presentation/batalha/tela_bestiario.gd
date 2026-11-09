@@ -21,12 +21,15 @@ const LADO_RETRATO := 92.0
 const ALTURA_CORPO := 420.0
 const LARGURA_FICHA := 330.0
 const TAMANHO_RETRATO_FICHA := 144.0
-const TEXTO_RODAPE := "SETAS criatura     ESC ou N fechar"
+const TEXTO_RODAPE := "SETAS criatura     E ver o sorteio     ESC ou N fechar"
 
 var _bestiario: Array = []
 var _capturadas: Callable
 var _catalogo: CatalogoCorpos
 var _tabelas: TabelasBatalha
+var _probabilidades: TabelasProbabilidade
+## A ficha mostra a batalha ou o sorteio: Seed, primarios, condicionais, derivados.
+var _vendo_sorteio: bool = false
 var _aberta: bool = false
 var _indice: int = 0
 
@@ -129,8 +132,11 @@ func aberta() -> bool:
 ## `capturadas`: Callable(Criatura) -> bool. Consultada a cada abertura, para a marca
 ## acompanhar a colecao sem esta tela guardar copia dela.
 func abrir(bestiario: Array, capturadas: Callable, catalogo: CatalogoCorpos,
-		tabelas: TabelasBatalha, rotulo_seed: String) -> void:
+		tabelas: TabelasBatalha, rotulo_seed: String,
+		probabilidades: TabelasProbabilidade) -> void:
 	_bestiario = bestiario
+	_probabilidades = probabilidades
+	_vendo_sorteio = false
 	_capturadas = capturadas
 	_catalogo = catalogo
 	_tabelas = tabelas
@@ -218,6 +224,9 @@ func _selecionar(i: int, forcar: bool = false) -> void:
 func _atualizar_ficha() -> void:
 	var c: Criatura = _bestiario[_indice]
 	_ficha_render.configurar(c, _catalogo)
+	if _vendo_sorteio:
+		_ficha_texto.text = TextoBatalha.sorteio_em_bbcode(c, _probabilidades)
+		return
 	var situacao := "[color=%s]CAPTURADA[/color]" % TemaEncontro.VERDE_C.to_html(false) \
 			if _capturada(c) else "[color=%s]ainda não capturada[/color]" \
 			% TemaEncontro.PERG_E.to_html(false)
@@ -248,6 +257,9 @@ func _unhandled_input(evento: InputEvent) -> void:
 	var n: int = _celulas.size()
 	if evento.is_action_pressed("ui_cancel") or evento.is_action_pressed("abrir_bestiario"):
 		fechar()
+	elif evento.is_action_pressed("interagir"):
+		_vendo_sorteio = not _vendo_sorteio
+		_atualizar_ficha()
 	elif evento.is_action_pressed("mover_direita") or evento.is_action_pressed("ui_right"):
 		_selecionar(mini(_indice + 1, n - 1))
 	elif evento.is_action_pressed("mover_esquerda") or evento.is_action_pressed("ui_left"):

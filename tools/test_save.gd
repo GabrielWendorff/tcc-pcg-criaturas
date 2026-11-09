@@ -1,4 +1,4 @@
-extends SceneTree
+extends Node
 
 ## Teste headless do menu principal e do sistema de save — roda SEM abrir janela:
 ##   godot --headless --path . -s res://tools/test_save.gd
@@ -27,7 +27,7 @@ var _falhas: int = 0
 var _verificacoes: int = 0
 
 
-func _initialize() -> void:
+func _ready() -> void:
 	print("== Menu e save — teste headless ==")
 	ArquivoSave.diretorio = DIR_TESTE
 	_limpar_diretorio()
@@ -43,13 +43,13 @@ func _initialize() -> void:
 	if _verificacoes < 40:
 		print("RESULTADO: so %d verificacoes rodaram — o teste abortou no meio"
 				% _verificacoes)
-		quit(1)
+		get_tree().quit(1)
 	elif _falhas > 0:
 		print("RESULTADO: %d VERIFICACAO(OES) FALHARAM" % _falhas)
-		quit(1)
+		get_tree().quit(1)
 	else:
 		print("RESULTADO: TODOS OS TESTES PASSARAM (%d verificacoes)" % _verificacoes)
-		quit(0)
+		get_tree().quit(0)
 
 
 # ----------------------------------------------------------------- 1. semente
@@ -259,7 +259,7 @@ func _testar_disco() -> void:
 
 func _testar_autoload() -> void:
 	print("\n-- 5. Autoload Save")
-	var save := root.get_node_or_null("/root/Save")
+	var save := get_tree().root.get_node_or_null("/root/Save")
 	if save == null:
 		_ok(false, "o autoload Save esta registrado em project.godot")
 		return

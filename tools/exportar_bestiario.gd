@@ -64,6 +64,13 @@ func _initialize() -> void:
 			"metricas": MetricasCoerencia.avaliar(cond, tabelas, k),
 		}
 
+	if not so_baseline:
+		var v2 := gerador.gerar_bestiario(world_seed, n, GeradorCriaturas.Modo.CONDICIONADO_V2)
+		saida["condicionado_v2"] = {
+			"criaturas": _serializar(v2),
+			"metricas": MetricasCoerencia.avaliar(v2, tabelas, k),
+		}
+
 	var base := gerador.gerar_bestiario(world_seed, n, GeradorCriaturas.Modo.INDEPENDENTE)
 	saida["independente"] = {
 		"criaturas": _serializar(base),

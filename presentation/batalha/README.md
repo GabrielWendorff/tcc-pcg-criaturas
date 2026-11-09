@@ -106,7 +106,7 @@ diz quantos selos encerram o jogo: hoje 2.
 | guardião | onde | elementos | equipe | prêmio |
 |---|---|---|---|---|
 | Dulce | sítio, ao sul da vila | terra, planta | 2, percentil 0,90 | 150 gold |
-| Otávio | dentro da fábrica, no Distrito da Chaminé | elétrico, água | 2, percentil 0,97 | 250 gold |
+| Otávio | dentro da fábrica, no Distrito da Chaminé | elétrico, água | 2, percentil 0,985 | 250 gold |
 
 A fábrica só abre com o selo da Dulce: é o que garante a ordem e a curva de dificuldade.
 
@@ -117,11 +117,11 @@ Medido com 1000 seeds (5000 batalhas):
 
 | critério | meta | medido |
 |---|---|---|
-| turnos no duelo com a Dulce | 3 a 8 | 7,61 |
-| vitórias da equipe mediana de 3 contra a Dulce | 55% a 80% | 77,1% |
-| turnos no duelo com o Otávio | 3 a 8 | 7,66 |
-| vitórias da equipe mediana de 3 contra o Otávio | 40% a 70% | 67,8% |
-| criatura invencível | nenhuma | nenhuma (maior taxa 97,5%) |
+| turnos no duelo com a Dulce | 3 a 8 | 7,44 |
+| vitórias da equipe mediana de 3 contra a Dulce | 55% a 80% | 79,8% |
+| turnos no duelo com o Otávio | 3 a 8 | 7,71 |
+| vitórias da equipe mediana de 3 contra o Otávio | 40% a 70% | 64,0% |
+| criatura invencível | nenhuma | nenhuma (maior taxa 95,0%) |
 | mesma seed, mesma batalha | sim | sim |
 
 Só com a primeira criatura, a vitória contra a Dulce cai para cerca de 8%: capturar é
@@ -129,5 +129,5 @@ obrigatório na prática. A "equipe mediana" é jogada pela IA, sem curar, troca
 escolher vantagem de propósito, então o número é um **piso de jogabilidade**, não uma
 previsão de como pessoas jogam. Só o playtest responde isso.
 
-**Rodar de novo depois do gerador v2:** ele muda a distribuição de traços, e com isso
-todo este equilíbrio.
+Medido com o gerador v2, em 09/11. **Rodar de novo a cada mudança no gerador:** a
+distribuição de traços é a base de todo este equilíbrio.

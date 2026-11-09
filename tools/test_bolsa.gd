@@ -1,4 +1,4 @@
-extends SceneTree
+extends Node
 
 ## Teste headless das opcoes e da bolsa — roda SEM abrir janela:
 ##   godot --headless --path . -s res://tools/test_bolsa.gd
@@ -22,7 +22,20 @@ var _falhas: int = 0
 var _verificacoes: int = 0
 
 
-func _initialize() -> void:
+var _codigo_de_saida: int = 0
+
+
+func _ready() -> void:
+	# Como cena, o autoload Opcoes e o de verdade: as preferencias de quem joga voltam
+	# como estavam no fim.
+	var opcoes_reais: String = FileAccess.get_file_as_string("user://opcoes.json")
+	await _executar()
+	if opcoes_reais != "":
+		FileAccess.open("user://opcoes.json", FileAccess.WRITE).store_string(opcoes_reais)
+	get_tree().quit(_codigo_de_saida)
+
+
+func _executar() -> void:
 	print("== Opcoes e bolsa — teste headless ==")
 	ArquivoSave.diretorio = DIR_TESTE
 	_limpar()
@@ -37,13 +50,13 @@ func _initialize() -> void:
 	if _verificacoes < 40:
 		print("RESULTADO: so %d verificacoes rodaram — o teste abortou no meio"
 				% _verificacoes)
-		quit(1)
+		_codigo_de_saida = 1
 	elif _falhas > 0:
 		print("RESULTADO: %d VERIFICACAO(OES) FALHARAM" % _falhas)
-		quit(1)
+		_codigo_de_saida = 1
 	else:
 		print("RESULTADO: TODOS OS TESTES PASSARAM (%d verificacoes)" % _verificacoes)
-		quit(0)
+		_codigo_de_saida = 0
 
 
 # ----------------------------------------------------------------- 1. opcoes
@@ -76,7 +89,7 @@ func _testar_definicoes() -> void:
 			"o dado e o numero que o consumidor usa, nao o rotulo")
 
 	# O autoload de verdade.
-	var opcoes := root.get_node_or_null("/root/Opcoes")
+	var opcoes := get_tree().root.get_node_or_null("/root/Opcoes")
 	if opcoes == null:
 		_ok(false, "o autoload Opcoes esta registrado em project.godot")
 		return
@@ -122,7 +135,9 @@ func _testar_catalogo() -> void:
 	_ok(cat.item("esfera_simples") != null
 			and cat.item("esfera_simples").captura is DispositivoCaptura,
 			"o item envelopa o DispositivoCaptura original, nao uma copia")
-	_ok(cat.item("osso").detalhe() == captura.isca("osso").detalhe(),
+	var amostra := Criatura.new()
+	amostra.animal_base = "gato"
+	_ok(cat.item("osso").detalhe(amostra) == captura.isca("osso").detalhe(amostra),
 			"o detalhe do item E o detalhe da mecanica — um metodo so")
 
 	var vara := cat.item("vara_de_pesca")
@@ -158,7 +173,7 @@ func _testar_catalogo() -> void:
 
 func _testar_bolsa() -> void:
 	print("\n-- 3. Bolsa")
-	var bolsa := root.get_node_or_null("/root/Bolsa")
+	var bolsa := get_tree().root.get_node_or_null("/root/Bolsa")
 	if bolsa == null:
 		_ok(false, "o autoload Bolsa esta registrado em project.godot")
 		return
@@ -226,9 +241,9 @@ func _testar_bolsa() -> void:
 
 func _testar_integracao() -> void:
 	print("\n-- 4. Integracao")
-	var bolsa := root.get_node_or_null("/root/Bolsa")
-	var save := root.get_node_or_null("/root/Save")
-	var opcoes := root.get_node_or_null("/root/Opcoes")
+	var bolsa := get_tree().root.get_node_or_null("/root/Bolsa")
+	var save := get_tree().root.get_node_or_null("/root/Save")
+	var opcoes := get_tree().root.get_node_or_null("/root/Opcoes")
 	if bolsa == null or save == null or opcoes == null:
 		_ok(false, "os tres autoloads estao no ar")
 		return

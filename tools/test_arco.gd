@@ -312,7 +312,8 @@ func _testar_vitoria() -> void:
 	_ok(_m._coerencia_media(MetricasCoerencia.avaliar(g.bestiario, g.tabelas))
 			> _m._coerencia_media(MetricasCoerencia.avaliar(
 			GeradorCriaturas.new(g.tabelas, g.catalogo).gerar_bestiario(
-			SEED_TESTE, 100, GeradorCriaturas.Modo.INDEPENDENTE), g.tabelas)),
+			SEED_TESTE, 100, GeradorCriaturas.Modo.INDEPENDENTE), g.tabelas,
+			MetricasCoerencia.K_UNICIDADE_PADRAO, MetricasCoerencia.MODELO_V2)),
 			"a seed condicionada e mais coerente que o sorteio independente")
 	_ok(_m._dono_da_tela() == "desfecho", "a tela final tem a tela")
 	_ok(_m.jogador.congelado, "o jogador espera")
@@ -607,6 +608,20 @@ func _testar_bestiario() -> void:
 	tela._unhandled_input(direita)
 	_ok(tela._indice == 1 and tela._ficha_texto.text.contains(g.bestiario[1].nome().to_upper()),
 			"a seta muda a ficha", g.bestiario[1].nome())
+	var e_tecla := InputEventAction.new()
+	e_tecla.action = "interagir"
+	e_tecla.pressed = true
+	tela._unhandled_input(e_tecla)
+	var sorteio: String = tela._ficha_texto.text
+	_ok(sorteio.contains("PRIMÁRIOS") and sorteio.contains("bits")
+			and sorteio.contains(g.bestiario[1].elemento), "E mostra o sorteio da criatura",
+			sorteio.replace("\n", " | "))
+	_ok(sorteio.contains("COERENTE") or sorteio.contains("ATÍPICA"), "com a nota de coerencia")
+	tela._selecionar(2)
+	_ok(tela._ficha_texto.text.contains("bits"), "o sorteio continua ao trocar de criatura")
+	tela._unhandled_input(e_tecla)
+	_ok(not tela._ficha_texto.text.contains("bits"), "E de novo volta a ficha de batalha")
+	tela._selecionar(1)
 	tela._unhandled_input(n)
 	await get_tree().process_frame
 	_ok(not tela.aberta() and not get_tree().paused, "N de novo fecha e devolve o jogo")

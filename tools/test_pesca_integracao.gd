@@ -186,7 +186,7 @@ func _montagem() -> bool:
 	# RF03: a pesca le o bestiario, nao gera nada — o da cena e o do gerador puro.
 	var enc := _encontros()
 	var puro: Array = GeradorCriaturas.new(enc.tabelas, enc.catalogo).gerar_bestiario(
-			int(_m.get("seed_do_mundo")), int(_m.get("criaturas_por_mundo")))
+			int(_m.get("seed_do_mundo")), int(_m.get("criaturas_por_mundo")), enc.modo_gerador)
 	var iguais: bool = puro.size() == enc.bestiario.size()
 	for i in mini(puro.size(), enc.bestiario.size()):
 		if (puro[i] as Criatura).to_dict() != (enc.bestiario[i] as Criatura).to_dict():

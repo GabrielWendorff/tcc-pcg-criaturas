@@ -92,7 +92,7 @@ func _soltar_criaturas() -> void:
 		return
 	var catalogo := CatalogoCorpos.carregar(tabelas)
 	var bestiario := GeradorCriaturas.new(tabelas, catalogo).gerar_bestiario(
-			Semente.aleatoria(), QUANTAS_CRIATURAS)
+			Semente.aleatoria(), QUANTAS_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 	var origem := _mundo.mundo_para_celula(_centro)
 	for c: Criatura in bestiario:
 		var celula := _celula_livre_perto(origem)

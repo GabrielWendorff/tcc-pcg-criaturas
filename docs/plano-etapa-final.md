@@ -141,7 +141,7 @@ registro lá e atualização da Seção 3.**
 | 08/11 | testes corrigidos, CI com testes e `gdlint` |
 | 10/11 | ajustes do combate a partir do que a aula mostrar; GDD v0.5 |
 | 11/11 | build web no itch.io pelo CI, com log de erros |
-| 13/11 | **gerador v2**, em três braços (independente, v1, v2); simulador de novo; vitrine do algoritmo |
+| ~~13/11~~ | ~~**gerador v2**, em três braços (independente, v1, v2); simulador de novo; vitrine do algoritmo~~ (entregue em 09/11; ver `mudancas-estruturais.md`) |
 | ~~15/11~~ | ~~arte de asas e nadadeiras (escamas depois)~~ (entregue em 07/11, com escamas) |
 | 16/11 | Anselmo, Otávio e duelo final (dono a definir): **jogo completo** |
 | 18/11 | Camada 3 mínima; nota da Seção 3 do artigo |

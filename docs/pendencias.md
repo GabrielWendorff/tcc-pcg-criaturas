@@ -333,11 +333,12 @@ depois de fisgar**.
 - **Encontro selvagem é caro.** Lutar até o fim custa em média 42% da vida. Sem loja, a
   reposição é a cura gratuita da Mirela, que pode ficar longe. Dado para o playtest.
 - ~~**Sem loja, poções acabam.**~~ Lojas e gold entregues em 07/11 (`presentation/loja/README.md`).
-- **Bestiário no jogo: entregue em 06/11** (tecla N e pausa), com as 100 criaturas, ficha e
-  marca nas capturadas. Ainda falta a **vitrine do algoritmo** (primários → probabilidades →
-  derivados, e coerente ou atípica), que depende da nota por criatura do gerador v2.
+- **Bestiário no jogo: entregue em 06/11** (tecla N e pausa). **Vitrine do algoritmo:
+  entregue em 09/11**: E, no bestiário, mostra seed, primários, a chance de cada derivado e
+  a nota (coerente ou atípica).
 - **Sem animação de golpe.** O alvo só treme. Polimento, depois da vitrine.
-- **Testes ainda quebrados, de antes desta etapa:** `test_interacao` aborta sob `-s`,
-  `test_bolsa` não compila, e `test_save` falha em `autoload registrado` (efeito do `-s`).
-  `test_encontro` foi corrigido e virou cena. Convertê-los segue no plano, até 08/11.
+- **Testes:** `test_interacao`, `test_save` e `test_bolsa` viraram cena em 09/11 e rodam
+  até o fim. `test_save` tem 2 falhas (o sorteio em sequência repete seed; dois slots
+  gravados no mesmo segundo empatam). `test_bolsa` tem 12, de expectativas anteriores à bolsa
+  vazia e às opções atuais. Falta corrigi-las antes do CI.
 

@@ -34,6 +34,7 @@ const VERSAO_ATUAL := 1
 ## (autoral/mapas/mundo.json); o campo existe para o dia em que houver interior
 ## de casa, que e a unica coisa que exigiria uma segunda cena.
 const MAPA_PADRAO := "mundo"
+const MODELO_DOS_SAVES_ANTIGOS := "condicionado"
 
 var versao: int = VERSAO_ATUAL
 
@@ -44,6 +45,13 @@ var seed_mundo: int = 0
 ## `seed_mundo`, e e ela que o gerador usa.
 var seed_texto: String = ""
 var criaturas_por_mundo: int = 100
+
+## Com qual modelo do gerador este mundo nasceu. O save guarda indice e seed, e nao os
+## atributos: sem este campo, uma partida antiga acordaria com outras criaturas.
+##
+## Campo OPCIONAL, sem subir VERSAO_ATUAL: ausente le como a v1, que e o modelo de todo
+## save anterior a ele. Partida nova recebe GeradorCriaturas.MODO_DO_JOGO em nova().
+var modelo_gerador: String = MODELO_DOS_SAVES_ANTIGOS
 
 # --- posicao -----------------------------------------------------------------
 var mapa: String = MAPA_PADRAO
@@ -112,6 +120,7 @@ static func nova(semente: int, texto: String = "", criaturas: int = 100) -> Dado
 	d.seed_mundo = semente
 	d.seed_texto = texto
 	d.criaturas_por_mundo = maxi(1, criaturas)
+	d.modelo_gerador = GeradorCriaturas.nome_do_modo(GeradorCriaturas.MODO_DO_JOGO)
 	d.criado_em = Time.get_datetime_string_from_system(false, true)
 	d.salvo_em = d.criado_em
 	return d
@@ -129,6 +138,7 @@ static func de_dicionario(bruto: Dictionary) -> DadosPartida:
 	d.seed_mundo = int(mundo.get("seed", 0))
 	d.seed_texto = String(mundo.get("seed_texto", ""))
 	d.criaturas_por_mundo = maxi(1, int(mundo.get("criaturas", 100)))
+	d.modelo_gerador = String(mundo.get("modelo_gerador", MODELO_DOS_SAVES_ANTIGOS))
 
 	var jog: Dictionary = dados.get("jogador", {})
 	d.mapa = String(jog.get("mapa", MAPA_PADRAO))
@@ -161,6 +171,7 @@ func para_dicionario() -> Dictionary:
 			"seed": seed_mundo,
 			"seed_texto": seed_texto,
 			"criaturas": criaturas_por_mundo,
+			"modelo_gerador": modelo_gerador,
 		},
 		"jogador": {
 			"mapa": mapa,
@@ -187,6 +198,9 @@ func para_dicionario() -> Dictionary:
 func _validar() -> void:
 	if seed_mundo == 0:
 		erro = "save sem seed de mundo"
+		return
+	if GeradorCriaturas.modo_do_nome(modelo_gerador) == -1:
+		erro = "save de um modelo do gerador que este jogo nao conhece: " + modelo_gerador
 		return
 	for lista: Array in [equipe, armazenadas]:
 		for c: CriaturaSalva in lista:

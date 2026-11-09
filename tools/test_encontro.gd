@@ -484,7 +484,9 @@ func _testar_fluxo_completo() -> void:
 	_curar(g)
 
 	# --- bolsa em batalha, com a poção do catalogo ---
-	g.motor.jogador().vida = 1
+	# Quase cheia: quem tem 1 de vida + a pocao pode cair no revide, e entao o turno
+	# para na troca forcada, que nao e o que este trecho verifica.
+	g.motor.jogador().vida = maxi(1, g.motor.jogador().ficha.vida - 5)
 	var pocao := "pocao_simples"
 	g.inventario.adicionar(pocao, 1)
 	var pocoes: int = g.inventario.quantidade(pocao)

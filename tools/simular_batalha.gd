@@ -68,7 +68,7 @@ func _medir_guardia(n_seeds: int, guardiao: Dictionary) -> bool:
 	var repeticoes: int = 5
 	for s in n_seeds:
 		var semente: int = 1000 + s * 7919
-		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
+		var bes := ger.gerar_bestiario(semente, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 		var equipe := _equipe_mediana(bes, semente)
 		var dulce := SelecaoBestiario.equipe_guardiao(bes, _tabelas,
 				guardiao["elementos"], int(guardiao["tamanho_equipe"]),
@@ -103,7 +103,7 @@ func _medir_selvagem(n_seeds: int) -> void:
 	var vida_perdida: float = 0.0
 	for s in n_seeds:
 		var semente: int = 5000 + s * 104729
-		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
+		var bes := ger.gerar_bestiario(semente, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 		var eu: Criatura = _equipe_mediana(bes, semente)[0]
 		var rng := RandomNumberGenerator.new()
 		rng.seed = semente
@@ -127,7 +127,7 @@ func _medir_invencivel() -> bool:
 	var invenciveis: int = 0
 	for s in SEEDS_INVENCIVEL:
 		var semente: int = 9000 + s * 15485863
-		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
+		var bes := ger.gerar_bestiario(semente, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 		var ordenados := SelecaoBestiario.por_forca(bes, _tabelas)
 		var rng := RandomNumberGenerator.new()
 		rng.seed = semente
@@ -153,7 +153,7 @@ func _medir_invencivel() -> bool:
 
 func _medir_determinismo() -> bool:
 	var ger := GeradorCriaturas.new(_prob)
-	var bes := ger.gerar_bestiario(123456789, N_CRIATURAS)
+	var bes := ger.gerar_bestiario(123456789, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 	var a := _duelar(_equipe_mediana(bes, 1), [bes[0], bes[1]], "guardiao", 42)
 	var b := _duelar(_equipe_mediana(bes, 1), [bes[0], bes[1]], "guardiao", 42)
 	var igual: bool = a["eventos"] == b["eventos"]

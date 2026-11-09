@@ -262,6 +262,9 @@ func _montar_encontros() -> void:
 	# 3 ha um estoque so, que a pesca, a loja e o dialogo tambem mexem. O
 	# parametro e opcional e o encontro continua sabendo se virar sozinho — e o
 	# que mantem tools/test_encontro.gd rodando sem conhecer a Bolsa.
+	if Save.em_partida():
+		encontros.modo_gerador = GeradorCriaturas.modo_do_nome(Save.partida.modelo_gerador) \
+				as GeradorCriaturas.Modo
 	if not encontros.preparar(mundo, jogador, camera, seed_do_mundo,
 			criaturas_por_mundo, Bolsa.inventario):
 		_mostrar_erro("encontros: " + encontros.erro)
@@ -762,6 +765,7 @@ func _montar_pausa() -> void:
 		pausa.bestiario = encontros.bestiario
 		pausa.capturada = func(c: Criatura) -> bool: return encontros.inventario.ja_capturou(c)
 		pausa.tabelas_batalha = encontros.tabelas_batalha
+		pausa.tabelas_probabilidade = encontros.tabelas
 		pausa.rotulo_seed = Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
 	if encontros != null:
 		pausa.equipe = encontros.equipe
@@ -1054,9 +1058,12 @@ func _texto_de_vitoria() -> String:
 	var n: int = encontros.bestiario.size()
 	var ger := GeradorCriaturas.new(encontros.tabelas, encontros.catalogo)
 	var cond := MetricasCoerencia.avaliar(encontros.bestiario, encontros.tabelas)
+	# O baseline e medido com a regua do modelo desta partida: as duas colunas comparam
+	# a mesma coisa.
 	var indep := MetricasCoerencia.avaliar(
 			ger.gerar_bestiario(seed_do_mundo, n, GeradorCriaturas.Modo.INDEPENDENTE),
-			encontros.tabelas)
+			encontros.tabelas, MetricasCoerencia.K_UNICIDADE_PADRAO,
+			GeradorCriaturas.nome_do_modo(encontros.modo_gerador))
 	var tempo := Save.partida.tempo_legivel() if Save.em_partida() else "—"
 	var nome_seed := Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
 	return "SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS  %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%" % [

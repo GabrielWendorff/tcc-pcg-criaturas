@@ -98,6 +98,9 @@ var _falhas: int = 0
 var _geracao: int = 0
 
 
+## Modelo do gerador deste mundo. Quem carrega um save antigo troca antes de preparar().
+var modo_gerador: GeradorCriaturas.Modo = GeradorCriaturas.MODO_DO_JOGO
+
 ## Monta tudo. Devolve false com `erro` preenchido em vez de deixar meia
 ## montagem — mesma politica de MundoIso.carregar().
 ## `inventario_` entrega o estoque de fora (a partir da Etapa 3, o da Bolsa, que
@@ -143,7 +146,8 @@ func preparar(mundo: MundoIso, jogador: Jogador, camera: CameraExploracao,
 	_rng.seed = semente + DESLOCAMENTO_SEED
 
 	# O bestiario da partida (RF01/RF02): mesma seed, mesmas ~100 criaturas.
-	bestiario = GeradorCriaturas.new(tabelas, catalogo).gerar_bestiario(semente, quantidade)
+	bestiario = GeradorCriaturas.new(tabelas, catalogo).gerar_bestiario(semente, quantidade,
+			modo_gerador)
 	if bestiario.is_empty():
 		erro = "bestiario vazio"
 		return false

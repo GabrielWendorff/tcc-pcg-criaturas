@@ -47,6 +47,7 @@ var tela_bestiario: TelaBestiario
 var bestiario: Array = []
 var capturada: Callable
 var tabelas_batalha: TabelasBatalha
+var tabelas_probabilidade: TabelasProbabilidade
 var rotulo_seed: String = ""
 
 ## Quem resolve um item usado na bolsa, porque esta classe nao sabe o que e curar:
@@ -251,7 +252,8 @@ func _mostrar_bestiario(direta: bool) -> void:
 	_bestiario_direto = direta
 	_raiz.visible = false
 	_menu.fechar()
-	tela_bestiario.abrir(bestiario, capturada, catalogo_corpos, tabelas_batalha, rotulo_seed)
+	tela_bestiario.abrir(bestiario, capturada, catalogo_corpos, tabelas_batalha, rotulo_seed,
+			tabelas_probabilidade)
 
 
 func abrir_no_bestiario() -> void:

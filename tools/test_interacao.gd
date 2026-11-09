@@ -1,4 +1,4 @@
-extends SceneTree
+extends Node
 
 ## Teste headless do FLUXO de interacao, com a cena de verdade e entrada de
 ## verdade — roda SEM abrir janela:
@@ -17,20 +17,29 @@ var _falhas: int = 0
 var _verificacoes: int = 0
 
 
-func _initialize() -> void:
+func _ready() -> void:
+	await get_tree().process_frame
+	# change_scene_to_file libera a cena corrente, e o teste nao pode ser ela.
+	var lugar := Node.new()
+	get_tree().root.add_child(lugar)
+	get_tree().current_scene = lugar
+	await _executar()
+
+
+func _executar() -> void:
 	print("== Interacao (cena montada, entrada real) — teste headless ==")
 	await _rodar()
 	print("\n==")
 	if _verificacoes < 12:
 		print("RESULTADO: so %d verificacoes rodaram — o teste abortou no meio"
 				% _verificacoes)
-		quit(1)
+		get_tree().quit(1)
 	elif _falhas > 0:
 		print("RESULTADO: %d VERIFICACAO(OES) FALHARAM" % _falhas)
-		quit(1)
+		get_tree().quit(1)
 	else:
 		print("RESULTADO: TODOS OS TESTES PASSARAM")
-		quit(0)
+		get_tree().quit(0)
 
 
 func _ok(condicao: bool, rotulo: String, detalhe: String = "") -> void:
@@ -46,19 +55,19 @@ func _acao(nome: String) -> void:
 	e.action = nome
 	e.pressed = true
 	Input.parse_input_event(e)
-	await process_frame
+	await get_tree().process_frame
 	var solta := InputEventAction.new()
 	solta.action = nome
 	solta.pressed = false
 	Input.parse_input_event(solta)
-	await process_frame
+	await get_tree().process_frame
 
 
 func _rodar() -> void:
-	change_scene_to_file("res://presentation/exploracao/mundo.tscn")
-	await process_frame
-	await process_frame
-	var cena := current_scene
+	get_tree().change_scene_to_file("res://presentation/exploracao/mundo.tscn")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cena := get_tree().current_scene
 	if cena == null or cena.get("dialogos") == null:
 		_ok(false, "a cena montou com o gerenciador de dialogo")
 		return
@@ -71,15 +80,19 @@ func _rodar() -> void:
 
 	print("\nMontagem")
 	_ok(gerente.erro == "", "gerenciador de dialogo preparado", gerente.erro)
-	_ok(get_nodes_in_group("npcs").size() == gerente.catalogo.npcs.size(),
-			"todo NPC do catalogo entrou no mundo",
-			"%d em cena" % get_nodes_in_group("npcs").size())
+	var do_mapa: int = 0
+	for ficha in gerente.catalogo.npcs:
+		if ficha.mapa == "" or ficha.mapa == "mundo":
+			do_mapa += 1
+	_ok(get_tree().get_nodes_in_group("npcs").size() == do_mapa,
+			"todo NPC deste mapa entrou no mundo",
+			"%d em cena" % get_tree().get_nodes_in_group("npcs").size())
 	_ok(estado.visitou("vila"), "a regiao do spawn ja nasce descoberta")
 
 	# --------------------------------------------------- aproximacao e aviso
 	print("\nAproximacao")
 	var alvo: Npc = null
-	for no in get_nodes_in_group("npcs"):
+	for no in get_tree().get_nodes_in_group("npcs"):
 		if (no as Npc).dados.id == "mirela":
 			alvo = no
 	_ok(alvo != null, "o NPC de exemplo existe no mundo")
@@ -87,13 +100,13 @@ func _rodar() -> void:
 		return
 
 	jogador.position = mundo.celula_para_mundo(Vector2i(60, 60))   # longe
-	await process_frame
-	await process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
 	_ok(gerente.npc_proximo() == null, "longe do NPC, nenhum aviso")
 
 	jogador.position = alvo.position + Vector2(14, 4)
-	await process_frame
-	await process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
 	_ok(gerente.npc_proximo() == alvo, "perto do NPC, o aviso aponta para ele",
 			"distancia %.2f celulas"
 					% alvo.distancia_em_celulas(jogador.global_position))
