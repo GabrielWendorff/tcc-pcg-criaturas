@@ -277,6 +277,7 @@ func _testar_autoload() -> void:
 			func(d: DadosPartida) -> void: d.itens = {"marca": caixa["valor"]},
 			func(d: DadosPartida) -> void: caixa["valor"] = int(d.itens.get("marca", -1)))
 	caixa["valor"] = 77
+	OS.delay_msec(1100)  # o carimbo tem resolucao de 1 s: este save precisa ser o mais novo
 	_ok(save.salvar() == "", "salvou pelo autoload")
 	caixa["valor"] = 0
 	_ok(save.carregar(3), "carregou o slot 3")

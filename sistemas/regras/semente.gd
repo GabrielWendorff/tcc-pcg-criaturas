@@ -62,6 +62,9 @@ static func de_texto(texto: String) -> int:
 	return h if h != 0 else 1
 
 
+static var _sorteador: RandomNumberGenerator
+
+
 ## Seed nova, para o botao "sortear".
 ##
 ## E o UNICO sorteio do projeto que nao e reproduzivel, e tem de ser: o produto
@@ -69,6 +72,9 @@ static func de_texto(texto: String) -> int:
 ## RandomNumberGenerator proprio, e nao de randi() global, para nao mexer no
 ## estado aleatorio que qualquer outro sistema possa estar usando.
 static func aleatoria() -> int:
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-	return rng.randi_range(1, 999_999_999)
+	# Um RNG so, semeado uma vez: randomize() usa o relogio, e dois RNGs criados no mesmo
+	# instante sairiam iguais. O sorteio de seed e a unica entrada nao reprodutivel do jogo.
+	if _sorteador == null:
+		_sorteador = RandomNumberGenerator.new()
+		_sorteador.randomize()
+	return _sorteador.randi_range(1, 999_999_999)

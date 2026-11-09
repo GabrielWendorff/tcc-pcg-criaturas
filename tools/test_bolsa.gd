@@ -180,10 +180,10 @@ func _testar_bolsa() -> void:
 	_ok(bolsa.pronta(), "a bolsa carregou catalogo e tabelas")
 	bolsa.reiniciar()
 
-	_ok(bolsa.quantidade("esfera_simples") == 12,
-			"a carga inicial veio de data/captura/dispositivos.json")
-	_ok(bolsa.quantidade("pocao_simples") == 3,
-			"a carga inicial veio tambem de data/itens/catalogo.json")
+	# A bolsa nasce sem consumiveis: quem da o primeiro estoque e o kit da Mirela.
+	_ok(bolsa.quantidade("esfera_simples") == 0, "a partida comeca sem esferas")
+	_ok(bolsa.quantidade("pocao_simples") == 0, "a partida comeca sem pocoes")
+	bolsa.adicionar("pocao_simples", 3)
 	_ok(bolsa.quantidade("vara_de_pesca") == 0,
 			"a vara comeca fora da bolsa — quem a da e o pescador")
 
@@ -211,6 +211,7 @@ func _testar_bolsa() -> void:
 			"com_marcador lista so o que esta EM ESTOQUE")
 
 	# Aba vazia nao aparece.
+	bolsa.adicionar("pocao_simples", 1)
 	var antes: int = bolsa.categorias_com_itens().size()
 	for i: ItemJogo in bolsa.catalogo.da_categoria("consumiveis"):
 		while bolsa.quantidade(i.id) > 0:
@@ -233,7 +234,7 @@ func _testar_bolsa() -> void:
 	bolsa.item_mudou.disconnect(ouvinte)
 
 	bolsa.reiniciar()
-	_ok(bolsa.quantidade("pocao_simples") == 3 and bolsa.quantidade("vara_de_pesca") == 0,
+	_ok(bolsa.quantidade("pocao_simples") == 0 and bolsa.quantidade("vara_de_pesca") == 0,
 			"reiniciar devolve a carga inicial")
 
 
@@ -252,6 +253,7 @@ func _testar_integracao() -> void:
 	_ok(bolsa.inventario is InventarioJogador,
 			"a bolsa possui o InventarioJogador que o encontro ja usava")
 	bolsa.reiniciar()
+	bolsa.adicionar("esfera_simples", 12)
 	bolsa.inventario.consumir("esfera_simples", 1)
 	_ok(bolsa.quantidade("esfera_simples") == 11,
 			"consumir pelo inventario (como o encontro faz) muda a bolsa")
@@ -261,15 +263,15 @@ func _testar_integracao() -> void:
 	bolsa.adicionar("pocao_forte", 4)
 	_ok(save.salvar(1) == "", "salvou com a bolsa dentro")
 	bolsa.reiniciar()
-	_ok(bolsa.quantidade("pocao_forte") == 1, "a bolsa voltou a carga inicial")
+	_ok(bolsa.quantidade("pocao_forte") == 0, "a bolsa voltou a carga inicial")
 	_ok(save.carregar(1), "carregou o slot")
 	# `carregar` esquece as secoes DE CENA; a da bolsa tem de continuar la.
 	save.restaurar_na_cena()
-	_ok(bolsa.quantidade("pocao_forte") == 5,
+	_ok(bolsa.quantidade("pocao_forte") == 4,
 			"a secao permanente da bolsa sobreviveu ao esquecer_secoes")
 	save.esquecer_secoes()
 	save.restaurar_na_cena()
-	_ok(bolsa.quantidade("pocao_forte") == 5,
+	_ok(bolsa.quantidade("pocao_forte") == 4,
 			"esquecer_secoes nao derruba as permanentes")
 
 	# A opcao de encontro nao pode tocar o bestiario (RF03).
