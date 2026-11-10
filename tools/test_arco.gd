@@ -296,12 +296,23 @@ func _testar_vitoria() -> void:
 	await get_tree().process_frame
 	_ok(_m.estado_mundo.ativa("selo_dulce"), "a vitoria da o selo")
 	_ok(not _m.estado_mundo.ativa("jogo_vencido") and not _m.tela_desfecho.aberta(),
-			"um selo so nao encerra o jogo: falta o Otavio")
-	_ok(_m._objetivo_atual().contains("Otávio"), "o objetivo passa para o Otavio",
+			"um selo so nao encerra o jogo")
+	_ok(_m._objetivo_atual().contains("Anselmo"), "o objetivo passa para o Anselmo",
 			_m._objetivo_atual())
-	# A tela final, com os dados da seed, aparece quando os selos pedidos estao todos.
+	_ok(_opcoes_de("anselmo", "assuntos").has("Vim desafiar o guardião da ribeira."),
+			"com o selo da Dulce, o Anselmo aceita o desafio")
+	_ok(not _opcoes_de("mirela", "raiz").has("Tenho os três selos."),
+			"sem os tres selos, a Mirela nao aceita o duelo final")
+	_m.estado_mundo.definir("selo_anselmo", true)
+	_ok(_m._objetivo_atual().contains("Otávio"), "depois vem o Otavio", _m._objetivo_atual())
 	_m.estado_mundo.definir("selo_otavio", true)
-	_m._ao_vencer_duelo(_m.guardioes.por_id("otavio"))
+	_ok(_m._objetivo_atual().contains("Mirela"), "com os tres selos, falta a Mirela",
+			_m._objetivo_atual())
+	_ok(_opcoes_de("mirela", "raiz").has("Tenho os três selos."),
+			"com os tres selos, o duelo final abre")
+	_ok(not _m.guardioes.venceu_o_jogo(_m.estado_mundo), "tres selos ainda nao vencem o jogo")
+	# A tela final, com os dados da seed, aparece quando os selos pedidos estao todos.
+	_m._ao_vencer_duelo(_m.guardioes.por_id("mirela"))
 	await get_tree().process_frame
 	_ok(_m.estado_mundo.ativa("jogo_vencido"), "com os selos pedidos, o jogo foi vencido")
 	_ok(_m.tela_desfecho.aberta(), "a tela final abriu")
@@ -729,6 +740,9 @@ func _testar_fabrica() -> void:
 
 	# Com o selo, entra.
 	_m.estado_mundo.definir("selo_dulce", true)
+	# Os outros selos ja vencidos: aqui o Otavio e o ultimo que falta.
+	_m.estado_mundo.definir("selo_anselmo", true)
+	_m.estado_mundo.definir("selo_mirela", true)
 	_m._ultima_celula_de_porta = Vector2i(-1, -1)
 	var velha := get_tree().current_scene
 	_m._verificar_porta()
@@ -773,7 +787,7 @@ func _testar_fabrica() -> void:
 	await get_tree().process_frame
 	_ok(_m.estado_mundo.ativa("selo_otavio"), "a vitoria da o selo do Otavio")
 	_ok(_m.tela_desfecho.aberta() and _m.tela_desfecho._titulo.text == "VITÓRIA",
-			"com os dois selos, a vitoria do jogo")
+			"com todos os selos, a vitoria do jogo")
 	_m.tela_desfecho._ao_escolher(0)
 	await get_tree().process_frame
 

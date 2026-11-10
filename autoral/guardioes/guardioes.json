@@ -1,11 +1,12 @@
 {
   "_meta": {
     "descricao": "Guardioes (Camada 1, autoral). O NPC, o selo e a regra sao fixos; a EQUIPE e lida do bestiario da seed, filtrada pelos elementos da regiao e escolhida por percentil de forca. E conteudo autoral condicionado a saida do gerador: o caso registrado em docs/mudancas-estruturais.md. Acrescentar um guardiao e acrescentar uma entrada aqui e os nos no dialogo dele.",
-    "selos_para_vencer": "Quantos selos encerram o jogo com vitoria. Cresce quando os demais guardioes e o duelo final entrarem.",
+    "selos_para_vencer": "Quantos selos encerram o jogo com vitoria: os tres guardioes e o da Mirela, que so aceita o duelo final com os outros tres.",
     "versao": 1,
-    "meta_vitorias": "Faixa de vitorias de uma equipe mediana de 3, medida por tools/simular_batalha.gd. O segundo guardiao e mais dificil de proposito."
+    "meta_vitorias": "Faixa de vitorias de uma equipe mediana de 3, medida por tools/simular_batalha.gd. O segundo guardiao e mais dificil de proposito.",
+    "meta_turnos": "Faixa de turnos do duelo, quando foge do padrao de 3 a 8: o duelo final tem tres criaturas de cada lado."
   },
-  "selos_para_vencer": 2,
+  "selos_para_vencer": 4,
   "guardioes": [
     {
       "id": "dulce",
@@ -27,6 +28,25 @@
       ]
     },
     {
+      "id": "anselmo",
+      "npc": "anselmo",
+      "nome": "Anselmo",
+      "titulo": "GUARDIÃO DA RIBEIRA",
+      "onde": "na cabana da ribeira",
+      "premio_gold": 200,
+      "selo": "selo_anselmo",
+      "elementos": [
+        "agua",
+        "gelo"
+      ],
+      "tamanho_equipe": 2,
+      "percentil_forca": 0.95,
+      "meta_vitorias": [
+        0.5,
+        0.78
+      ]
+    },
+    {
       "id": "otavio",
       "npc": "otavio",
       "nome": "Otávio",
@@ -43,6 +63,26 @@
       "meta_vitorias": [
         0.4,
         0.7
+      ]
+    },
+    {
+      "id": "mirela",
+      "npc": "mirela",
+      "nome": "Mirela",
+      "titulo": "GUARDIÃ DA VILA",
+      "onde": "na praça da vila, com os três selos",
+      "premio_gold": 400,
+      "selo": "selo_mirela",
+      "elementos": [],
+      "tamanho_equipe": 3,
+      "percentil_forca": 0.975,
+      "meta_vitorias": [
+        0.25,
+        0.6
+      ],
+      "meta_turnos": [
+        3,
+        14
       ]
     }
   ]

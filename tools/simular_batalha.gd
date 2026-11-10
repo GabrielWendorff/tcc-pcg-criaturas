@@ -86,12 +86,13 @@ func _medir_guardia(n_seeds: int, guardiao: Dictionary) -> bool:
 	var taxa: float = float(vitorias) / batalhas
 	var meta: Array = guardiao.get("meta_vitorias", [VITORIAS_MIN, VITORIAS_MAX])
 	print("%s (%d seeds, %d batalhas)" % [String(guardiao["nome"]), n_seeds, batalhas])
-	print("  turnos por batalha: %.2f  (meta %.0f a %.0f)" % [media, TURNOS_MIN, TURNOS_MAX])
+	var meta_turnos: Array = guardiao.get("meta_turnos", [TURNOS_MIN, TURNOS_MAX])
+	print("  turnos por batalha: %.2f  (meta %.0f a %.0f)" % [media, float(meta_turnos[0]), float(meta_turnos[1])])
 	print("  vitorias equipe de 3: %.1f%%  (meta %.0f%% a %.0f%%)"
 			% [taxa * 100.0, float(meta[0]) * 100.0, float(meta[1]) * 100.0])
 	print("  vitorias so com a inicial: %.1f%%  (informativo)"
 			% (float(vitorias_solo) / batalhas * 100.0))
-	return media >= TURNOS_MIN and media <= TURNOS_MAX \
+	return media >= float(meta_turnos[0]) and media <= float(meta_turnos[1]) \
 			and taxa >= float(meta[0]) and taxa <= float(meta[1])
 
 

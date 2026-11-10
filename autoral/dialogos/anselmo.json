@@ -38,6 +38,10 @@
   "assuntos": {
    "pergunta": "O que você quer perguntar?",
    "escolhas": [
+    {"texto": "Vim desafiar o guardião da ribeira.", "destino": "desafio",
+     "se": {"todos": [{"bandeira": "selo_dulce"}, {"nao": {"bandeira": "selo_anselmo"}}]}},
+    {"texto": "Quero uma revanche.", "destino": "revanche",
+     "se": {"bandeira": "selo_anselmo"}},
     {"texto": "Me ensina a pescar de novo?", "destino": "repetir_licao",
      "se": {"bandeira": "tutorial_pesca_concluido"}},
     {"texto": "Sobre o rio", "destino": "rio"},
@@ -80,6 +84,19 @@
    "falas": ["Pode. Vara na mão, pé firme na beira e paciência. O resto o rio ensina."],
    "efeitos": {"servico": {"tipo": "pesca"}},
    "seguinte": "assuntos"
+  },
+  "desafio": {
+   "falas": [
+    "A Dulce te deu o selo dela, é? Ela nunca foi de dar nada de graça.",
+    "O que eu tiro do rio eu conheço pelo peso na linha. Vamos ver se você conhece o que carrega."
+   ],
+   "efeitos": {"servico": {"tipo": "duelo", "guardiao": "anselmo"}},
+   "fim": true
+  },
+  "revanche": {
+   "falas": ["O rio sempre devolve o que você jogou nele. Vamos de novo."],
+   "efeitos": {"servico": {"tipo": "duelo", "guardiao": "anselmo"}},
+   "fim": true
   },
   "despedida": {
    "falas": ["Vá. E pise pelo caminho de pedra, que o barranco cede."],
