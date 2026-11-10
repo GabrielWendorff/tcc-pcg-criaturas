@@ -15,17 +15,18 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="RPG PCG - Coerencia Semantica"
-config/nome_exibido="RPG PCG - Coerência Semântica"
 config/description="Geracao Procedural de Conteudo com atributos correlacionados por probabilidade condicionada. TCC - Gabriel Wendorff."
 run/main_scene="res://presentation/menu/menu_principal.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+config/nome_exibido="RPG PCG - Coerência Semântica"
 
 [autoload]
 
 Save="*res://sistemas/gerenciador_save.gd"
 Opcoes="*res://sistemas/opcoes.gd"
 Bolsa="*res://sistemas/bolsa.gd"
+RegistroSessao="*res://sistemas/registro_sessao.gd"
 
 [display]
 

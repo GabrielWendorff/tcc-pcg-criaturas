@@ -325,9 +325,9 @@ depois de fisgar**.
 
 ### Em aberto nesta etapa
 
-- **Falta 1 guardião e o duelo final** (até 16/11, pelo plano). O Otávio, na fábrica,
-  entrou em 07/11 como segundo guardião; falta o Anselmo. Quem faz o duelo final
-  ainda não foi decidido. Hoje `selos_para_vencer` é 1 e vencer a Dulce encerra o jogo.
+- **Guardiões completos em 09/11:** Dulce, Anselmo, Otávio e o duelo final com a Mirela.
+  A vitória pede 4 selos. A Mirela dá 27,7% a uma equipe mediana jogada pela IA, perto do piso
+  da meta: conferir no playtest.
 - **Os percentis são medidos, não sentidos.** O simulador joga com IA. O valor da Dulce
   (0,9) sai dele, e pode estar errado para pessoas: conferir no playtest.
 - **Encontro selvagem é caro.** Lutar até o fim custa em média 42% da vida. Sem loja, a
@@ -337,8 +337,6 @@ depois de fisgar**.
   entregue em 09/11**: E, no bestiário, mostra seed, primários, a chance de cada derivado e
   a nota (coerente ou atípica).
 - **Sem animação de golpe.** O alvo só treme. Polimento, depois da vitrine.
-- **Testes:** `test_interacao`, `test_save` e `test_bolsa` viraram cena em 09/11 e rodam
-  até o fim. `test_save` tem 2 falhas (o sorteio em sequência repete seed; dois slots
-  gravados no mesmo segundo empatam). `test_bolsa` tem 12, de expectativas anteriores à bolsa
-  vazia e às opções atuais. Falta corrigi-las antes do CI.
+- **Testes:** a suíte inteira passa desde 09/11 (`tools/rodar_testes.sh`), e todo teste que
+  toca autoload roda como cena.
 

@@ -265,6 +265,8 @@ func _montar_encontros() -> void:
 	if Save.em_partida():
 		encontros.modo_gerador = GeradorCriaturas.modo_do_nome(Save.partida.modelo_gerador) \
 				as GeradorCriaturas.Modo
+	RegistroSessao.evento("mundo", {"seed": seed_do_mundo,
+			"modelo": GeradorCriaturas.nome_do_modo(encontros.modo_gerador)})
 	if not encontros.preparar(mundo, jogador, camera, seed_do_mundo,
 			criaturas_por_mundo, Bolsa.inventario):
 		_mostrar_erro("encontros: " + encontros.erro)
@@ -1396,6 +1398,9 @@ func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 			and not encontros.dicas_de_estreia.has("menu"):
 		encontros.dicas_de_estreia = {}
 		estado_mundo.definir(BANDEIRA_DICAS_BATALHA)
+	RegistroSessao.evento("encontro", {"desfecho": desfecho,
+			"criatura": criatura.nome() if criatura != null else "",
+			"guardiao": String(duelo.get("id", ""))})
 	match desfecho:
 		"derrota":
 			_mostrar_derrota()
@@ -1430,6 +1435,10 @@ func _ao_vencer_duelo(guardiao: Dictionary) -> void:
 		_nota("%s entregou o selo." % String(guardiao.get("nome", "")))
 	if guardioes.venceu_o_jogo(estado_mundo) and not estado_mundo.ativa(BANDEIRA_VENCEU):
 		estado_mundo.definir(BANDEIRA_VENCEU)
+		RegistroSessao.evento("vitoria", {"seed": seed_do_mundo,
+				"modelo": GeradorCriaturas.nome_do_modo(encontros.modo_gerador),
+				"capturas": encontros.inventario.colecao.size(),
+				"tempo": Save.partida.tempo_legivel() if Save.em_partida() else ""})
 		_autosalvar()
 		_mostrar_vitoria()
 		return

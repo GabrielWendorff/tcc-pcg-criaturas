@@ -21,9 +21,10 @@ Medido na seed de teste:
 
 | | Resultado |
 |---|---|
-| Geração de 100 criaturas | 1,59 ms (meta: abaixo de 2 s) |
-| Informação mútua contra o sorteio independente (n=5000) | de 33 a 181 vezes maior |
-| Criaturas distintas (distância de Hamming, k=3) | 91 de 100, nenhuma duplicata exata |
+| Geração de 100 criaturas | cerca de 2 ms (meta: abaixo de 2 s) |
+| Informação mútua do gerador v2 contra o sorteio independente (n=5000, média de 10 seeds) | de 32 a 146 vezes maior |
+| Criaturas distintas (distância de Hamming, k=3) | 87,5 de 100 em média, em 100 seeds |
+| Pares elemento×animal cobertos | os 64, em toda seed |
 | Reprodutibilidade pela seed | verificada por teste |
 
 ## O jogo
