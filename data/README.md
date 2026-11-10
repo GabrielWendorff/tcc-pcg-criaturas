@@ -31,6 +31,13 @@ que muda a *silhueta*, e não a superfície — é por ele que o condicionamento
 aparece na leitura mais imediata da criatura: um monstro de terra é atarracado, um
 de ar é esguio, antes de qualquer cor.
 
+## Modelo v2
+
+`modelo_v2.json` acrescenta o que a v1 não condiciona: `P(porte | animal, elemento)`, o
+sorteio em cadeia dos traços e o limiar da nota de coerência. Os outros arquivos valem
+para as duas versões. A v1 não lê este arquivo e continua reproduzível. O registro
+completo está em `docs/mudancas-estruturais.md`.
+
 ## Silhueta e arte
 
 A geometria da silhueta **não** vive mais aqui: ela é pixel art em `arte/corpos/`,

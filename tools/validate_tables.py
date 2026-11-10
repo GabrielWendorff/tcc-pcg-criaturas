@@ -56,6 +56,23 @@ for e in ELEM:
         errors.append(f"porte: elemento '{e}' ausente"); continue
     check_vies(f"porte|{e}", porte["vies_por_elemento"][e], len(PORTES))
 
+# --- modelo v2: fator de porte por animal e cadeia de tracos ---
+v2 = load("modelo_v2.json")
+for a in ANIM:
+    if a not in v2["fator_porte_por_animal"]:
+        errors.append(f"v2: animal '{a}' sem fator de porte"); continue
+    check_vies(f"v2 porte|{a}", v2["fator_porte_por_animal"][a], len(PORTES))
+cadeia = v2["cadeia_de_tracos"]
+if sorted(cadeia["ordem"]) != sorted(MORPH):
+    errors.append("v2: 'ordem' da cadeia nao e permutacao da morfologia")
+for f in MORPH:
+    if f not in cadeia["efeitos"]:
+        errors.append(f"v2: traco '{f}' sem efeitos"); continue
+    anteriores = cadeia["ordem"][:cadeia["ordem"].index(f)]
+    for a in cadeia["efeitos"][f]["se_presente"]:
+        if a not in anteriores:
+            errors.append(f"v2: '{f}' depende de '{a}', que nao vem antes na cadeia")
+
 # --- P(paleta|elemento) ---
 pal = load("conditional_palette.json")["tabela"]
 for e in ELEM:

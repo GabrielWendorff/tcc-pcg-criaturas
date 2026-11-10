@@ -14,6 +14,7 @@ var palette: Dictionary = {}      # P(paleta | elemento)
 var hue: Dictionary = {}          # P(matiz  | elemento)
 var morphology: Dictionary = {}   # base_por_animal + modificador_por_elemento
 var variants: Dictionary = {}     # modelos de cada feature + vies por elemento
+var modelo_v2: Dictionary = {}    # o que so o modo CONDICIONADO_V2 usa
 
 ## Distribuicoes MARGINAIS, derivadas das condicionais pela lei da probabilidade
 ## total (ex.: P(paleta) = sum_e P(elemento=e) * P(paleta|e)). Nao sao dados de
@@ -47,8 +48,9 @@ func _carregar_tudo() -> void:
 	var hu: Variant = _ler_json("conditional_hue.json")
 	var mor: Variant = _ler_json("conditional_morphology.json")
 	var var_: Variant = _ler_json("feature_variants.json")
+	var v2: Variant = _ler_json("modelo_v2.json")
 	if voc == null or pri == null or por == null or pal == null or hu == null \
-			or mor == null or var_ == null:
+			or mor == null or var_ == null or v2 == null:
 		return
 	vocabulary = voc
 	priors = pri
@@ -57,6 +59,7 @@ func _carregar_tudo() -> void:
 	hue = hu["tabela"]
 	morphology = mor
 	variants = var_
+	modelo_v2 = v2
 	_calcular_marginais()
 	_ok = true
 
@@ -120,6 +123,52 @@ func prob_feature(animal: String, elemento: String, feature: String) -> float:
 	var modif: float = morphology["modificador_por_elemento"][elemento][feature]
 	var meta: Dictionary = morphology["_meta"]
 	return clampf(base + modif, meta["clamp_min"], meta["clamp_max"])
+
+
+# --- Modelo v2 -------------------------------------------------------------
+#
+# Acrescenta ao modelo o que a v1 nao condiciona. A v1 nao passa por aqui.
+
+## Pesos (nao normalizados) de P(porte | animal, elemento). Mesma ordem de portes().
+func pesos_porte_v2(animal: String, elemento: String) -> Array:
+	var vies: Array = vies_porte(elemento)
+	var fator: Array = modelo_v2["fator_porte_por_animal"][animal]
+	var expoente: float = modelo_v2["expoente_vies_elemento"]
+	var pesos: Array = []
+	for i in vies.size():
+		pesos.append(pow(float(vies[i]), expoente) * float(fator[i]))
+	return pesos
+
+
+## Ordem do sorteio em cadeia dos tracos.
+func ordem_cadeia() -> Array:
+	return modelo_v2["cadeia_de_tracos"]["ordem"]
+
+
+## P(feature | animal, elemento, tracos anteriores da cadeia). `sorteados` pode ser a
+## morfologia inteira de uma criatura pronta: so contam os tracos ANTES de `feature`
+## na ordem da cadeia, entao a mesma funcao serve ao sorteio e a nota depois dele.
+func prob_feature_v2(animal: String, elemento: String, feature: String,
+		sorteados: Dictionary) -> float:
+	var efeitos: Dictionary = modelo_v2["cadeia_de_tracos"]["efeitos"][feature]
+	var se_presente: Dictionary = efeitos["se_presente"]
+	var p: float = float(morphology["base_por_animal"][animal][feature]) \
+			+ float(morphology["modificador_por_elemento"][elemento][feature])
+	var algum_anterior: bool = false
+	for anterior: String in ordem_cadeia():
+		if anterior == feature:
+			break
+		if bool(sorteados.get(anterior, false)):
+			algum_anterior = true
+			p += float(se_presente.get(anterior, 0.0))
+	if not algum_anterior:
+		p += float(efeitos["se_nenhum_anterior"])
+	var meta: Dictionary = morphology["_meta"]
+	return clampf(p, meta["clamp_min"], meta["clamp_max"])
+
+
+func limiar_atipica_bits() -> float:
+	return float(modelo_v2["nota_coerencia"]["limiar_atipica_bits"])
 
 
 # --- Variantes (modelos) das features -------------------------------------

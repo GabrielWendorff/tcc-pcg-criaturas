@@ -29,14 +29,14 @@ const SEEDS_INVENCIVEL := 30
 
 var _prob: TabelasProbabilidade
 var _tabelas: TabelasBatalha
-var _guardiao: Dictionary
+var _guardioes: Array = []
 
 
 func _initialize() -> void:
 	_prob = TabelasProbabilidade.carregar()
 	_tabelas = TabelasBatalha.carregar()
-	_guardiao = CatalogoGuardioes.carregar().por_id("dulce")
-	if _prob == null or _tabelas == null or _guardiao.is_empty():
+	_guardioes = CatalogoGuardioes.carregar().guardioes
+	if _prob == null or _tabelas == null or _guardioes.is_empty():
 		print("FALHOU: dados nao carregaram")
 		quit(1)
 		return
@@ -48,7 +48,9 @@ func _initialize() -> void:
 		n_seeds = int(args[i_seeds + 1])
 
 	var t0 := Time.get_ticks_msec()
-	var ok := _medir_guardia(n_seeds)
+	var ok := true
+	for g: Dictionary in _guardioes:
+		ok = _medir_guardia(n_seeds, g) and ok
 	_medir_selvagem(mini(n_seeds, 50))
 	ok = _medir_invencivel() and ok
 	ok = _medir_determinismo() and ok
@@ -57,7 +59,7 @@ func _initialize() -> void:
 	quit(0 if ok else 1)
 
 
-func _medir_guardia(n_seeds: int) -> bool:
+func _medir_guardia(n_seeds: int, guardiao: Dictionary) -> bool:
 	var ger := GeradorCriaturas.new(_prob)
 	var vitorias: int = 0
 	var turnos: int = 0
@@ -66,11 +68,11 @@ func _medir_guardia(n_seeds: int) -> bool:
 	var repeticoes: int = 5
 	for s in n_seeds:
 		var semente: int = 1000 + s * 7919
-		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
+		var bes := ger.gerar_bestiario(semente, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 		var equipe := _equipe_mediana(bes, semente)
 		var dulce := SelecaoBestiario.equipe_guardiao(bes, _tabelas,
-				_guardiao["elementos"], int(_guardiao["tamanho_equipe"]),
-				float(_guardiao["percentil_forca"]))
+				guardiao["elementos"], int(guardiao["tamanho_equipe"]),
+				float(guardiao["percentil_forca"]))
 		for r in repeticoes:
 			var res := _duelar(equipe, dulce, "guardiao", semente + r)
 			batalhas += 1
@@ -82,14 +84,16 @@ func _medir_guardia(n_seeds: int) -> bool:
 				vitorias_solo += 1
 	var media: float = float(turnos) / batalhas
 	var taxa: float = float(vitorias) / batalhas
-	print("Guardia (%d seeds, %d batalhas)" % [n_seeds, batalhas])
-	print("  turnos por batalha: %.2f  (meta %.0f a %.0f)" % [media, TURNOS_MIN, TURNOS_MAX])
+	var meta: Array = guardiao.get("meta_vitorias", [VITORIAS_MIN, VITORIAS_MAX])
+	print("%s (%d seeds, %d batalhas)" % [String(guardiao["nome"]), n_seeds, batalhas])
+	var meta_turnos: Array = guardiao.get("meta_turnos", [TURNOS_MIN, TURNOS_MAX])
+	print("  turnos por batalha: %.2f  (meta %.0f a %.0f)" % [media, float(meta_turnos[0]), float(meta_turnos[1])])
 	print("  vitorias equipe de 3: %.1f%%  (meta %.0f%% a %.0f%%)"
-			% [taxa * 100.0, VITORIAS_MIN * 100.0, VITORIAS_MAX * 100.0])
+			% [taxa * 100.0, float(meta[0]) * 100.0, float(meta[1]) * 100.0])
 	print("  vitorias so com a inicial: %.1f%%  (informativo)"
 			% (float(vitorias_solo) / batalhas * 100.0))
-	return media >= TURNOS_MIN and media <= TURNOS_MAX \
-			and taxa >= VITORIAS_MIN and taxa <= VITORIAS_MAX
+	return media >= float(meta_turnos[0]) and media <= float(meta_turnos[1]) \
+			and taxa >= float(meta[0]) and taxa <= float(meta[1])
 
 
 func _medir_selvagem(n_seeds: int) -> void:
@@ -100,7 +104,7 @@ func _medir_selvagem(n_seeds: int) -> void:
 	var vida_perdida: float = 0.0
 	for s in n_seeds:
 		var semente: int = 5000 + s * 104729
-		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
+		var bes := ger.gerar_bestiario(semente, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 		var eu: Criatura = _equipe_mediana(bes, semente)[0]
 		var rng := RandomNumberGenerator.new()
 		rng.seed = semente
@@ -124,7 +128,7 @@ func _medir_invencivel() -> bool:
 	var invenciveis: int = 0
 	for s in SEEDS_INVENCIVEL:
 		var semente: int = 9000 + s * 15485863
-		var bes := ger.gerar_bestiario(semente, N_CRIATURAS)
+		var bes := ger.gerar_bestiario(semente, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 		var ordenados := SelecaoBestiario.por_forca(bes, _tabelas)
 		var rng := RandomNumberGenerator.new()
 		rng.seed = semente
@@ -150,7 +154,7 @@ func _medir_invencivel() -> bool:
 
 func _medir_determinismo() -> bool:
 	var ger := GeradorCriaturas.new(_prob)
-	var bes := ger.gerar_bestiario(123456789, N_CRIATURAS)
+	var bes := ger.gerar_bestiario(123456789, N_CRIATURAS, GeradorCriaturas.MODO_DO_JOGO)
 	var a := _duelar(_equipe_mediana(bes, 1), [bes[0], bes[1]], "guardiao", 42)
 	var b := _duelar(_equipe_mediana(bes, 1), [bes[0], bes[1]], "guardiao", 42)
 	var igual: bool = a["eventos"] == b["eventos"]

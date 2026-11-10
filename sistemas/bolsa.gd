@@ -31,6 +31,7 @@ extends Node
 ## cena como as secoes do mundo sao. Ver GerenciadorSave.registrar_secao.
 
 signal item_mudou(id: String, quantidade: int)
+signal gold_mudou(valor: int)
 signal catalogo_pronto()
 
 ## Quantidades e sinais. É este objeto que o GerenciadorEncontro recebe.
@@ -38,6 +39,11 @@ var inventario := InventarioJogador.new()
 
 var catalogo: CatalogoItens
 var erro: String = ""
+
+## Dinheiro do jogador. Vive aqui porque atravessa as cenas junto com os itens e vai
+## para o save na mesma secao.
+var gold: int = 0
+var economia: TabelasEconomia
 
 
 func _ready() -> void:
@@ -54,6 +60,7 @@ func _ready() -> void:
 		return
 
 	inventario.mudou.connect(func(id: String, n: int) -> void: item_mudou.emit(id, n))
+	economia = TabelasEconomia.carregar()
 	reiniciar()
 
 	# Secao PERMANENTE: a bolsa atravessa a troca de cena, e esquece-la junto
@@ -70,10 +77,40 @@ func pronta() -> bool:
 	return catalogo != null
 
 
-## Devolve a bolsa a carga inicial declarada pelos JSONs.
+## Devolve a bolsa a carga inicial declarada pelos JSONs, e o gold ao inicial.
 func reiniciar() -> void:
 	if catalogo != null:
 		inventario.repor(catalogo.quantidades_iniciais())
+	_definir_gold(economia.gold_inicial() if economia != null else 0)
+
+
+func _definir_gold(valor: int) -> void:
+	gold = maxi(0, valor)
+	gold_mudou.emit(gold)
+
+
+func ganhar_gold(n: int) -> void:
+	_definir_gold(gold + maxi(0, n))
+
+
+## Compra `n` unidades de `id` pelo preco da economia. Devolve "" ou o motivo da
+## recusa, ja em texto de tela. So cobra o que coube na bolsa (max_pilha).
+func comprar(id: String, n: int = 1) -> String:
+	var i := item(id)
+	if i == null or economia == null:
+		return "Item desconhecido."
+	var preco := economia.preco(id)
+	if preco <= 0:
+		return "%s não está à venda." % i.nome
+	var teto: int = 1 if not i.empilhavel else i.max_pilha
+	var cabe: int = mini(n, teto - quantidade(id))
+	if cabe <= 0:
+		return "A bolsa já está cheia de %s." % i.nome
+	if gold < preco * cabe:
+		return "Gold insuficiente: %s custa %d." % [i.nome, preco]
+	adicionar(id, cabe)
+	_definir_gold(gold - preco * cabe)
+	return ""
 
 
 # ----------------------------------------------------------------------- API
@@ -173,9 +210,12 @@ func total() -> int:
 
 func _colher(d: DadosPartida) -> void:
 	d.itens = inventario.quantidades()
+	d.gold = gold
 
 
 func _repor(d: DadosPartida) -> void:
 	# Secao ausente = partida nova: a carga inicial dos JSONs fica de pe.
 	if not d.itens.is_empty():
 		inventario.repor(d.itens)
+	# Save sem gold (de antes da economia): comeca com o inicial, e nao com zero.
+	_definir_gold(d.gold if d.gold >= 0 else (economia.gold_inicial() if economia != null else 0))

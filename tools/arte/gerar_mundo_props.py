@@ -777,6 +777,127 @@ def espantalho(nome):
         "tipo": "poligono", "pontos": pegada_losango(1, 1, encolher=0.5)})
 
 
+# ------------------------------------------------------------------ chegada
+TREVA = (0x12, 0x10, 0x1a)
+
+
+def _arco(cy, meia, z_base, z_topo, x, passos=14):
+    """Contorno de um arco de volta inteira na face x = const, em pontos de grade.
+    `cy` e o centro no eixo y da grade; `meia`, a meia largura em celulas."""
+    import math
+    raio_z = z_topo - z_base
+    pts = [(x, cy + meia, 0)]
+    for i in range(passos + 1):
+        t = math.pi * i / passos
+        pts.append((x, cy + meia * math.cos(t), z_base + raio_z * math.sin(t)))
+    pts.append((x, cy - meia, 0))
+    return pts
+
+
+def tunel(nome, W=2, D=3, altura=34, semente=0):
+    """Boca de tunel na rocha da borda oeste: por onde o onibus chega.
+
+    E um penhasco mais alto que os vizinhos (16 e 22 px), para que a boca leia
+    como passagem cavada no paredao e nao como mais um bloco. O arco fica na face
+    SE (x = W), a que olha para a estrada: o jogador ve a boca de frente quando a
+    camera acompanha o onibus saindo.
+    """
+    c = Cena(W, D, altura_px=altura, folga_x=0)
+    t = c.tela
+    c.face([(0, D, 0), (W, D, 0), (W, D, altura), (0, D, altura)], tom("rocha", 2))
+    c.face([(W, D, 0), (W, 0, 0), (W, 0, altura), (W, D, altura)], tom("rocha", 1))
+    c.face([(0, 0, altura), (W, 0, altura), (W, D, altura), (0, D, altura)],
+           tom("grama", 2))
+    for y in range(c.alt):                                     # textura da rocha
+        for x in range(c.larg):
+            v = t.ler(x, y)
+            if v == tom("rocha", 2) and ruido(x, y, semente) < 0.14:
+                t.por(x, y, tom("rocha", 1))
+            elif v == tom("rocha", 1) and ruido(x, y, semente + 1) < 0.14:
+                t.por(x, y, tom("rocha", 0))
+            elif v == tom("grama", 2) and ruido(x, y, semente + 2) < 0.22:
+                t.por(x, y, tom("grama", 1 if ruido(x, y, 3) < 0.5 else 3))
+
+    meio = D / 2.0
+    # Moldura de pedra aparelhada, depois a boca e o fundo, cada vez mais escuros:
+    # tres aneis bastam para a boca ter profundidade sem desenhar o interior.
+    c.face(_arco(meio, 1.02, 13, 26, W), tom("calcada", 2))
+    c.face(_arco(meio, 0.86, 12, 22, W), tom("rocha", 0))
+    c.face(_arco(meio, 0.74, 11, 20, W), TREVA)
+    for i in range(7):                                         # aduelas da moldura
+        import math
+        a = math.pi * (i + 0.5) / 7
+        p = (W, meio + 0.94 * math.cos(a), 13 + 11 * math.sin(a))
+        q = (W, meio + 1.02 * math.cos(a), 13 + 13 * math.sin(a))
+        c.aresta(p, q, tom("calcada", 1))
+    c.aresta((W, meio - 1.02, 0), (W, meio - 1.02, 13), tom("calcada", 3))
+    # Chao da estrada entrando no tunel: a calcada continua alem da boca.
+    c.face([(W, meio - 0.74, 0), (W, meio + 0.74, 0),
+            (W - 0.35, meio + 0.6, 0), (W - 0.35, meio - 0.6, 0)], tom("calcada", 0))
+    for gx in range(W + 1):                                    # borda do topo
+        c.aresta((gx, 0, altura), (gx, D, altura), tom("grama", 3))
+    c.aresta((0, D, altura), (W, D, altura), tom("grama", 3))
+    t.contornar(CONTORNO_SUAVE)
+    return registrar(nome, c, (W, D), {
+        "tipo": "poligono", "pontos": pegada_losango(W, D, encolher=0.0)})
+
+
+def onibus(nome):
+    """O onibus da chegada, de perfil ao longo do eixo x da grade (frente em +x).
+
+    NAO e colocado no mapa: a cutscene o instancia e o move. Fica no catalogo de
+    props porque e desenhado com a mesma projecao e lido com a mesma ancora.
+    Pegada 3 x 2, carroceria de 2,7 x 1,1 celulas centrada nela.
+    """
+    c = Cena(3, 2, altura_px=26, folga_x=2)
+    t = c.tela
+    x0, x1, y0, y1 = 0.15, 2.85, 0.45, 1.55
+    zb, zt = 3, 21
+    # carroceria: lado SO (comprido), frente SE e teto
+    c.face([(x0, y1, zb), (x1, y1, zb), (x1, y1, zt), (x0, y1, zt)], tom("onibus", 2))
+    c.face([(x1, y1, zb), (x1, y0, zb), (x1, y0, zt), (x1, y1, zt)], tom("onibus", 1))
+    c.face([(x0, y0, zt), (x1, y0, zt), (x1, y1, zt), (x0, y1, zt)], tom("onibus", 3))
+    c.face([(x0 + 0.2, y0 + 0.2, zt), (x1 - 0.5, y0 + 0.2, zt),
+            (x1 - 0.5, y1 - 0.2, zt), (x0 + 0.2, y1 - 0.2, zt)], tom("metal", 3))
+    # faixa vermelha e para-choque
+    c.face([(x0, y1, 7), (x1, y1, 7), (x1, y1, 9), (x0, y1, 9)], tom("telha_rubi", 2))
+    c.face([(x1, y1, 7), (x1, y0, 7), (x1, y0, 9), (x1, y1, 9)], tom("telha_rubi", 1))
+    c.face([(x1, y1, zb), (x1, y0, zb), (x1, y0, zb + 2), (x1, y1, zb + 2)], tom("metal", 1))
+    # janelas do lado, com montantes
+    c.face([(x0 + 0.18, y1, 12), (x1 - 0.62, y1, 12), (x1 - 0.62, y1, 18),
+            (x0 + 0.18, y1, 18)], tom("vidro", 1))
+    x = x0 + 0.18
+    while x < x1 - 0.7:
+        c.aresta((x, y1, 12), (x, y1, 18), tom("onibus", 1))
+        c.aresta((x + 0.08, y1, 17), (x + 0.22, y1, 17), tom("vidro", 3))
+        x += 0.42
+    # porta perto da frente, do lado do embarque
+    c.face([(x1 - 0.55, y1, zb), (x1 - 0.15, y1, zb), (x1 - 0.15, y1, 18),
+            (x1 - 0.55, y1, 18)], tom("onibus", 0))
+    c.face([(x1 - 0.5, y1, 11), (x1 - 0.2, y1, 11), (x1 - 0.2, y1, 17),
+            (x1 - 0.5, y1, 17)], tom("vidro", 0))
+    c.aresta((x1 - 0.35, y1, zb), (x1 - 0.35, y1, 18), tom("onibus", 1))
+    # para-brisa e farois
+    c.face([(x1, y1 - 0.08, 11), (x1, y0 + 0.08, 11), (x1, y0 + 0.08, 19),
+            (x1, y1 - 0.08, 19)], tom("vidro", 2))
+    c.aresta((x1, y1 - 0.2, 18), (x1, y1 - 0.45, 18), tom("vidro", 3))
+    for yy in (y1 - 0.14, y0 + 0.14):
+        px, py = c.iso(x1, yy, 6)
+        t.ret(int(px) - 1, int(py) - 1, int(px), int(py), (0xf4, 0xe6, 0xa8))
+    # letreiro de destino em cima do para-brisa
+    c.face([(x1, y1 - 0.15, 19.5), (x1, y0 + 0.15, 19.5), (x1, y0 + 0.15, 20.8),
+            (x1, y1 - 0.15, 20.8)], TREVA)
+    # rodas
+    for xr in (x0 + 0.5, x1 - 0.75):
+        px, py = c.iso(xr, y1, 2)
+        t.elipse(int(px), int(py), 4, 4, CONTORNO)
+        t.elipse(int(px), int(py), 2, 2, tom("metal", 1))
+    t.contornar(CONTORNO)
+    cx, cy = c.ancora
+    t.sombra_chao(cx + 3, cy + 3, 40, 14, alpha=80)
+    return registrar(nome, c, (3, 2), {"tipo": "nenhuma"})
+
+
 def main():
     g = []
     g.append(casa("casa_01", 2, 2, telha="telha_rubi", porta="SO"))
@@ -836,6 +957,8 @@ def main():
     g.append(cerca("cerca_y", "y"))
     g.append(placa("placa"))
     g.append(caixa("caixa"))
+    g.append(tunel("tunel", semente=18))
+    g.append(onibus("onibus"))
 
     destino = os.path.join(DIR_MUNDO, "props.json")
     with open(destino, "w", encoding="utf-8") as f:

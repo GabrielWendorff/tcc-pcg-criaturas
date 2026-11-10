@@ -315,6 +315,10 @@ func _testar_selecao() -> void:
 	var e := EstadoMundo.new()
 	_ok(not cat.venceu_o_jogo(e), "sem selo nao ha vitoria")
 	e.definir("selo_dulce")
+	_ok(cat.selos_para_vencer <= 1 or not cat.venceu_o_jogo(e),
+			"com menos selos que os pedidos, ainda nao ha vitoria")
+	for g: Dictionary in cat.guardioes:
+		e.definir(String(g["selo"]))
 	_ok(cat.venceu_o_jogo(e), "com os selos pedidos, vitoria")
 	_etapas += 1
 

@@ -1,15 +1,21 @@
 {
  "_meta": {
   "descricao": "Aldea da vila inicial — apresenta o mundo e as regioes vizinhas.",
-  "aviso": "Conteudo AUTORAL (Camada 1). Editavel a mao; o teste headless valida destinos, condicoes e efeitos."
+  "aviso": "Conteudo AUTORAL (Camada 1). Editavel a mao; o teste headless valida destinos, condicoes e efeitos.",
+  "entradas": "'chegada' e 'apos_escolha' sao abertos pela chegada de onibus (presentation/chegada/), nunca a partir da raiz."
  },
  "id": "mirela",
  "nome": "Mirela",
  "inicio": "raiz",
+ "entradas": ["chegada", "apos_escolha"],
  "nos": {
   "raiz": {
    "falas": ["Você é novo por aqui? Faz tempo que ninguém chega na vila sem ser pelo rio."],
    "variantes": [
+    {
+     "se": {"todos": [{"bandeira": "selo_dulce"}, {"bandeira": "selo_anselmo"}, {"bandeira": "selo_otavio"}, {"nao": {"bandeira": "selo_mirela"}}]},
+     "falas": ["Três selos. Eu disse que isso não podia ficar assim, e olha só o que você fez."]
+    },
     {
      "se": {"bandeira": "se_apresentou"},
      "falas": ["De volta, hein? A praça é sempre o melhor lugar para se perder um pouco."]
@@ -20,6 +26,10 @@
     }
    ],
    "escolhas": [
+    {"texto": "Tenho os três selos.", "destino": "desafio_final",
+     "se": {"todos": [{"bandeira": "selo_dulce"}, {"bandeira": "selo_anselmo"}, {"bandeira": "selo_otavio"}, {"nao": {"bandeira": "selo_mirela"}}]}},
+    {"texto": "Quero uma revanche.", "destino": "revanche_final",
+     "se": {"bandeira": "selo_mirela"}},
     {"texto": "Preciso de uma criatura para andar por aí.", "destino": "oferta",
      "se": {"nao": {"bandeira": "recebeu_inicial"}}},
     {"texto": "Pode cuidar da minha equipe?", "destino": "cuidar",
@@ -30,6 +40,51 @@
     {"texto": "Estou apenas passando.", "destino": "passando"},
     {"texto": "Não quero conversar.", "destino": "seco"}
    ]
+  },
+  "desafio_final": {
+   "falas": [
+    "Quem chega de ônibus sem nenhuma criatura e sai com três selos merece saber de uma coisa.",
+    "O último selo da vila nunca saiu da praça. Fica comigo.",
+    "Eu vi cada bicho que esta terra deu. Os meus são os melhores deles. Vem."
+   ],
+   "efeitos": {"servico": {"tipo": "duelo", "guardiao": "mirela"}},
+   "fim": true
+  },
+  "revanche_final": {
+   "falas": ["De novo? Eu curo a sua equipe depois. Primeiro eu derrubo."],
+   "efeitos": {"servico": {"tipo": "duelo", "guardiao": "mirela"}},
+   "fim": true
+  },
+  "chegada": {
+   "falas": [
+    "Ei! Foi você que desceu do ônibus? Faz tempo que aquele ônibus não trazia ninguém. Seja bem-vindo à Vila do Poço!",
+    "Já viu as criaturas daqui? Vivem no mato alto, e nenhuma é igual à outra: garra, escama, asa, nadadeira... o corpo conta de onde ela veio.",
+    "E aqui é costume, quase lei: todo mundo anda com pelo menos uma. Faz parte de quem a gente é."
+   ],
+   "pergunta": "E a sua, qual é?",
+   "escolhas": [
+    {"texto": "Eu não tenho nenhuma.", "destino": "sem_criatura"},
+    {"texto": "Hã... não trouxe nenhuma.", "destino": "sem_criatura"}
+   ]
+  },
+  "sem_criatura": {
+   "falas": [
+    "Nenhuma?! Nenhuminha?",
+    "Não, não, não. Isso não pode ficar assim.",
+    "Aqui, selecione um destes. Olhe bem o que cada um tem no corpo: é isso que vai lutar por você."
+   ],
+   "efeitos": {"definir": {"se_apresentou": true, "conheceu_mirela": true}},
+   "fim": true
+  },
+  "apos_escolha": {
+   "falas": [
+    "Boa escolha! Leve também estas esferas e poções. É o mínimo para começar.",
+    "No mato alto, uma criatura selvagem pode pular em você. Na batalha, GOLPES enfraquece a criatura. Só não exagere: se a vida dela zerar, ela foge.",
+    "Quando ela estiver fraca, use CAPTURAR e escolha um dispositivo na roda. Se falhar, você perde o turno.",
+    "Se a sua equipe cair, venha me ver aqui na praça, que eu cuido dela. E o resto se compra na loja do Lauro, logo ali.",
+    "Ah, e a Dulce, no sítio ao sul, guarda o selo de lá. Pegue mais criaturas antes de bater na porteira dela."
+   ],
+   "fim": true
   },
   "oferta": {
    "falas": [

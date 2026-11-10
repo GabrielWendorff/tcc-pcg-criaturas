@@ -149,6 +149,8 @@ Duas camadas, por motivos diferentes:
 | **B** | abre a bolsa direto (fechar devolve o jogo, sem passar pela pausa) |
 | **ESC** | menu de pausa: continuar · bolsa · opções · salvar · menu principal |
 | F5 | atalho de gravação (o mesmo que ESC → SALVAR) |
+| F11 | tela cheia (também em Opções); vale em qualquer tela |
+| **N** | bestiário da seed, com marca nas capturadas (também na pausa) |
 | **M** | abre e fecha o mapa geral |
 | ESC | sai da conversa · fecha o mapa (só abre a pausa quando nada está na frente) |
 | F3 (só debug) | sobrepõe zonas de encontro, terreno bloqueado e etiquetas das casas |
@@ -157,6 +159,14 @@ Duas camadas, por motivos diferentes:
 
 F2, F3 e F4 valem no editor e na build de debug (`OS.is_debug_build()`). Na build de
 entrega não existem nem aparecem no HUD, para não distorcer um playtest.
+
+**HUD.** O objetivo fica num card no canto superior direito, que pisca quando muda. Os controles
+aparecem no rodapé só nos primeiros 12 segundos e depois ficam no menu de pausa.
+
+**Sair da cena sempre por chamada adiada.** `change_scene_to_file` tira a cena da árvore na
+hora; chamado de dentro de um evento de entrada, ele derrubava a build de entrega (falha de
+segmentação ao voltar ao save depois de uma derrota). Toda saída passa por `_trocar_de_cena`,
+chamada fora do evento.
 
 ## Quem tem o controle
 
@@ -233,3 +243,32 @@ criaturas — e não conhece o formato do arquivo. A seção "jogador" guarda ta
 **item na mão** (`DadosPartida.item_equipado`), reposto antes do retorno cedo de
 `_repor_jogador` e só se a bolsa ainda o tem; a lição de pesca concluída é uma
 bandeira do `EstadoMundo` e viaja na seção "estado do mundo".
+
+## Portas e interiores
+
+Um mapa pode ter portas para outro (`"portas"` no JSON do mapa): pisar na célula da porta
+leva ao `destino`, na célula de `chegada`. A troca é a mesma de carregar um save, sem
+tocar no disco: o estado vivo vai para `Save.partida`, que muda de mapa, e a cena se
+remonta a partir dela. Por isso salvar dentro de um interior e recarregar volta lá para
+dentro.
+
+| porta | de | para | requer |
+|---|---|---|---|
+| fábrica | calçada em frente, `[65, 58]` | `fabrica` `[7, 11]` | selo da Dulce |
+| saída | `fabrica` `[7, 12]` | mundo `[65, 59]` | — |
+
+Num interior (`"mundo_aberto": false`) não há mapa geral nem pesca, e só aparecem os NPCs
+cujo `"mapa"` é ele. Perto de uma porta aparece o balão ENTRAR ou SAIR.
+
+```bash
+python3 tools/mapas/gerar_fabrica.py   # regera e valida o interior
+```
+
+
+## Chegada de ônibus
+
+Partida nova não começa no spawn: começa com o ônibus saindo do túnel da borda oeste
+da vila (`presentation/chegada/`). Durante o ônibus e a caminhada da Mirela o dono da tela
+é `"chegada"`: sem pausa, sem mapa, sem conversa por E. Na conversa e na escolha, os donos
+de sempre. O túnel é um prop (`tunel`) e a coreografia está em `mundo.json` → `chegada`,
+validada pelo gerador do mapa.

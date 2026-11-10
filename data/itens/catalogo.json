@@ -75,14 +75,14 @@
         "nome": "Poção Simples",
         "descricao": "Erva fervida com mel. Fecha o corte, não o cansaço.",
         "efeito": { "tipo": "curar", "valor": 30 },
-        "quantidade_inicial": 3
+        "quantidade_inicial": 0
       },
       {
         "id": "pocao_forte",
         "nome": "Poção Forte",
         "descricao": "Amarga o bastante para ser levada a sério.",
         "efeito": { "tipo": "curar", "valor": 80 },
-        "quantidade_inicial": 1
+        "quantidade_inicial": 0
       },
       {
         "id": "elixir_de_folego",

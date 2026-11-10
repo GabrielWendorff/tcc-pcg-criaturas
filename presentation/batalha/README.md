@@ -80,6 +80,7 @@ pagaria desempenho sem ganho para este objetivo.
 | `texto_batalha.gd` | como os números viram texto, igual em todas as telas |
 | `tela_escolha_inicial.gd` | 1 entre 3, com o que cada corpo faz em batalha |
 | `tela_equipe.gd` | equipe e depósito, no menu de pausa |
+| `tela_bestiario.gd` | o bestiário da seed (N ou pausa), com marca nas capturadas; existe também na build de entrega |
 | `tela_desfecho.gd` | vitória e derrota |
 
 A batalha em si é desenhada por `presentation/encontro/interface_encontro.gd` e
@@ -100,7 +101,16 @@ tamanho da equipe e o percentil de força. A **equipe** vem do bestiário da see
 diferente, guardião diferente, e o percentil mantém a dificuldade parecida.
 
 Acrescentar um guardião é uma entrada ali e os nós no diálogo dele. `selos_para_vencer`
-diz quantos selos encerram o jogo. Hoje só a Dulce existe, então vale 1.
+diz quantos selos encerram o jogo: hoje 4.
+
+| guardião | onde | elementos | equipe | prêmio |
+|---|---|---|---|---|
+| Dulce | sítio, ao sul da vila | terra, planta | 2, percentil 0,90 | 150 gold |
+| Anselmo | cabana da ribeira | água, gelo | 2, percentil 0,95 | 200 gold |
+| Otávio | dentro da fábrica, no Distrito da Chaminé | elétrico, água | 2, percentil 0,985 | 250 gold |
+| Mirela | praça da vila, com os três selos | todos | 3, percentil 0,975 | 400 gold |
+
+A fábrica e o desafio do Anselmo só abrem com o selo da Dulce, e a Mirela só duela com os outros três selos. É o que garante a ordem e a curva de dificuldade.
 
 ## Balanceamento
 
@@ -109,9 +119,15 @@ Medido com 1000 seeds (5000 batalhas):
 
 | critério | meta | medido |
 |---|---|---|
-| turnos no duelo com a Dulce | 3 a 8 | 7,61 |
-| vitórias da equipe mediana de 3 | 55% a 80% | 77,1% |
-| criatura invencível | nenhuma | nenhuma (maior taxa 97,5%) |
+| turnos no duelo com a Dulce | 3 a 8 | 7,44 |
+| vitórias da equipe mediana de 3 contra a Dulce | 55% a 80% | 79,8% |
+| turnos no duelo com o Otávio | 3 a 8 | 7,71 |
+| vitórias da equipe mediana de 3 contra o Otávio | 40% a 70% | 64,0% |
+| turnos no duelo com o Anselmo | 3 a 8 | 7,76 |
+| vitórias da equipe mediana de 3 contra o Anselmo | 50% a 78% | 73,7% |
+| turnos no duelo final com a Mirela | 3 a 14 | 9,57 |
+| vitórias da equipe mediana de 3 contra a Mirela | 25% a 60% | 27,7% |
+| criatura invencível | nenhuma | nenhuma (maior taxa 95,0%) |
 | mesma seed, mesma batalha | sim | sim |
 
 Só com a primeira criatura, a vitória contra a Dulce cai para cerca de 8%: capturar é
@@ -119,5 +135,5 @@ obrigatório na prática. A "equipe mediana" é jogada pela IA, sem curar, troca
 escolher vantagem de propósito, então o número é um **piso de jogabilidade**, não uma
 previsão de como pessoas jogam. Só o playtest responde isso.
 
-**Rodar de novo depois do gerador v2:** ele muda a distribuição de traços, e com isso
-todo este equilíbrio.
+Medido com o gerador v2, em 09/11. **Rodar de novo a cada mudança no gerador:** a
+distribuição de traços é a base de todo este equilíbrio.

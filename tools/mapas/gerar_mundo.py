@@ -71,7 +71,37 @@ def _npcs_declarados():
     if not os.path.exists(CAMINHO_NPCS):
         return []
     with open(CAMINHO_NPCS, encoding="utf-8") as f:
-        return json.load(f).get("npcs", [])
+        # So os NPCs DESTE mapa: quem mora num interior e validado pelo gerador dele.
+        return [n for n in json.load(f).get("npcs", []) if n.get("mapa", "mundo") == "mundo"]
+
+
+def _validar_chegada(m):
+    """A coreografia da chegada so funciona se o caminho do onibus e as celulas
+    onde o jogador desce e a Mirela para forem chao livre. Mexer na vila e
+    quebrar isso falha aqui, e nao na tela."""
+    c = vila.CHEGADA
+    y = int(c["boca"][1])
+    for gx in range(int(c["boca"][0]), int(c["parada"][0] + 2)):
+        for gy in (y - 1, y, y + 1):
+            if (gx, gy) in m._ocupado or m.ler(gx, gy) in ("a", "r"):
+                raise SystemExit(f"chegada: ({gx},{gy}) bloqueia o caminho do onibus")
+    for nome in ("desembarque", "encontro"):
+        gx, gy = c[nome]
+        if (gx, gy) in m._ocupado or m.ler(gx, gy) in ("a", "r"):
+            raise SystemExit(f"chegada: '{nome}' em ({gx},{gy}) nao e chao livre")
+    for gx, gy in c["caminho_mirela"]:
+        if (gx, gy) in m._ocupado or m.ler(gx, gy) in ("a", "r"):
+            raise SystemExit(f"chegada: caminho da Mirela passa por ({gx},{gy}), bloqueado")
+    for (ax, ay), (bx, by) in zip(c["caminho_mirela"], c["caminho_mirela"][1:]):
+        if ax != bx and ay != by:
+            raise SystemExit("chegada: trechos do caminho da Mirela devem ser retos")
+        for gx in range(min(ax, bx), max(ax, bx) + 1):
+            for gy in range(min(ay, by), max(ay, by) + 1):
+                if (gx, gy) in m._ocupado:
+                    raise SystemExit(f"chegada: ({gx},{gy}) bloqueia a Mirela")
+    if c["caminho_mirela"][-1] != c["encontro"]:
+        raise SystemExit("chegada: o caminho da Mirela tem de terminar no 'encontro'")
+    return dict(c)
 
 
 def main():
@@ -91,6 +121,17 @@ def main():
                   "fazenda numa grade continua. Camada 1 — fixo, independente da "
                   "world_seed.",
         gerado_por="tools/mapas/gerar_mundo.py")
+    dados["id"] = "mundo"
+    dados["mundo_aberto"] = True
+    # Portas para interiores. A da fabrica so abre com o selo da Dulce: e o que
+    # garante a ordem dos guardioes (o Otavio espera la dentro).
+    dados["portas"] = [{
+        "celula": [65, 58], "destino": "fabrica", "chegada": [7, 11], "direcao": "cima",
+        "requer": "selo_dulce",
+        "aviso": "O portão está trancado. Um bilhete preso nele: \"Só entra quem traz o selo do sítio. — Otávio\"",
+    }]
+
+    dados["chegada"] = _validar_chegada(m)
 
     destino = os.path.join(RAIZ, "autoral", "mapas", "mundo.json")
     os.makedirs(os.path.dirname(destino), exist_ok=True)

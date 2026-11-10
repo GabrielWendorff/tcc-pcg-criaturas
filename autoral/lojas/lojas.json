@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "descricao": "Lojas (Camada 1, autoral): quem vende e o que vende. O preco vem de data/economia/economia.json. Cada loja e aberta pelo efeito {servico: {tipo: loja, loja: <id>}} no dialogo do NPC dela.",
+    "versao": 1
+  },
+  "lojas": [
+    {
+      "id": "vila",
+      "nome": "ARMAZÉM DA VILA",
+      "npc": "lauro",
+      "itens": ["esfera_simples", "esfera_reforcada", "rede_de_caca", "armadilha_de_aco",
+                "redoma_aquatica", "prisma_selante", "pocao_simples", "pocao_forte",
+                "elixir_de_folego"]
+    },
+    {
+      "id": "padaria",
+      "nome": "PADARIA DO BENTO",
+      "npc": "bento",
+      "itens": ["osso", "carne_seca", "petisco_felino", "peixe_seco", "queijo_curado",
+                "pocao_simples"]
+    },
+    {
+      "id": "fazenda",
+      "nome": "SÍTIO DA DULCE",
+      "npc": "dulce",
+      "itens": ["minhoca", "sementes", "nectar_floral", "fruta_madura", "larva_viva"]
+    }
+  ]
+}

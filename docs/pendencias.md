@@ -5,32 +5,16 @@ que já foi identificado como necessário e deliberadamente deixado para depois.
 
 ---
 
-## 1. Âncoras `dorso` e `tronco` nos corpos
+## 1 e 2. Encaixes nos corpos e arte de escamas, asas e nadadeiras — entregues
 
-**Estado:** em aberto, bloqueia o item 2.
+**Estado:** entregue em 07/11/2026. Os corpos declaram `dorso`, `dorso_tras` e `flanco`,
+medidos na silhueta (o `tronco` virou desnecessário: as escamas são uma sobreposição
+recortada por corpo, não uma peça ancorada). `tools/arte/gerar_apendices.py` desenha
+asas e nadadeiras (4 modelos cada) e as escamas (4 modelos × 32 corpos). Ver
+`arte/README.md`.
 
-`arte/corpos/corpos_ancoras.json` declara hoje apenas `pe_frente`, `pe_tras`,
-`cabeca` e `cauda`. Asas e nadadeiras precisam de um ponto de inserção dorsal, e
-escamas de um ponto de tronco (o centro da massa do corpo, que num insetoide fica
-bem atrás do centro geométrico do quadro).
-
-Exige acrescentar as duas chaves nas 8 funções de `tools/arte/corpos_tipos.py` —
-é geometria por arquétipo, não uma fórmula única: o dorso de uma ave (acima da
-asa) não se calcula como o de um peixe (topo da dorsal).
-
-Depois de acrescentar, basta estender `CatalogoCorpos.SLOTS_DE_FEATURE`.
-
-## 2. Arte de escamas, asas e nadadeiras
-
-**Estado:** em aberto.
-
-As três features continuam sendo sorteadas, exportadas e medidas normalmente pelo
-gerador — só não são desenhadas. A ficha da criatura marca `(sem arte)` para que o
-quadro nunca contradiga o dado.
-
-Cada uma precisa de 4 máscaras (os 4 modelos de `data/feature_variants.json`) e de
-uma entrada em `CatalogoCorpos.ARTE_DE_FEATURE`. O eixo semântico de cada conjunto
-já está definido no JSON (ex.: escamas vão de *fina* a *blindada/cristal*).
+Em aberto: a asa é desenhada só do lado de perto; um par visível (a de trás, mais
+escura, atrás do corpo) pediria uma camada abaixo do corpo no renderizador.
 
 ## 3. Silhueta do anfíbio ainda lê como bloco
 
@@ -130,7 +114,9 @@ Pontos concretos em aberto:
   bandeira no `EstadoMundo` e um provedor registrado na cena — a condição de
   diálogo `{"missao": "...", "igual": "ativa"}` passa a funcionar sem que
   `presentation/dialogo/regras/` mude.
-- **Interiores de casa.** As 15 construções têm colisão e um campo `papel`; não
+- **Interiores de casa.** *(A fábrica ganhou interior em 07/11: ver
+  `presentation/exploracao/README.md`, "Portas e interiores". As outras casas seguem
+  sem.)* As 15 construções têm colisão e um campo `papel`; não
   há interior. Entrar numa casa exigiria uma segunda cena — e aí, sim, um
   carregamento, que é o que o mundo contínuo evitou até aqui.
 - **Arte de arbusto.** Não foi gerada: seria asset sem uso. Hoje a zona de
@@ -339,16 +325,18 @@ depois de fisgar**.
 
 ### Em aberto nesta etapa
 
-- **Faltam 2 guardiões e o duelo final** (até 16/11, pelo plano). Quem faz o duelo final
-  ainda não foi decidido. Hoje `selos_para_vencer` é 1 e vencer a Dulce encerra o jogo.
+- **Guardiões completos em 09/11:** Dulce, Anselmo, Otávio e o duelo final com a Mirela.
+  A vitória pede 4 selos. A Mirela dá 27,7% a uma equipe mediana jogada pela IA, perto do piso
+  da meta: conferir no playtest.
 - **Os percentis são medidos, não sentidos.** O simulador joga com IA. O valor da Dulce
   (0,9) sai dele, e pode estar errado para pessoas: conferir no playtest.
 - **Encontro selvagem é caro.** Lutar até o fim custa em média 42% da vida. Sem loja, a
   reposição é a cura gratuita da Mirela, que pode ficar longe. Dado para o playtest.
-- **Sem loja, poções acabam.** Continua fora do escopo; a cura da Mirela evita o jogo travar.
-- **Bestiário sem tela própria no jogo.** A vitrine do algoritmo (RF07, RF08) segue no plano.
+- ~~**Sem loja, poções acabam.**~~ Lojas e gold entregues em 07/11 (`presentation/loja/README.md`).
+- **Bestiário no jogo: entregue em 06/11** (tecla N e pausa). **Vitrine do algoritmo:
+  entregue em 09/11**: E, no bestiário, mostra seed, primários, a chance de cada derivado e
+  a nota (coerente ou atípica).
 - **Sem animação de golpe.** O alvo só treme. Polimento, depois da vitrine.
-- **Testes ainda quebrados, de antes desta etapa:** `test_interacao` aborta sob `-s`,
-  `test_bolsa` não compila, e `test_save` falha em `autoload registrado` (efeito do `-s`).
-  `test_encontro` foi corrigido e virou cena. Convertê-los segue no plano, até 08/11.
+- **Testes:** a suíte inteira passa desde 09/11 (`tools/rodar_testes.sh`), e todo teste que
+  toca autoload roda como cena.
 

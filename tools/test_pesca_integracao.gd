@@ -186,7 +186,7 @@ func _montagem() -> bool:
 	# RF03: a pesca le o bestiario, nao gera nada — o da cena e o do gerador puro.
 	var enc := _encontros()
 	var puro: Array = GeradorCriaturas.new(enc.tabelas, enc.catalogo).gerar_bestiario(
-			int(_m.get("seed_do_mundo")), int(_m.get("criaturas_por_mundo")))
+			int(_m.get("seed_do_mundo")), int(_m.get("criaturas_por_mundo")), enc.modo_gerador)
 	var iguais: bool = puro.size() == enc.bestiario.size()
 	for i in mini(puro.size(), enc.bestiario.size()):
 		if (puro[i] as Criatura).to_dict() != (enc.bestiario[i] as Criatura).to_dict():
@@ -272,14 +272,14 @@ func _beira_sem_vara() -> bool:
 			"o aviso chega a nota do HUD")
 	_ok(_pesca.estado.e(EstadoPesca.Estado.OCIOSO) and not _jogador.congelado,
 			"sem vara: continua OCIOSO e livre")
-	# As minhocas da carga inicial tambem tem o marcador "pesca": nem o HUD nem a
-	# dica do Anselmo podem toma-las por uma vara.
+	# As minhocas tambem tem o marcador "pesca": nem a cena nem a dica do Anselmo
+	# podem toma-las por uma vara. A bolsa comeca vazia, entao o teste as poe la.
+	Bolsa.adicionar("minhoca", 5)
 	_ok(Bolsa.tem_marcador("pesca") and not Bolsa.tem(VARA),
 			"(premissa) iscas com marcador 'pesca', vara fora da bolsa")
 	_ok(String(_m.call("_dica_de_pesca")) == String(_constante("TEXTO_PESCA_SEM_VARA")),
 			"servico 'pesca' sem vara nenhuma: manda falar com o Anselmo")
-	_ok(not _texto_do_hud(_m.get("_hud_bolsa") as Control).contains("vara"),
-			"HUD da bolsa nao anuncia vara que nao existe")
+	_ok(not bool(_m.call("_vara_na_bolsa")), "a cena nao toma iscas por vara")
 	return true
 
 
@@ -346,8 +346,7 @@ func _com_vara() -> void:
 	_ok(Bolsa.tem(VARA), "Bolsa tem a vara")
 	_ok(String(_m.call("_dica_de_pesca")) == String(_constante("TEXTO_PESCA_EQUIPAR")),
 			"servico 'pesca' com a vara so na bolsa: manda equipar")
-	_ok(_texto_do_hud(_m.get("_hud_bolsa") as Control).contains("vara"),
-			"HUD da bolsa mostra a vara")
+	_ok(bool(_m.call("_vara_na_bolsa")), "a cena ve a vara na bolsa")
 	_equipados.clear()
 	_jogador.equipar(Bolsa.item(VARA))
 	_ok(_equipados.size() == 1 and _equipados[0] == VARA, "item_equipado_mudou('%s')" % VARA,

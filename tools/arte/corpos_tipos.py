@@ -9,6 +9,18 @@ Ancoras em pixels no canvas 32x32:
     pe_frente / pe_tras : ponto de acoplagem das garras (a PONTA dela)
     cabeca              : topo da cabeca (chifres, cristas)
     cauda               : ponta da cauda (None se nao tem)
+    dorso               : ombro, sobre a borda de cima do tronco (asas)
+    dorso_tras          : mais atras no dorso (nadadeira dorsal)
+    flanco              : lateral do tronco, abaixo da linha media (nadadeira peitoral)
+
+dorso e dorso_tras sao MEDIDOS na silhueta (ancora_no_topo), nao calculados da
+elipse: a cabeca, o peito e a crista mudam a borda de cima, e uma asa ancorada no
+topo teorico da elipse flutuaria um pixel acima do contorno real.
+
+Asas e nadadeiras NAO fazem parte dos corpos: a ave e o peixe nascem sem elas, e
+so as recebem se o gerador sortear o traco (tools/arte/gerar_apendices.py). Antes
+a asa da ave e as nadadeiras do peixe estavam pintadas no corpo, e uma ave que nao
+sorteou asas aparecia com uma — o quadro contradizia o dado.
 
 CADA ANIMAL TEM ESQUELETO PROPRIO. Nao ha uma funcao _quadrupede parametrizada:
 gato, canino, roedor e reptil compartilhavam uma so, e o resultado eram quatro
@@ -20,7 +32,7 @@ comentada na sua funcao.
 
 import math
 from corpos_lib import (elipse, disco, ret, triangulo, perna, stroke, linha,
-                        leque, leque_h,
+                        leque, leque_h, ancora_no_topo,
                         OUTLINE, DARK, HILITE)
 
 CHAO = 30
@@ -107,7 +119,10 @@ def gato(p):
 
     det = [(hx + int(r) - 2, hy - 1, OUTLINE)]
     anc = {"pe_frente": [xf + 1, CHAO], "pe_tras": [xb + 1, CHAO],
-           "cabeca": [hx, int(round(hy - r))], "cauda": list(ponta)}
+           "cabeca": [hx, int(round(hy - r))], "cauda": list(ponta),
+           "dorso": ancora_no_topo(runs, cx + rx * 0.25),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.35),
+           "flanco": [int(round(cx + rx * 0.15)), int(round(cy + ry * 0.35))]}
     return runs, det, anc, fundo
 
 
@@ -148,7 +163,10 @@ def canino(p):
 
     det = [(hx + int(r) - 2, hy - 1, OUTLINE)]
     anc = {"pe_frente": [xf + 1, CHAO], "pe_tras": [xb + 1, CHAO],
-           "cabeca": [hx, int(round(hy - r))], "cauda": list(ponta)}
+           "cabeca": [hx, int(round(hy - r))], "cauda": list(ponta),
+           "dorso": ancora_no_topo(runs, cx + rx * 0.2),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.4),
+           "flanco": [int(round(cx + rx * 0.15)), int(round(cy + ry * 0.35))]}
     return runs, det, anc, fundo
 
 
@@ -186,7 +204,11 @@ def roedor(p):
 
     det = [(hx + 1, hy - 1, OUTLINE)]
     anc = {"pe_frente": [xf + 4, CHAO], "pe_tras": [xf - 2, CHAO],
-           "cabeca": [hx, int(round(hy - r))], "cauda": list(ponta)}
+           "cabeca": [hx, int(round(hy - r))], "cauda": list(ponta),
+           # sentado: o "dorso" e as costas, atras da cabeca e acima da garupa
+           "dorso": ancora_no_topo(runs, cx - rx * 0.15),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.6),
+           "flanco": [int(round(cx)), int(round(cy + 1))]}
     return runs, det, anc, fundo
 
 
@@ -230,7 +252,10 @@ def reptil(p):
 
     det = [(hx + 1, hy - 1, OUTLINE)]
     anc = {"pe_frente": [xf + 2, CHAO], "pe_tras": [xb, CHAO],
-           "cabeca": [hx, int(round(hy - 2))], "cauda": list(ponta)}
+           "cabeca": [hx, int(round(hy - 2))], "cauda": list(ponta),
+           "dorso": ancora_no_topo(runs, cx + rx * 0.3),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.15),
+           "flanco": [int(round(cx + rx * 0.25)), int(round(cy + 1))]}
     return runs, det, anc, fundo
 
 
@@ -274,14 +299,17 @@ def anfibio(p):
         det.append((hx + dx, hy + 2, DARK))
 
     anc = {"pe_frente": [xd + 1, CHAO], "pe_tras": [xt - 2, CHAO],
-           "cabeca": [ox, oy - 3], "cauda": None}
+           "cabeca": [ox, oy - 3], "cauda": None,
+           "dorso": ancora_no_topo(runs, cx + rx * 0.15),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.25),
+           "flanco": [int(round(cx + rx * 0.2)), int(round(cy + 1))]}
     return runs, det, anc, fundo
 
 
 def ave(p):
-    """Avial: corpo em ovo INCLINADO, pescoco em curva, bico em cunha, asa
-    marcada como massa escura sobre o flanco e cauda em leque projetada para
-    tras-cima. Pernas finas e altas, o oposto do reptil."""
+    """Avial: corpo em ovo INCLINADO, pescoco em curva, bico em cunha e cauda em
+    leque projetada para tras-cima. Pernas finas e altas, o oposto do reptil. A asa
+    nao e do corpo: vem do traco 'asas' (ver o cabecalho)."""
     rx = 4.8 + 0.35 * p
     ry = 5.4 - 0.45 * p
     plen = 3.6 + 1.2 * p
@@ -303,7 +331,7 @@ def ave(p):
 
     runs += leque(int(cx - rx - 4), int(cx - rx + 3),
                   int(cy - 2), int(cy - 7), pontax=int(cx - rx - 5))  # leque caudal
-    fundo = elipse(cx - 0.5, cy + 0.5, rx - 1.6, ry - 2.4)            # asa
+    fundo = []
 
     xf = int(round(cx + 1))
     runs += ret(xf, int(cy + ry - 1), xf + 1, CHAO)
@@ -314,14 +342,17 @@ def ave(p):
     det = [(hx + 1, hy - 1, OUTLINE)]
     anc = {"pe_frente": [xf + 2, CHAO], "pe_tras": [xf - 3, CHAO],
            "cabeca": [hx, hy - 3],
-           "cauda": [int(cx - rx - 5), int(cy - 7)]}
+           "cauda": [int(cx - rx - 5), int(cy - 7)],
+           "dorso": ancora_no_topo(runs, cx - rx * 0.05),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.55),
+           "flanco": [int(round(cx)), int(round(cy + 1))]}
     return runs, det, anc, fundo
 
 
 def peixe(p):
     """Aquatico flutuante: corpo em gota (massa a frente, afilando para o
-    pedunculo), caudal em MEIA-LUA de dois lobos, dorsal alta e ventral curta.
-    Nao toca o chao — a silhueta e centrada verticalmente, nao apoiada."""
+    pedunculo) e caudal em MEIA-LUA de dois lobos. Nao toca o chao — a silhueta e
+    centrada verticalmente, nao apoiada."""
     rx = 7.2 + 0.9 * p
     ry = 6.2 - 0.75 * p
     cx, cy = 14, 16
@@ -337,11 +368,9 @@ def peixe(p):
     runs += triangulo(bx - 2, cy + 1, bx - 6, int(cy + ry + 1), 3)
     runs += ret(bx - 3, cy - 1, bx - 2, cy + 1)
 
-    runs += leque(cx - 2, cx + 3, int(cy - ry + 1),
-                  int(cy - ry - 4), pontax=cx - 3)                   # dorsal
-    runs += leque(cx - 1, cx + 2, int(cy + ry - 1),
-                  int(cy + ry + 3), pontax=cx - 2)                   # ventral
-    fundo = elipse(cx + 2, cy + 2, 2.6, 1.6)                         # peitoral
+    # Dorsal, ventral e peitoral NAO sao do corpo: vem do traco 'nadadeiras'.
+    # A caudal fica: e a cauda do peixe, e sem ela a silhueta deixa de ler peixe.
+    fundo = []
 
     ox = int(round(cx + rx - 4))
     det = [(ox, cy - 2, OUTLINE), (ox + 1, cy - 2, OUTLINE),
@@ -354,7 +383,10 @@ def peixe(p):
     # declara acoplagem de garra, ancorada na PONTA dela, abaixo da barriga.
     anc = {"pe_frente": [int(cx + 3), ventral], "pe_tras": [int(cx - 3), ventral],
            "cabeca": [ox, int(cy - ry)],
-           "cauda": [bx - 6, cy]}
+           "cauda": [bx - 6, cy],
+           "dorso": ancora_no_topo(runs, cx + rx * 0.1),
+           "dorso_tras": ancora_no_topo(runs, cx - rx * 0.05),
+           "flanco": [int(round(cx + 2)), int(round(cy + 2))]}
     return runs, det, anc, fundo
 
 
@@ -398,7 +430,11 @@ def inseto(p):
 
     det = [(ihx + 1, 14, OUTLINE), (ihx + 1, 15, DARK)]
     anc = {"pe_frente": [itx + 7, 26], "pe_tras": [itx - 7, 26],
-           "cabeca": [ihx, 11], "cauda": [int(round(ax - abx)), ay]}
+           "cabeca": [ihx, 11], "cauda": [int(round(ax - abx)), ay],
+           # as asas de inseto nascem do torax; a dorsal, do abdomen
+           "dorso": ancora_no_topo(runs, tx),
+           "dorso_tras": ancora_no_topo(runs, ax),
+           "flanco": [int(round(ax + 1)), int(round(ay + 1))]}
     return runs, det, anc, fundo
 
 

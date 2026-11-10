@@ -129,9 +129,35 @@ func configurar(criatura: Criatura, catalogo_corpos: CatalogoCorpos) -> void:
 		# minigame poe a origem na altura do monstro, e um corpo encostado no pe
 		# do quadro ficaria visualmente abaixo da faixa que o jogador tem de seguir.
 		_sprite.offset = (tex.get_size() * 0.5 - _conteudo.get_center()).round()
+	_montar_tracos(criatura, catalogo_corpos, tex)
 	_interesse = 0.0
 	_aplicar_nado()
 	queue_redraw()
+
+
+## Asas e nadadeiras mudam o CONTORNO, e por isso entram na sombra: um peixe sem
+## nadadeiras e um com elas nao fazem a mesma silhueta. Sao filhas do sprite do corpo,
+## no mesmo pixel de arte e com o mesmo shader de cor chapada, e por isso espelham e
+## nadam junto com ele. As escamas ficam dentro do corpo e nao mudam a sombra.
+func _montar_tracos(criatura: Criatura, catalogo_corpos: CatalogoCorpos, tex: Texture2D) -> void:
+	for filho in _sprite.get_children():
+		filho.queue_free()
+	if tex == null or criatura == null or catalogo_corpos == null:
+		return
+	var origem: Vector2 = _sprite.offset - tex.get_size() * 0.5
+	for q: Dictionary in catalogo_corpos.quadros_de_tracos(criatura):
+		var t: Texture2D = q["tex"]
+		var r: Rect2 = q["rect"]
+		if r.position == Vector2.ZERO and r.size == tex.get_size():
+			continue  # sobreposicao (escamas): nao muda o contorno
+		var s := Sprite2D.new()
+		s.texture = t
+		s.centered = false
+		s.material = _material
+		s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		s.position = origem + r.position
+		s.scale = r.size / t.get_size()
+		_sprite.add_child(s)
 
 
 ## Meia largura do corpo na tela, em pixels. O minigame a usa para encostar o

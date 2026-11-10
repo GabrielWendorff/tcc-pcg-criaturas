@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "descricao": "Parametros do modelo v2 do gerador (GeradorCriaturas.Modo.CONDICIONADO_V2). Nao substitui as tabelas conditional_*.json: acrescenta o que a v1 nao condiciona. A v1 continua reproduzivel e nao le este arquivo. Os valores sao hipotese de autoria, como as demais tabelas; quem diz se funcionam sao tools/comparar_bracos.gd e o teste cego do playtest.",
+    "versao": 1
+  },
+  "expoente_vies_elemento": 1.1,
+  "fator_porte_por_animal": {
+    "_descricao": "P(porte | animal, elemento) proporcional a vies_por_elemento[porte] ^ expoente_vies_elemento * fator[porte]. O expoente compensa a diluicao que o animal causa no sinal do elemento: sem ele, I(elemento; porte) caia abaixo dos 0,118 bit da v1, e o criterio fixado era nao cair. Fator e expoente sao contidos de proposito: condicionar mais reduz a entropia do porte, e a unicidade tambem nao podia cair. Mesma ordem de 'portes' em conditional_porte.json: compacto, medio, esbelto, alongado. Fator 1 nao muda nada. Animais baixos e redondos puxam para compacto; animais de corpo comprido, para alongado.",
+    "gato":    [0.86, 1.14, 1.27, 0.86],
+    "peixe":   [0.7, 1.0, 1.27, 1.27],
+    "ave":     [0.78, 1.14, 1.33, 0.86],
+    "reptil":  [0.78, 0.93, 1.07, 1.39],
+    "roedor":  [1.51, 1.14, 0.7, 0.53],
+    "inseto":  [0.93, 1.0, 1.2, 1.0],
+    "anfibio": [1.39, 1.14, 0.78, 0.62],
+    "canino":  [0.86, 1.27, 1.14, 0.86]
+  },
+  "cadeia_de_tracos": {
+    "_descricao": "P(traco | animal, elemento, tracos ja sorteados) = clamp(base + modificador + soma dos efeitos, clamp_min, clamp_max), com os mesmos base, modificador e clamp de conditional_morphology.json. Sorteio em cadeia, na ordem de 'ordem': locomocao primeiro (asas, nadadeiras), depois membros e superficie. 'se_presente' soma quando o traco anterior saiu; 'se_nenhum_anterior' soma quando nenhum traco anterior da cadeia saiu. Sem busca e sem rejeicao: cada criatura consome um numero fixo de sorteios de presenca. Valores escolhidos numa grade analitica: entre as combinacoes que nao reduzem I(animal; perfil morfologico), uma que tambem preserva a entropia da morfologia e reduz as criaturas sem traco e as com asas e nadadeiras juntas.",
+    "ordem": ["asas", "nadadeiras", "garras", "escamas"],
+    "efeitos": {
+      "asas":       { "se_presente": {}, "se_nenhum_anterior": 0.0 },
+      "nadadeiras": { "se_presente": { "asas": -0.15 }, "se_nenhum_anterior": 0.0 },
+      "garras":     { "se_presente": {}, "se_nenhum_anterior": 0.15 },
+      "escamas":    { "se_presente": {}, "se_nenhum_anterior": 0.10 }
+    }
+  },
+  "nota_coerencia": {
+    "_descricao": "Surpresa de uma criatura = -log2 P(derivados | primarios), em bits, sob o modelo da propria criatura. A criatura e 'atipica' acima deste limiar, calibrado no percentil 90 da propria v2 (14,08 bits em n=5000, tools/comparar_bracos.gd): cerca de 1 em cada 10 criaturas do modelo e atipica por construcao. O numero que importa e o contraste: o braco independente, medido pela mesma regua, passa de 80%.",
+    "limiar_atipica_bits": 14.0
+  }
+}

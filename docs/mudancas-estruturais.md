@@ -5,6 +5,91 @@ Refatorações que não alteram o modelo não entram aqui.
 
 ---
 
+## 2026-11-09 — Gerador v2: o modelo mudou, em um terceiro braço
+
+**Exige atualização da Seção 3 do artigo.** A v1 e o baseline independente não mudaram:
+`tools/test_gerador_v2.gd` confere o sha256 de 3 seeds contra o medido antes da v2.
+
+### O que entrou (`GeradorCriaturas.Modo.CONDICIONADO_V2`, `data/modelo_v2.json`)
+
+1. **Bestiário estratificado.** Cada um dos 64 pares elemento×animal entra uma vez; o
+   que sobra de `n` vem dos priors, e a ordem é embaralhada com o RNG da seed.
+2. **Traços em cadeia.** `P(traço | animal, elemento, traços anteriores)`, na ordem
+   asas, nadadeiras, garras, escamas.
+3. **`P(porte | animal, elemento)`** ∝ `vies_elemento^1,1 × fator_animal`.
+4. **Nota por criatura** (`NotaCoerencia`): surpresa `-log2 P(derivados | primários)`,
+   calculada das tabelas. Atípica acima de 14 bits, o percentil 90 da própria v2.
+
+Sem busca e sem rejeição: o custo segue linear (2,3 ms para 100 criaturas).
+
+### Resultado contra os critérios fixados em 03/11 (`tools/comparar_bracos.gd`)
+
+| Critério | v1 | v2 | |
+|---|---|---|---|
+| pares cobertos em n=100 (200 seeds) | média 50,6, mínimo 44 | **64 em todas** | atendido |
+| geração de 100 criaturas | ~2 ms | 2,3 ms | atendido |
+| RF03 | sim | sim | atendido |
+| I(elemento; porte), n=5000, 10 seeds | 0,115 | 0,126 | subiu |
+| I(elemento; cor) | 1,599 | 1,600 | igual |
+| I(animal; porte) | 0,003 | 0,029 | subiu (novo) |
+| I(animal; garras) | 0,234 | 0,292 | subiu |
+| I(animal; perfil morfológico) | 1,187 | 1,169 | **queda pontual de 0,018** |
+| I(animal; escamas) | 0,414 | 0,404 | **queda pontual de 0,010** |
+| distintas, n=5000, 3 seeds | 1214 | 1186 | **queda pontual de 2,3%** |
+| distintas no jogo, n=100, 100 seeds | 84,9 | 87,5 | subiu |
+| sem nenhum traço | 12,6% | 7,0% | melhorou |
+| asas e nadadeiras juntas | 2,6% | 1,3% | melhorou |
+| atípicas pela régua da v2 (independente: 81,8%) | 10,8% | 10,2% | informativo |
+
+**As três quedas pontuais precisam ser declaradas.** O critério era "sem queda", e as
+folgas de `comparar_bracos.gd` (0,02 bit e 3%) foram fixadas **depois** de ver estes
+números, com esta justificativa:
+
+- o valor exato das tabelas dá empate no perfil morfológico (1,1510 na v1, 1,1513 na v2);
+- simulação externa com outro RNG (NumPy, 6 seeds) também dá empate: 1,161 × 1,157
+  (desvio 0,016), e 1207 × 1201 distintas (desvio 20);
+- no Godot a v1 mede 0,036 acima do valor exato, e a v2 só 0,018. O viés do estimador
+  explica cerca de 0,015. **O excesso da v1 sugere correlação entre os primeiros sorteios de
+  RNGs com seeds próximas, e não foi investigado a fundo.** Na v1 os primários saem do
+  mesmo RNG dos derivados; na v2, não.
+
+### Calibração e limite
+
+Os valores de `modelo_v2.json` saíram de uma grade analítica, escolhidos para não reduzir
+informação mútua nem entropia. Mais condicionamento reduz a entropia dos derivados: é o
+trade-off coerência × variedade dentro da escala de ~100 criaturas. A nota mede a criatura
+com a tabela que a gerou; quem quebra essa circularidade é o teste cego do playtest.
+
+### No trade-off
+
+Escala: 100 criaturas com os 64 pares garantidos, e mais distintas em n=100. Coerência:
+sinais novos (animal→porte, dependência entre traços) sem perder os antigos, salvo as
+quedas acima. Desempenho: mesma ordem de grandeza.
+
+### No jogo
+
+Partida nova usa a v2. O save grava `modelo_gerador`; save antigo continua na v1, e a
+ausência do campo lê como v1. O percentil do Otávio subiu de 0,97 para 0,985 (com a v2
+ele dava 71,1%, acima da meta de 40% a 70%; agora 64,0%). A Dulce ficou em 79,8%, no limite
+da meta de 55% a 80%.
+
+---
+
+## 2026-11-07 — Arte dos quatro traços: o modelo NÃO mudou, as figuras sim
+
+Nada no modelo generativo mudou: o bestiário de uma seed é o mesmo. Mudou o que se
+vê dele. Escamas, asas e nadadeiras passaram a ser desenhadas, cada uma no seu
+encaixe (`arte/README.md`), e a ave e o peixe perderam a asa e as nadadeiras que
+estavam **pintadas no corpo**: uma ave que não sorteou `asas` aparecia com asa, e um
+peixe sem `nadadeiras`, com nadadeiras. Agora o quadro mostra exatamente a ficha.
+
+**Para o artigo:** as figuras de criaturas e as folhas de contato precisam ser
+refeitas, e a frase "só garras têm arte" deixa de valer. É também o que habilita o
+teste cego do playtest: escamas, asas e nadadeiras são os exemplos centrais da tese
+(água + peixe → escamas e nadadeiras), e até aqui não apareciam na tela.
+
+---
+
 ## 2026-11-03 — Batalha e guardiões: o modelo NÃO mudou, mas a Camada 1 passa a ler a Camada 2
 
 ### O que mudou

@@ -1412,6 +1412,60 @@
           ]
         ]
       }
+    },
+    "tunel": {
+      "arquivo": "tunel.png",
+      "tamanho": [
+        80,
+        74
+      ],
+      "ancora": [
+        40,
+        54
+      ],
+      "celulas": [
+        2,
+        3
+      ],
+      "colisao": {
+        "tipo": "poligono",
+        "pontos": [
+          [
+            0,
+            -20.0
+          ],
+          [
+            40.0,
+            0
+          ],
+          [
+            0,
+            20.0
+          ],
+          [
+            -40.0,
+            0
+          ]
+        ]
+      }
+    },
+    "onibus": {
+      "arquivo": "onibus.png",
+      "tamanho": [
+        84,
+        66
+      ],
+      "ancora": [
+        42,
+        46
+      ],
+      "celulas": [
+        3,
+        2
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
     }
   }
 }

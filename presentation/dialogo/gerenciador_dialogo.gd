@@ -82,6 +82,9 @@ func preparar(mundo: MundoIso, jogador: Jogador, estado_do_mundo: EstadoMundo) -
 
 func _instanciar_npcs() -> void:
 	for ficha: DadosNpc in catalogo.npcs:
+		# So quem mora neste mapa: a celula do NPC e uma celula DESTE mapa.
+		if _mundo != null and _mundo.id_mapa != "" and ficha.mapa != _mundo.id_mapa:
+			continue
 		var npc := Npc.criar(ficha, _mundo.celula)
 		npc.position = _mundo.celula_para_mundo(ficha.celula)
 		# Entra no MESMO container y-sorted dos props e do jogador: e o que faz o

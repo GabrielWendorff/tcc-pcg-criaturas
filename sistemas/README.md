@@ -3,7 +3,7 @@
 O que vive **fora** de qualquer cena, porque tem tempo de vida maior que o dela.
 
 ```bash
-godot --headless --path . -s res://tools/test_save.gd    # regra + disco + autoload
+godot --headless --path . res://tools/test_save.tscn    # regra + disco + autoload
 ```
 
 ## Por que este diretório existe
@@ -183,6 +183,11 @@ um campo que ainda não foi inventado.
 **As configurações não estão aqui.** Elas vão para `user://opcoes.json` na Etapa
 2, separadas de propósito: valem para o jogador, não para a partida — trocar de
 slot não pode religar um efeito que ele desligou.
+
+## `gold`
+
+O dinheiro do jogador, guardado pela `Bolsa` na raiz do save (`"gold": 178`). `-1` (ou
+ausente) é save de antes da economia: a carga põe o gold inicial, e não zero.
 
 ## `equipe`, `armazenadas` e `hp`
 

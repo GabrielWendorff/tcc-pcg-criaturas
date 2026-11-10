@@ -1,0 +1,54 @@
+{
+ "_meta": {
+  "descricao": "Vendedor do armazem da vila: dispositivos de captura e pocoes. 'loja' abre a loja 'vila' (autoral/lojas/lojas.json) quando a conversa fecha.",
+  "aviso": "Conteudo AUTORAL (Camada 1)."
+ },
+ "id": "lauro",
+ "nome": "Lauro",
+ "inicio": "raiz",
+ "nos": {
+  "raiz": {
+   "falas": ["Bem-vindo ao armazém. Se prende bicho, cura bicho ou carrega bicho, eu tenho."],
+   "variantes": [
+    {
+     "se": {"falou_com": "lauro"},
+     "falas": ["Voltou! Faltou esfera, aposto."]
+    }
+   ],
+   "efeitos": {"definir": {"conheceu_lauro": true}},
+   "seguinte": "assuntos"
+  },
+  "assuntos": {
+   "pergunta": "O que você quer?",
+   "escolhas": [
+    {"texto": "Ver o que está à venda", "destino": "loja"},
+    {"texto": "Como eu ganho gold?", "destino": "gold"},
+    {"texto": "Qual dispositivo eu uso?", "destino": "dispositivos"},
+    {"texto": "Até mais.", "destino": "despedida"}
+   ]
+  },
+  "loja": {
+   "falas": ["Pode olhar. Esfera simples serve para quase tudo; as outras são para bicho difícil."],
+   "efeitos": {"servico": {"tipo": "loja", "loja": "vila"}},
+   "fim": true
+  },
+  "gold": {
+   "falas": [
+    "Bicho do mato que você derruba larga alguma coisa no chão. Quanto mais forte o bicho, mais gold.",
+    "E os guardiões pagam bem a quem vence. A Dulce, no sítio, nunca deixou ninguém sair de mãos vazias."
+   ],
+   "seguinte": "assuntos"
+  },
+  "dispositivos": {
+   "falas": [
+    "Olhe o corpo do bicho. Garra rasga rede, escama aguenta esfera fraca, asa foge de armadilha.",
+    "Para bicho de água e de nadadeira, a redoma. Para os outros, a esfera reforçada costuma dar conta."
+   ],
+   "seguinte": "assuntos"
+  },
+  "despedida": {
+   "falas": ["Volte sempre. Com gold, de preferência."],
+   "fim": true
+  }
+ }
+}

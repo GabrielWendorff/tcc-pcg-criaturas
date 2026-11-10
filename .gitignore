@@ -9,7 +9,6 @@
 
 # Configurações de exportação / builds
 export.cfg
-export_presets.cfg
 *.translation
 
 # Binários exportados do jogo

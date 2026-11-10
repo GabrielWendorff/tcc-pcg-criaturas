@@ -64,6 +64,18 @@ func _ready() -> void:
 	pausa._mostrar_equipe()
 	await _capturar("equipe", 0.3)
 	pausa.fechar()
+	m.call("_abrir_loja", "vila")
+	await _capturar("loja", 0.3)
+	(m.get("tela_loja") as TelaLoja).fechar()
+	var lauro: Npc = (m.get("dialogos") as GerenciadorDialogo).npc_por_id("lauro")
+	(m.get("jogador") as Jogador).position = lauro.position + Vector2(0, 40)
+	await _capturar("lauro", 0.6)
+	pausa.abrir_no_bestiario()
+	await _capturar("bestiario", 0.4)
+	for i in 3:
+		pausa.tela_bestiario._selecionar(pausa.tela_bestiario._indice + 7 * 3)
+	await _capturar("bestiario_meio", 0.3)
+	pausa.fechar()
 	print("FIM")
 	get_tree().quit(0)
 

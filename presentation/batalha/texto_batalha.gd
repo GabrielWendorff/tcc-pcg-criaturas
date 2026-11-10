@@ -31,6 +31,37 @@ static func ficha_em_bbcode(c: Criatura, f: FichaCombate) -> String:
 		apoio, lista_de_golpes(f)]
 
 
+## A vitrine do algoritmo (RF07, RF08): de onde esta criatura veio. Cada linha e a chance
+## que o modelo dava ao que saiu, dados os primarios, e a nota final soma a surpresa de
+## todas elas. Sem sorteio nenhum aqui: tudo e lido das tabelas.
+static func sorteio_em_bbcode(c: Criatura, tabelas: TabelasProbabilidade) -> String:
+	var apoio := TemaEncontro.PERG_E.to_html(false)
+	var nota: Dictionary = NotaCoerencia.decompor(c, tabelas, NotaCoerencia.usa_v2(c))
+	var bits: float = float(nota["bits"])
+	var atipica: bool = NotaCoerencia.atipica(bits, tabelas)
+	var cor_nota := (TemaEncontro.FALHA if atipica else TemaEncontro.VERDE_C).to_html(false)
+	var texto := "[color=%s]%s[/color]\n" % [TemaEncontro.OURO_C.to_html(false), c.nome().to_upper()]
+	texto += "[color=%s]%s  %s bits[/color]\n" % [cor_nota, "ATÍPICA" if atipica else "COERENTE",
+			("%.1f" % bits).replace(".", ",")]
+	texto += "[color=%s]SEED %d[/color]\n" % [apoio, c.world_seed]
+	texto += "[color=%s]PRIMÁRIOS[/color]  %s + %s\n" % [apoio, c.elemento, c.animal_base]
+	texto += "[color=%s]CHANCE DE CADA DERIVADO[/color]" % apoio
+	var linhas: Array = nota["linhas"]
+	for i in linhas.size():
+		var l: Dictionary = linhas[i]
+		if String(l["atributo"]).ends_with(" (modelo)"):
+			continue
+		texto += "\n%s  %s %s" % [_percentual(float(l["p"])), l["atributo"], l["valor"]]
+		if i + 1 < linhas.size() and String(linhas[i + 1]["atributo"]).ends_with(" (modelo)"):
+			var modelo: Dictionary = linhas[i + 1]
+			texto += " · %s %s" % [modelo["valor"], _percentual(float(modelo["p"]))]
+	return texto
+
+
+static func _percentual(p: float) -> String:
+	return "<1%" if p < 0.01 else "%d%%" % roundi(p * 100.0)
+
+
 ## Linha de apoio de um golpe no menu: o que ele faz CONTRA ESTE adversario. E aqui
 ## que a vantagem de elementos aparece na hora de escolher.
 static func dica_do_golpe(g: Golpe, atacante: Combatente, defensor: Combatente,

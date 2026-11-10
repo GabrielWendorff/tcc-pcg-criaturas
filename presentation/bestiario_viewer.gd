@@ -157,7 +157,7 @@ func _seed_do_input() -> int:
 
 func _gerar(world_seed: int) -> void:
 	var t0 := Time.get_ticks_usec()
-	var bestiario := _gerador.gerar_bestiario(world_seed, N_PADRAO)
+	var bestiario := _gerador.gerar_bestiario(world_seed, N_PADRAO, GeradorCriaturas.MODO_DO_JOGO)
 	var dt_ms := (Time.get_ticks_usec() - t0) / 1000.0
 	var m := MetricasCoerencia.avaliar(bestiario, _tabelas)
 	_atualizar_header(world_seed, dt_ms, m)

@@ -50,14 +50,21 @@ extends Node2D
 const CENA_BESTIARIO := "res://presentation/bestiario_viewer.tscn"
 const CENA_MENU := "res://presentation/menu/menu_principal.tscn"
 const CENA_MUNDO := "res://presentation/exploracao/mundo.tscn"
+const DIR_MAPAS := "res://autoral/mapas/"
+const META_CHEGADA_POR_PORTA := "chegada_por_porta"
+const DURACAO_PORTA := 0.35
 
 const BANDEIRA_INICIAL := "recebeu_inicial"
 const BANDEIRA_VENCEU := "jogo_vencido"
+const BANDEIRA_DICAS_BATALHA := "viu_dicas_batalha"
 
 ## Linha de teclas do HUD. Constante (e nao literal em _montar_hud) para o teste
 ## de integracao conferir os glifos contra a fonte pixel.
-const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   M mapa   ESC pausa"
+const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   N bestiário   M mapa   ESC pausa"
 const TEXTO_TECLAS_DEV := "   F3 zonas   F2 bestiário   F4 encontro"
+## Quanto tempo a linha de controles fica no rodape no comeco. Depois, so na pausa.
+const SEGUNDOS_DE_CONTROLES := 12.0
+const LARGURA_CARD_OBJETIVO := 300.0
 
 ## Respostas ao pedido {"servico": {"tipo": "pesca"}} do Anselmo ("Posso pescar
 ## agora?"). A fala dele nao cita tecla nenhuma — conta com esta nota —, e a
@@ -97,6 +104,10 @@ var tutorial: GerenciadorTutorial
 var guardioes: CatalogoGuardioes
 var tela_inicial: TelaEscolhaInicial
 var tela_desfecho: TelaDesfecho
+var tela_loja: TelaLoja
+var lojas: CatalogoLojas
+## Chegada de onibus. So existe numa partida nova; null nas demais.
+var chegada: CutsceneChegada
 
 ## F2, F3 e F4 valem? Verdadeiro no editor e na build de debug, falso na de entrega.
 var teclas_de_desenvolvimento: bool = OS.is_debug_build()
@@ -105,9 +116,14 @@ var _depuracao: bool = false
 var _sobreposicao: SobreposicaoDepuracao
 var _aviso: Label
 var _hud_dica: Control
-var _hud_bolsa: Control
 var _hud_nota: Control
 var _hud_objetivo: Control
+var _texto_objetivo: Label
+var _texto_equipe: Label
+var _tween_objetivo: Tween
+## Ultimo objetivo nao vazio exibido. A comparacao e com ele, e nao com o texto da
+## faixa, para a mudanca piscar mesmo passando por um estado intermediario vazio.
+var _objetivo_mostrado: String = ""
 ## O que fazer quando a conversa fechar: a escolha inicial e o duelo nao abrem por cima
 ## da caixa de fala do NPC que os pediu.
 var _apos_conversa: Callable
@@ -115,7 +131,16 @@ var _apos_conversa: Callable
 var _duelo_atual: Dictionary = {}
 ## A criatura fisgada foi para a batalha: a pesca espera ela terminar.
 var _pesca_em_batalha: bool = false
+var _atravessando: bool = false
+## Ultima celula verificada para porta: a porta dispara ao PISAR nela, nao a cada
+## quadro parado em cima (o aviso de trancado nao pode repetir sem parar).
+var _ultima_celula_de_porta := Vector2i(-1, -1)
+## Balao "ENTRAR"/"SAIR" sobre cada porta, visivel quando o jogador chega perto: sem
+## ele, nada na fachada diz que a fabrica tem entrada.
+var _avisos_de_porta: Array = []
+const DISTANCIA_AVISO_PORTA := 2.5
 var _tween_nota: Tween
+var _tween_controles: Tween
 var _regiao_corrente: String = ""
 ## O HUD foi pedido visivel? (_mostrar_hud). Guardado porque as duas linhas de
 ## cima tambem cedem a dica do tutorial, quadro a quadro (ver _process).
@@ -130,10 +155,11 @@ func _ready() -> void:
 
 	mundo = MundoIso.new()
 	mundo.name = "Mundo"
+	mundo.caminho = _caminho_do_mapa()
 	add_child(mundo)
 	# Explicito, e nao pelo _ready do proprio MundoIso: e daqui que se conhece a
 	# ordem — o jogador e a camera dependem de o mapa ja estar montado.
-	mundo.carregar()
+	mundo.carregar(_caminho_do_mapa())
 	if mundo.erro != "":
 		_mostrar_erro(mundo.erro)
 		return
@@ -172,7 +198,13 @@ func _ready() -> void:
 	_montar_pausa()
 	_montar_arco()
 	_ligar_save()
+	_preparar_dicas_de_batalha()
+	_talvez_chegar_de_onibus()
 	_atualizar_objetivo()
+	# Nasce sobre a celula de chegada, que nao e porta; a seguinte ja pode ser.
+	_ultima_celula_de_porta = mundo.mundo_para_celula(jogador.position)
+	_montar_avisos_de_porta()
+	_clarear_chegada()
 
 
 ## Primeira criatura, guardioes, vitoria e derrota.
@@ -188,12 +220,27 @@ func _montar_arco() -> void:
 	tela_inicial.cancelada.connect(func() -> void:
 			jogador.congelar(false)
 			if dialogos != null:
+				dialogos.suspender(false)
+			if chegada != null:
+				chegada.escolha_cancelada())
+
+	lojas = CatalogoLojas.carregar()
+	tela_loja = TelaLoja.new()
+	tela_loja.name = "TelaLoja"
+	add_child(tela_loja)
+	tela_loja.fechada.connect(func() -> void:
+			jogador.congelar(false)
+			if dialogos != null:
 				dialogos.suspender(false))
+	Bolsa.gold_mudou.connect(_ao_mudar_gold)
 
 	tela_desfecho = TelaDesfecho.new()
 	tela_desfecho.name = "TelaDesfecho"
 	add_child(tela_desfecho)
-	tela_desfecho.opcao_escolhida.connect(_ao_escolher_no_desfecho)
+	# ADIADO: a escolha chega de dentro do evento de entrada, e trocar de cena ali
+	# tira a cena antiga da arvore no meio dele. Na build de entrega isso derrubava o
+	# jogo ao voltar ao save depois de perder (falha de segmentacao na fisica).
+	tela_desfecho.opcao_escolhida.connect(_ao_escolher_no_desfecho, CONNECT_DEFERRED)
 
 	if dialogos != null:
 		dialogos.conversa_terminada.connect(_ao_terminar_conversa)
@@ -215,6 +262,11 @@ func _montar_encontros() -> void:
 	# 3 ha um estoque so, que a pesca, a loja e o dialogo tambem mexem. O
 	# parametro e opcional e o encontro continua sabendo se virar sozinho — e o
 	# que mantem tools/test_encontro.gd rodando sem conhecer a Bolsa.
+	if Save.em_partida():
+		encontros.modo_gerador = GeradorCriaturas.modo_do_nome(Save.partida.modelo_gerador) \
+				as GeradorCriaturas.Modo
+	RegistroSessao.evento("mundo", {"seed": seed_do_mundo,
+			"modelo": GeradorCriaturas.nome_do_modo(encontros.modo_gerador)})
 	if not encontros.preparar(mundo, jogador, camera, seed_do_mundo,
 			criaturas_por_mundo, Bolsa.inventario):
 		_mostrar_erro("encontros: " + encontros.erro)
@@ -224,9 +276,6 @@ func _montar_encontros() -> void:
 	# carrega (bolsa) ja aparece dentro da roda, item por item.
 	encontros.encontro_iniciado.connect(func(_c): _mostrar_hud(false))
 	encontros.encontro_terminado.connect(_on_encontro_terminado)
-	encontros.inventario.mudou.connect(func(_id, _n): _atualizar_bolsa())
-	encontros.inventario.criatura_guardada.connect(func(_c): _atualizar_bolsa())
-	_atualizar_bolsa()
 
 
 ## Liga NPCs e dialogo. Depois dos encontros de proposito: o dialogo consulta o
@@ -330,7 +379,6 @@ func _ao_encerrar_pesca() -> void:
 	if dialogos != null:
 		dialogos.suspender(false)
 	_mostrar_hud(true)
-	_atualizar_bolsa()
 
 
 ## A criatura fisgada vira batalha, com a pesca parada em FISGADO e o jogador
@@ -356,7 +404,8 @@ func _ao_fisgar(criatura: Criatura) -> void:
 ## conhece o MundoIso, e a cena de teste (tools/cena_teste_pesca.gd) entrega um
 ## poligono no lugar.
 func _e_agua(p: Vector2) -> bool:
-	return mundo.terreno_em(mundo.mundo_para_celula(p)) == "agua"
+	# Interior nao tem pesca: as pocas da fabrica sao chao molhado, nao rio.
+	return mundo.mundo_aberto and mundo.terreno_em(mundo.mundo_para_celula(p)) == "agua"
 
 
 func _regiao_em(p: Vector2) -> String:
@@ -407,12 +456,16 @@ func _montar_tutorial() -> void:
 func _dono_da_tela() -> String:
 	if tutorial != null and tutorial.perguntando():
 		return "tutorial"
+	if chegada != null and chegada.dona_da_tela():
+		return "chegada"
 	if pausa != null and pausa.aberto():
 		return "pausa"
 	if tela_desfecho != null and tela_desfecho.aberta():
 		return "desfecho"
 	if tela_inicial != null and tela_inicial.aberta():
 		return "escolha"
+	if tela_loja != null and tela_loja.aberta():
+		return "loja"
 	if encontros != null and encontros.estado.em_encontro():
 		return "encontro"
 	if dialogos != null and dialogos.em_conversa():
@@ -426,7 +479,108 @@ func _dono_da_tela() -> String:
 	return ""
 
 
+## O mapa da partida (Save.partida.mapa), ou o mundo quando nao ha partida ou o
+## arquivo nao existe.
+func _caminho_do_mapa() -> String:
+	var id := Save.partida.mapa if Save.em_partida() else DadosPartida.MAPA_PADRAO
+	var caminho := DIR_MAPAS + "%s.json" % id
+	return caminho if FileAccess.file_exists(caminho) else DIR_MAPAS + "mundo.json"
+
+
+## Portas: pisar na celula de uma porta leva ao outro mapa. A troca e a mesma de
+## carregar um save, sem tocar no disco: o estado vivo vai para Save.partida, que
+## muda de mapa, e a cena se remonta a partir dela.
+func _verificar_porta() -> void:
+	if _atravessando or jogador == null or mundo == null:
+		return
+	var c := mundo.mundo_para_celula(jogador.position)
+	if c == _ultima_celula_de_porta:
+		return
+	_ultima_celula_de_porta = c
+	var porta := mundo.porta_em(c)
+	if porta.is_empty() or _dono_da_tela() != "":
+		return
+	var requer := String(porta.get("requer", ""))
+	if requer != "" and not estado_mundo.ativa(requer):
+		_nota(String(porta.get("aviso", "Trancado.")))
+		return
+	_atravessar(porta)
+
+
+func _atravessar(porta: Dictionary) -> void:
+	if not Save.em_partida():
+		_nota("Sem partida em curso: portas só funcionam numa partida do menu.")
+		return
+	_atravessando = true
+	jogador.congelar(true)
+	Save.coletar()
+	var chegada: Array = porta.get("chegada", [0, 0])
+	Save.partida.mapa = String(porta.get("destino", DadosPartida.MAPA_PADRAO))
+	Save.partida.celula = Vector2i(int(chegada[0]), int(chegada[1]))
+	Save.partida.direcao = String(porta.get("direcao", "baixo"))
+	Save.set_meta(META_CHEGADA_POR_PORTA, true)
+	var veu := ColorRect.new()
+	veu.color = Color(TemaEncontro.CONTORNO, 0.0)
+	veu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var camada := CanvasLayer.new()
+	camada.layer = 99
+	camada.add_child(veu)
+	add_child(camada)
+	var t := create_tween()
+	t.tween_property(veu, "color:a", 1.0, DURACAO_PORTA)
+	await t.finished
+	_trocar_de_cena(CENA_MUNDO)
+
+
+func _montar_avisos_de_porta() -> void:
+	for p: Dictionary in mundo.portas():
+		var c: Array = p.get("celula", [0, 0])
+		# Num no proprio, na porta: o balao anima a propria posicao (o balanco), e
+		# solto no mundo ele balancaria em torno da origem do mapa.
+		var lugar := Node2D.new()
+		lugar.position = mundo.celula_para_mundo(Vector2i(int(c[0]), int(c[1])))
+		mundo.entidades.add_child(lugar)
+		var ind := IndicadorInteracao.new()
+		lugar.add_child(ind)
+		ind.configurar("", "ENTRAR" if String(p.get("destino", "")) != "mundo" else "SAIR")
+		ind.mostrar(false)
+		_avisos_de_porta.append(ind)
+
+
+func _atualizar_avisos_de_porta() -> void:
+	if jogador == null:
+		return
+	var c := Vector2(mundo.mundo_para_celula(jogador.position))
+	var portas := mundo.portas()
+	for i in _avisos_de_porta.size():
+		var pc: Array = portas[i].get("celula", [0, 0])
+		(_avisos_de_porta[i] as IndicadorInteracao).mostrar(
+				c.distance_to(Vector2(int(pc[0]), int(pc[1]))) <= DISTANCIA_AVISO_PORTA
+				and _dono_da_tela() == "")
+
+
+## Chegou por uma porta: a tela clareia em vez de aparecer de uma vez.
+func _clarear_chegada() -> void:
+	if not Save.has_meta(META_CHEGADA_POR_PORTA):
+		return
+	Save.remove_meta(META_CHEGADA_POR_PORTA)
+	var veu := ColorRect.new()
+	veu.color = Color(TemaEncontro.CONTORNO, 1.0)
+	veu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var camada := CanvasLayer.new()
+	camada.layer = 99
+	camada.add_child(veu)
+	add_child(camada)
+	var t := create_tween()
+	t.tween_property(veu, "color:a", 0.0, DURACAO_PORTA)
+	t.tween_callback(camada.queue_free)
+
+
 func _process(_delta: float) -> void:
+	_verificar_porta()
+	_atualizar_avisos_de_porta()
 	# O marcador do jogador so precisa acompanhar enquanto a carta esta aberta —
 	# e, com o jogador congelado, ele nem se move. Atualizar assim mesmo mantem a
 	# tela correta se algo mais mover o personagem (uma teleportacao futura).
@@ -436,15 +590,14 @@ func _process(_delta: float) -> void:
 	_ceder_topo_a_dica()
 
 
-## As duas linhas de cima do HUD (teclas e bolsa) dividem o topo da tela com a
-## dica do tutorial, que e desenhada por cima delas (camada 92). Com o
-## pergaminho la, elas cedem: a dica e a instrucao do momento, e texto correndo
-## por tras dela vira ruido. A nota fica — e por ela que chega o "Recebeu: ...",
-## e ela e curta o bastante para nao alcancar o painel.
+## O card do objetivo divide o topo da tela com a dica do tutorial, que e desenhada
+## por cima (camada 92) e tem um aviso no canto direito. Com o pergaminho la, o card e
+## a linha de controles cedem: a dica e a instrucao do momento. A nota fica — e por
+## ela que chega o "Recebeu: ...".
 func _ceder_topo_a_dica() -> void:
 	var dica_na_tela: bool = tutorial != null and tutorial.dica != null \
 			and tutorial.dica.dica_visivel()
-	for no: Control in [_hud_dica, _hud_bolsa, _hud_objetivo]:
+	for no: Control in [_hud_dica, _hud_objetivo]:
 		if no != null:
 			no.visible = _hud_visivel and not dica_na_tela
 
@@ -472,7 +625,6 @@ func _ligar_save() -> void:
 	Save.registrar_secao("criaturas", _colher_criaturas, _repor_criaturas)
 
 	Save.restaurar_na_cena()
-	_atualizar_bolsa()
 
 
 func _colher_estado(d: DadosPartida) -> void:
@@ -487,7 +639,7 @@ func _repor_estado(d: DadosPartida) -> void:
 
 
 func _colher_jogador(d: DadosPartida) -> void:
-	d.mapa = DadosPartida.MAPA_PADRAO
+	d.mapa = mundo.id_mapa if mundo.id_mapa != "" else DadosPartida.MAPA_PADRAO
 	d.celula = mundo.mundo_para_celula(jogador.position)
 	d.direcao = jogador.direcao
 	d.regiao = _regiao_corrente
@@ -607,8 +759,16 @@ func _montar_pausa() -> void:
 	add_child(pausa)
 	pausa.retomar_pedido.connect(_fechar_pausa)
 	pausa.salvar_pedido.connect(_salvar_pela_pausa)
-	pausa.sair_pedido.connect(_sair_para_o_menu)
+	# Adiado pelo mesmo motivo da tela de desfecho (ver _montar_arco).
+	pausa.sair_pedido.connect(_sair_para_o_menu, CONNECT_DEFERRED)
 	pausa.usar_item = _usar_item_da_bolsa
+	pausa.texto_controles = texto_das_teclas()
+	if encontros != null:
+		pausa.bestiario = encontros.bestiario
+		pausa.capturada = func(c: Criatura) -> bool: return encontros.inventario.ja_capturou(c)
+		pausa.tabelas_batalha = encontros.tabelas_batalha
+		pausa.tabelas_probabilidade = encontros.tabelas
+		pausa.rotulo_seed = Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
 	if encontros != null:
 		pausa.equipe = encontros.equipe
 		pausa.catalogo_corpos = encontros.catalogo
@@ -660,7 +820,7 @@ func _sair_para_o_menu() -> void:
 	# deixa-lo ligado congelaria o menu principal recem-carregado.
 	pausa.fechar()
 	Save.encerrar_partida()
-	get_tree().change_scene_to_file(CENA_MENU)
+	_trocar_de_cena(CENA_MENU)
 
 
 ## Bolsa direto do mundo (B), sem passar pelo menu de pausa. A bolsa e
@@ -694,6 +854,10 @@ func _on_servico_pedido(pedido: Dictionary, npc: Npc) -> void:
 		"escolher_inicial":
 			_apos_conversa = _abrir_escolha_inicial
 			return
+		"loja":
+			var id_loja := String(pedido.get("loja", ""))
+			_apos_conversa = _abrir_loja.bind(id_loja)
+			return
 		"curar_equipe":
 			encontros.equipe.curar_todos()
 			_nota("Equipe recuperada.")
@@ -723,15 +887,35 @@ func _abrir_escolha_inicial() -> void:
 			encontros.catalogo, encontros.tabelas_batalha)
 
 
+func _abrir_loja(id_loja: String) -> void:
+	var loja := lojas.loja(id_loja) if lojas != null else {}
+	if loja.is_empty():
+		push_warning("loja desconhecida: " + id_loja)
+		return
+	jogador.congelar(true)
+	dialogos.suspender(true)
+	tela_loja.abrir(loja)
+
+
+## Metodo, e nao lambda: a Bolsa e autoload e sobrevive a esta cena.
+func _ao_mudar_gold(_valor: int) -> void:
+	_atualizar_objetivo()
+
+
 func _ao_escolher_inicial(c: Criatura) -> void:
 	encontros.equipe.adicionar(Combatente.de_criatura(c, encontros.tabelas_batalha))
 	encontros.inventario.guardar_criatura(c)
+	# O kit vem junto: a bolsa comeca vazia, e sem ele a primeira ida ao mato nao
+	# teria captura possivel.
+	for id: String in Bolsa.economia.kit_inicial():
+		Bolsa.adicionar(id, int(Bolsa.economia.kit_inicial()[id]))
 	estado_mundo.definir(BANDEIRA_INICIAL)
 	jogador.congelar(false)
 	dialogos.suspender(false)
-	_atualizar_bolsa()
 	_autosalvar()
 	_nota("%s agora anda com você." % c.nome())
+	if chegada != null:
+		chegada.escolha_feita()
 
 
 func _comecar_duelo(id_guardiao: String) -> void:
@@ -750,6 +934,58 @@ func _comecar_duelo(id_guardiao: String) -> void:
 			int(guardiao.get("tamanho_equipe", 2)), float(guardiao.get("percentil_forca", 0.5))))
 
 
+## Partida nova (sem posicao gravada e sem a primeira criatura) comeca pela chegada de
+## onibus. Precisa de partida: aberta direto pelo editor ou por teste sem Save, a cena
+## comeca no spawn, como sempre comecou.
+func _talvez_chegar_de_onibus() -> void:
+	if not Save.em_partida() or Save.partida.tem_posicao() or mundo.chegada().is_empty():
+		return
+	if estado_mundo.ativa(BANDEIRA_INICIAL) or encontros == null or not encontros.equipe.vazia():
+		return
+	chegada = CutsceneChegada.new()
+	chegada.name = "Chegada"
+	add_child(chegada)
+	if not chegada.preparar(mundo, jogador, camera, dialogos):
+		push_warning("chegada de onibus desligada: " + chegada.erro)
+		chegada.queue_free()
+		chegada = null
+		return
+	if estado_mundo.ativa(String(chegada.dados.get("bandeira", ""))):
+		chegada.queue_free()
+		chegada = null
+		return
+	chegada.permissao_pulo = func() -> bool:
+		return _dono_da_tela() in ["", "chegada", "dialogo"]
+	chegada.escolha_pedida.connect(_ao_chegada_pedir_escolha)
+	chegada.terminada.connect(_ao_terminar_chegada)
+	_mostrar_hud(false)
+	chegada.iniciar()
+
+
+func _ao_chegada_pedir_escolha() -> void:
+	if encontros.equipe.vazia():
+		_abrir_escolha_inicial()
+	else:
+		chegada.escolha_feita()
+
+
+func _ao_terminar_chegada(_pulada: bool) -> void:
+	estado_mundo.definir(String(chegada.dados.get("bandeira", "chegou_de_onibus")))
+	_mostrar_hud(true)
+	_mostrar_controles_por_um_tempo()
+	_atualizar_objetivo()
+	_autosalvar()
+
+
+## Dicas da primeira batalha contra selvagem: uma vez por partida, venha o jogador da
+## chegada completa, da chegada pulada ou de um save antigo.
+func _preparar_dicas_de_batalha() -> void:
+	if encontros == null or estado_mundo == null or estado_mundo.ativa(BANDEIRA_DICAS_BATALHA):
+		return
+	var dicas: Dictionary = CutsceneChegada.carregar_dados().get("dicas_primeira_batalha", {})
+	encontros.dicas_de_estreia = dicas.duplicate()
+
+
 ## Grava sem avisar quando da; sem slot (cena aberta direto) nao faz nada.
 func _autosalvar() -> void:
 	if Save.em_partida() and Save.slot_atual > 0:
@@ -762,19 +998,50 @@ func _objetivo_atual() -> String:
 	if encontros == null or encontros.equipe == null or guardioes == null:
 		return ""
 	if encontros.equipe.vazia():
-		return "OBJETIVO  fale com a Mirela, na praça da vila"
-	var de_pe := "EQUIPE %d/%d de pé" % [encontros.equipe.vivos(), encontros.equipe.ativos.size()]
+		return "Fale com a Mirela, na praça da vila"
 	if estado_mundo.ativa(BANDEIRA_VENCEU):
-		return "OBJETIVO  concluído. Explore à vontade     " + de_pe
+		return "Objetivo concluído. Explore à vontade"
 	for g: Dictionary in guardioes.guardioes:
 		if not estado_mundo.ativa(String(g.get("selo", ""))):
-			return "OBJETIVO  vença %s, ao sul da vila     %s" % [String(g.get("nome", "")), de_pe]
-	return de_pe
+			return "Vença %s, %s" % [String(g.get("nome", "")), String(g.get("onde", ""))]
+	return ""
 
 
+func _texto_da_equipe() -> String:
+	if encontros == null or encontros.equipe == null or encontros.equipe.vazia():
+		return ""
+	return "EQUIPE %d/%d DE PÉ     %d GOLD" % [encontros.equipe.vivos(),
+			encontros.equipe.ativos.size(), Bolsa.gold]
+
+
+## Atualiza o card. Quando o objetivo MUDA, ele pisca: e a unica forma de o jogador
+## perceber que a meta andou sem precisar reler o topo da tela.
 func _atualizar_objetivo() -> void:
-	if _hud_objetivo != null:
-		_escrever_hud(_hud_objetivo, _objetivo_atual())
+	if _hud_objetivo == null:
+		return
+	var texto := _objetivo_atual()
+	var anterior := _objetivo_mostrado
+	_texto_objetivo.text = texto
+	_texto_equipe.text = _texto_da_equipe()
+	_texto_equipe.visible = _texto_equipe.text != ""
+	_hud_objetivo.self_modulate.a = 1.0 if texto != "" else 0.0
+	for filho: Node in _hud_objetivo.get_children():
+		(filho as CanvasItem).visible = texto != ""
+	if texto == "":
+		return
+	_objetivo_mostrado = texto
+	if anterior != "" and texto != anterior:
+		_piscar_objetivo()
+
+
+func _piscar_objetivo() -> void:
+	if _tween_objetivo != null and _tween_objetivo.is_valid():
+		_tween_objetivo.kill()
+	_hud_objetivo.modulate = Color(1.8, 1.6, 1.1)
+	_tween_objetivo = create_tween()
+	_tween_objetivo.tween_property(_hud_objetivo, "modulate", Color.WHITE, 1.2) \
+			.set_trans(Tween.TRANS_SINE)
+	_nota("Novo objetivo!")
 
 
 func _mostrar_vitoria() -> void:
@@ -793,9 +1060,12 @@ func _texto_de_vitoria() -> String:
 	var n: int = encontros.bestiario.size()
 	var ger := GeradorCriaturas.new(encontros.tabelas, encontros.catalogo)
 	var cond := MetricasCoerencia.avaliar(encontros.bestiario, encontros.tabelas)
+	# O baseline e medido com a regua do modelo desta partida: as duas colunas comparam
+	# a mesma coisa.
 	var indep := MetricasCoerencia.avaliar(
 			ger.gerar_bestiario(seed_do_mundo, n, GeradorCriaturas.Modo.INDEPENDENTE),
-			encontros.tabelas)
+			encontros.tabelas, MetricasCoerencia.K_UNICIDADE_PADRAO,
+			GeradorCriaturas.nome_do_modo(encontros.modo_gerador))
 	var tempo := Save.partida.tempo_legivel() if Save.em_partida() else "—"
 	var nome_seed := Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
 	return "SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS  %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%" % [
@@ -835,9 +1105,16 @@ func _ao_escolher_no_desfecho(id: String) -> void:
 		"recarregar":
 			if Save.em_partida() and ArquivoSave.slot_valido(Save.slot_atual) \
 					and Save.carregar(Save.slot_atual):
-				get_tree().change_scene_to_file(CENA_MUNDO)
+				_trocar_de_cena(CENA_MUNDO)
 			else:
 				get_tree().reload_current_scene()
+
+
+## Toda saida desta cena passa por aqui, e sempre por chamada adiada: trocar de cena
+## dentro do evento de entrada tira a cena da arvore no meio dele, e na build de
+## entrega isso derrubava o jogo (ver _montar_arco).
+func _trocar_de_cena(caminho: String) -> void:
+	get_tree().change_scene_to_file(caminho)
 
 
 ## O que falta para pescar, dito no HUD: vara na mao, vara so na bolsa, ou vara
@@ -913,6 +1190,9 @@ func _regiao_da_celula(c: Vector2i) -> RegiaoMundo:
 func _alternar_mapa() -> void:
 	if mapa == null:
 		return
+	if not mundo.mundo_aberto:
+		_nota("Aqui dentro não tem mapa.")
+		return
 	var dono := _dono_da_tela()
 	if dono == "mapa":
 		mapa.fechar()
@@ -936,6 +1216,11 @@ func _ao_fechar_mapa() -> void:
 func _unhandled_input(evento: InputEvent) -> void:
 	if evento.is_action_pressed("pausar"):
 		_abrir_pausa()
+		get_viewport().set_input_as_handled()
+		return
+	if evento.is_action_pressed("abrir_bestiario"):
+		if _pode_pausar():
+			pausa.abrir_no_bestiario()
 		get_viewport().set_input_as_handled()
 		return
 	if evento.is_action_pressed("abrir_bolsa"):
@@ -970,7 +1255,8 @@ func _unhandled_input(evento: InputEvent) -> void:
 			# O visualizador do bestiario deixaria de ser alcancavel ao rodar o
 			# projeto quando esta cena virou a principal. Uma tecla o traz de
 			# volta sem duplicar nenhuma logica.
-			get_tree().change_scene_to_file(CENA_BESTIARIO)
+			# Adiado: estamos dentro do evento de entrada (ver _montar_arco).
+			_trocar_de_cena.call_deferred(CENA_BESTIARIO)
 		KEY_F4:
 			# Conferir o roteiro do encontro nao pode depender de o sorteio cair no
 			# momento em que alguem esta olhando.
@@ -984,24 +1270,68 @@ func _montar_hud() -> void:
 	# HUD na fonte pixel do encontro: o jogo tem UMA tipografia. O contorno da
 	# engine nao funciona em fonte de bitmap, entao a legibilidade sobre a grama
 	# vem de uma sombra de 2px desenhada por baixo (TemaEncontro.rotulo_sombreado).
-	_hud_dica = _rotulo_de_hud(texto_das_teclas(), Vector2(14, 10))
+	# Controles: no rodape, so nos primeiros segundos. Depois somem e ficam na pausa
+	# (ESC): uma linha fixa de teclas no canto lia como sobreposicao de depuracao.
+	_hud_dica = _rotulo_de_hud(texto_das_teclas(), Vector2.ZERO)
+	_hud_dica.name = "Controles"
+	_hud_dica.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_hud_dica.offset_left = 14.0
+	_hud_dica.offset_top = -30.0
 	camada.add_child(_hud_dica)
+	# Quem acabou de passar por uma porta ja viu os controles: eles nao reaparecem.
+	if Save.has_meta(META_CHEGADA_POR_PORTA):
+		_hud_dica.modulate.a = 0.0
+	else:
+		_mostrar_controles_por_um_tempo()
 
 	# Nota transitoria: avisos curtos que nao merecem uma caixa (servico ainda
 	# nao implementado, regiao descoberta). Some sozinha.
-	_hud_nota = _rotulo_de_hud("", Vector2(14, 64))
+	_hud_nota = _rotulo_de_hud("", Vector2(14, 14))
 	camada.add_child(_hud_nota)
 	_hud_nota.modulate.a = 0.0
 
-	# Bolsa: dispositivos, iscas e capturadas. Fica no HUD do mundo, e nao dentro
-	# da interface de encontro, porque o estoque e o que decide se vale a pena
-	# entrar no mato — informacao de exploracao, nao de menu.
-	_hud_bolsa = _rotulo_de_hud("", Vector2(14, 28))
-	camada.add_child(_hud_bolsa)
+	camada.add_child(_montar_card_objetivo())
 
-	# O objetivo fica sempre a vista: e o que diz ao jogador para onde este mundo vai.
-	_hud_objetivo = _rotulo_de_hud("", Vector2(14, 46))
-	camada.add_child(_hud_objetivo)
+
+## A linha de controles aparece e some depois de SEGUNDOS_DE_CONTROLES. De novo ao fim
+## da chegada de onibus: durante a cena o HUD esta escondido, e o tempo teria passado.
+func _mostrar_controles_por_um_tempo() -> void:
+	if _tween_controles != null and _tween_controles.is_valid():
+		_tween_controles.kill()
+	_hud_dica.modulate.a = 1.0
+	_tween_controles = create_tween()
+	_tween_controles.tween_interval(SEGUNDOS_DE_CONTROLES)
+	_tween_controles.tween_property(_hud_dica, "modulate:a", 0.0, 1.0)
+
+
+## O objetivo num card no canto superior direito, com letra maior: e o que diz ao
+## jogador para onde este mundo vai, e precisa ser visto sem ser procurado, sem
+## cobrir o centro da tela, onde o jogador anda.
+func _montar_card_objetivo() -> Control:
+	var card := PanelContainer.new()
+	card.name = "CardObjetivo"
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_theme_stylebox_override("panel", TemaEncontro.moldura("painel"))
+	card.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	card.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	card.offset_right = -10.0
+	card.offset_top = 10.0
+	card.custom_minimum_size = Vector2(LARGURA_CARD_OBJETIVO, 0)
+
+	var coluna := VBoxContainer.new()
+	coluna.add_theme_constant_override("separation", 4)
+	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(coluna)
+
+	coluna.add_child(TemaEncontro.rotulo("★ OBJETIVO", TemaEncontro.OURO, TemaEncontro.Corpo.TITULO))
+	_texto_objetivo = TemaEncontro.rotulo("", TemaEncontro.PERG_C, TemaEncontro.Corpo.TITULO)
+	_texto_objetivo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_texto_objetivo.custom_minimum_size = Vector2(LARGURA_CARD_OBJETIVO - 28.0, 0)
+	coluna.add_child(_texto_objetivo)
+	_texto_equipe = TemaEncontro.rotulo("", TemaEncontro.PERG_E)
+	coluna.add_child(_texto_equipe)
+	_hud_objetivo = card
+	return card
 
 
 func texto_das_teclas() -> String:
@@ -1029,19 +1359,6 @@ func _escrever_hud(raiz: Control, texto: String) -> void:
 	TemaEncontro.escrever_sombreado(raiz, texto)
 
 
-## Resumo da bolsa. Le o inventario do gerenciador — nao guarda contagem propria,
-## que sairia do ar no primeiro item consumido por outro caminho.
-func _atualizar_bolsa() -> void:
-	if _hud_bolsa == null or encontros == null or encontros.inventario == null:
-		return
-	var inv := encontros.inventario
-	var dispositivos: int = inv.total_de(encontros.captura.dispositivos)
-	var iscas: int = inv.total_de(encontros.captura.iscas)
-	var vara: String = "  ·  vara" if _vara_na_bolsa() else ""
-	_escrever_hud(_hud_bolsa, "BOLSA  ×%d dispositivos  ·  ×%d iscas%s     CAPTURADAS %d/%d"
-			% [dispositivos, iscas, vara, inv.colecao.size(), criaturas_por_mundo])
-
-
 ## Mensagem curta no HUD, com sumico automatico.
 func _nota(texto: String) -> void:
 	if _hud_nota == null:
@@ -1057,7 +1374,7 @@ func _nota(texto: String) -> void:
 
 func _mostrar_hud(visivel: bool) -> void:
 	_hud_visivel = visivel
-	for no in [_hud_dica, _hud_bolsa, _hud_nota, _hud_objetivo]:
+	for no in [_hud_dica, _hud_nota, _hud_objetivo]:
 		if no != null:
 			no.visible = visivel
 	_ceder_topo_a_dica()
@@ -1065,7 +1382,6 @@ func _mostrar_hud(visivel: bool) -> void:
 
 func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 	_mostrar_hud(true)
-	_atualizar_bolsa()
 	_atualizar_objetivo()
 	if criatura != null:
 		print("Encontro encerrado (%s): %s" % [desfecho, criatura.nome()])
@@ -1076,18 +1392,53 @@ func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 
 	var duelo := _duelo_atual
 	_duelo_atual = {}
+	# A dica do menu sai do dicionario ao ser mostrada: se saiu, a primeira batalha
+	# contra selvagem aconteceu e as dicas nao voltam.
+	if encontros != null and not encontros.dicas_de_estreia.is_empty() \
+			and not encontros.dicas_de_estreia.has("menu"):
+		encontros.dicas_de_estreia = {}
+		estado_mundo.definir(BANDEIRA_DICAS_BATALHA)
+	RegistroSessao.evento("encontro", {"desfecho": desfecho,
+			"criatura": criatura.nome() if criatura != null else "",
+			"guardiao": String(duelo.get("id", ""))})
 	match desfecho:
 		"derrota":
 			_mostrar_derrota()
+		"derrotada":
+			_recompensar_selvagem(criatura)
 		"duelo_vencido":
 			_ao_vencer_duelo(duelo)
 
 
+## Gold por derrotar um selvagem, proporcional a forca dele: criatura mais forte que o
+## gerador produziu vale mais. Capturar nao paga: e o outro caminho do encontro.
+func _recompensar_selvagem(c: Criatura) -> void:
+	if c == null or encontros == null:
+		return
+	var forca := FichaCombate.de_criatura(c, encontros.tabelas_batalha).forca(encontros.tabelas_batalha)
+	var gold := Bolsa.economia.recompensa_selvagem(forca)
+	Bolsa.ganhar_gold(gold)
+	_nota("+%d gold" % gold)
+
+
 func _ao_vencer_duelo(guardiao: Dictionary) -> void:
-	estado_mundo.definir(String(guardiao.get("selo", "")))
-	_nota("%s entregou o selo." % String(guardiao.get("nome", "")))
+	var selo := String(guardiao.get("selo", ""))
+	# O premio so vem na primeira vitoria: a revanche nao pode virar fonte de gold.
+	var premio: int = 0
+	if not estado_mundo.ativa(selo):
+		premio = int(guardiao.get("premio_gold", 0))
+		Bolsa.ganhar_gold(premio)
+	estado_mundo.definir(selo)
+	if premio > 0:
+		_nota("%s entregou o selo e %d gold." % [String(guardiao.get("nome", "")), premio])
+	else:
+		_nota("%s entregou o selo." % String(guardiao.get("nome", "")))
 	if guardioes.venceu_o_jogo(estado_mundo) and not estado_mundo.ativa(BANDEIRA_VENCEU):
 		estado_mundo.definir(BANDEIRA_VENCEU)
+		RegistroSessao.evento("vitoria", {"seed": seed_do_mundo,
+				"modelo": GeradorCriaturas.nome_do_modo(encontros.modo_gerador),
+				"capturas": encontros.inventario.colecao.size(),
+				"tempo": Save.partida.tempo_legivel() if Save.em_partida() else ""})
 		_autosalvar()
 		_mostrar_vitoria()
 		return

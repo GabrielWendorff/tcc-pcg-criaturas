@@ -219,6 +219,10 @@ func _rodar() -> void:
 			"\n       ".join(catalogo.validar(dialogos)))
 	var regioes_com_npc := {}
 	for n: DadosNpc in catalogo.npcs:
+		# Quem mora num interior (o Otavio, na fabrica) e conferido pelo gerador
+		# daquele mapa (tools/mapas/gerar_fabrica.py), nao contra o mundo.
+		if n.mapa != mundo.id_mapa:
+			continue
 		var pisavel: bool = not mundo.bloqueia(n.celula)
 		var regiao_do_npc := ""
 		for no in nos_de_regiao:

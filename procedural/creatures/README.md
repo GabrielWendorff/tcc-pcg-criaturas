@@ -37,10 +37,10 @@ terra é atarracado e um de ar é esguio, antes de qualquer cor.
 atributos → qual PNG e em que ponto ele encosta*. `PaletaCriatura` traduz
 (matiz, paleta) na rampa de 4 tons que colore as máscaras indexadas.
 
-**Cobertura de arte.** Só `garras` tem máscaras (`CatalogoCorpos.ARTE_DE_FEATURE`).
-`escamas`, `asas` e `nadadeiras` continuam sendo sorteadas e medidas normalmente —
-apenas ainda não são desenhadas, e a ficha da criatura marca isso como *(sem
-arte)*. O pipeline vetorial anterior (`BodyDef` / `part_library.tres` /
+**Cobertura de arte.** Os quatro traços são desenhados, cada um no seu encaixe: garras
+nos pés, asas no ombro, nadadeiras no dorso e no flanco, escamas sobre o corpo (ver
+`arte/README.md`). Só aparece o que o gerador sorteou, no modelo sorteado, então o
+quadro nunca contradiz a ficha. O pipeline vetorial anterior (`BodyDef` / `part_library.tres` /
 `creature_renderer.gd`) permanece no repositório como referência, sem uso.
 
 ## Métricas (RF08)

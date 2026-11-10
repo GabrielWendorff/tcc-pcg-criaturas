@@ -33,6 +33,8 @@ const K_UNICIDADE_PADRAO := 3
 ## usada nos relatorios (test_gerador, viewer).
 const DIMENSOES_MODA := ["porte", "paleta", "matiz", "morfologia", "variante"]
 
+const MODELO_V2 := "condicionado_v2"
+
 
 ## Avalia um bestiario. Retorno:
 ## {
@@ -41,25 +43,31 @@ const DIMENSOES_MODA := ["porte", "paleta", "matiz", "morfologia", "variante"]
 ##   info_mutua: {"<x>->>><y>": {i_bits, i_corrigido, u, h_x, h_y, ...}},
 ##   unicidade: {k, distintas, isoladas, dist_media, ...}
 ## }
+##
+## `modelo`: nome do modelo contra o qual medir ("condicionado" ou "condicionado_v2").
+## Vazio, vale o do proprio bestiario. O baseline independente precisa receber o da
+## proposta com que sera comparado: as duas colunas tem de usar a mesma regua.
 static func avaliar(bestiario: Array, tabelas: TabelasProbabilidade,
-		k_unicidade: int = K_UNICIDADE_PADRAO) -> Dictionary:
+		k_unicidade: int = K_UNICIDADE_PADRAO, modelo: String = "") -> Dictionary:
 	var total: int = bestiario.size()
 	if total == 0:
 		return {"total": 0}
 	var features: Array = tabelas.features_morfologia()
+	var v2: bool = (bestiario[0].modo if modelo == "" else modelo) == MODELO_V2
 	return {
 		"total": total,
 		"modo": bestiario[0].modo,
-		"moda": _avaliar_moda(bestiario, tabelas, features),
+		"moda": _avaliar_moda(bestiario, tabelas, features, v2),
 		"info_mutua": avaliar_info_mutua(bestiario, features),
 		"unicidade": avaliar_unicidade(bestiario, features, k_unicidade),
+		"nota": NotaCoerencia.resumo(bestiario, tabelas, v2),
 	}
 
 
 # --- 1. Coerencia por moda, contra o teto teorico -------------------------
 
 static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
-		features: Array) -> Dictionary:
+		features: Array, v2: bool) -> Dictionary:
 	var total: int = bestiario.size()
 	var portes: Array = tabelas.portes()
 	var porte_ok: int = 0
@@ -72,14 +80,18 @@ static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
 	var variante_total: int = 0
 
 	for c in bestiario:
-		if c.porte == portes[_indice_moda(tabelas.vies_porte(c.elemento))]:
+		var pesos_porte: Array = tabelas.pesos_porte_v2(c.animal_base, c.elemento) if v2 \
+				else tabelas.vies_porte(c.elemento)
+		if c.porte == portes[_indice_moda(pesos_porte)]:
 			porte_ok += 1
 		if c.paleta == _moda(tabelas.dist_paleta(c.elemento)):
 			paleta_ok += 1
 		if c.matiz == _moda(tabelas.dist_matiz(c.elemento)):
 			matiz_ok += 1
 		for f in features:
-			var esperado: bool = tabelas.prob_feature(c.animal_base, c.elemento, f) >= 0.5
+			var p_f: float = tabelas.prob_feature_v2(c.animal_base, c.elemento, f, c.morfologia) \
+					if v2 else tabelas.prob_feature(c.animal_base, c.elemento, f)
+			var esperado: bool = p_f >= 0.5
 			if c.morfologia[f] == esperado:
 				feature_ok[f] += 1
 		for f in c.variantes:
@@ -87,7 +99,7 @@ static func _avaliar_moda(bestiario: Array, tabelas: TabelasProbabilidade,
 			if c.variantes[f] == _indice_moda(tabelas.vies_variante(f, c.elemento)):
 				variante_ok += 1
 
-	var tetos: Dictionary = _tetos_teoricos(tabelas, features)
+	var tetos: Dictionary = _tetos_teoricos(tabelas, features, v2)
 
 	var por_feature: Dictionary = {}
 	var soma_morf: float = 0.0
@@ -122,7 +134,13 @@ static func _dimensao(obs: float, teto: float) -> Dictionary:
 ## Valor esperado da coerencia por moda sob as tabelas vigentes, calculado
 ## analiticamente (nao amostrado). E o limite superior de _avaliar_moda: um gerador
 ## perfeitamente fiel as condicionais converge para estes numeros quando n -> inf.
-static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> Dictionary:
+##
+## Na v2 o porte depende do animal e cada traco depende dos anteriores: os tetos
+## percorrem os caminhos da cadeia (no maximo 2^4 por par). Usam os priors, embora a
+## estratificacao os aproxime do uniforme em n=100: a diferenca e pequena e o teto
+## continua sendo a referencia analitica do modelo.
+static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array,
+		v2: bool = false) -> Dictionary:
 	var pe: Dictionary = tabelas.prior_elemento()
 	var pa: Dictionary = tabelas.prior_animal()
 	var elementos: Array = tabelas.elementos()
@@ -132,7 +150,8 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 	var t_paleta: float = 0.0
 	var t_matiz: float = 0.0
 	for e in elementos:
-		t_porte += float(pe[e]) * _maior_peso_relativo(tabelas.vies_porte(e))
+		if not v2:
+			t_porte += float(pe[e]) * _maior_peso_relativo(tabelas.vies_porte(e))
 		t_paleta += float(pe[e]) * _maior_prob(tabelas.dist_paleta(e))
 		t_matiz += float(pe[e]) * _maior_prob(tabelas.dist_matiz(e))
 
@@ -142,7 +161,22 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 	var t_morf: float = 0.0
 	var var_num: float = 0.0
 	var var_den: float = 0.0
-	for f in features:
+	if v2:
+		var acumulado_v2: Dictionary = {}
+		for f in features:
+			acumulado_v2[f] = 0.0
+		var variante_v2: Array = [0.0, 0.0]
+		for e in elementos:
+			for a in animais:
+				var w: float = float(pe[e]) * float(pa[a])
+				t_porte += w * _maior_peso_relativo(tabelas.pesos_porte_v2(a, e))
+				_percorrer_cadeia(tabelas, a, e, w, acumulado_v2, variante_v2)
+		for f in features:
+			t_por_feature[f] = acumulado_v2[f]
+			t_morf += acumulado_v2[f]
+		var_num = variante_v2[0]
+		var_den = variante_v2[1]
+	for f in ([] if v2 else features):
 		var acc: float = 0.0
 		for e in elementos:
 			for a in animais:
@@ -170,6 +204,30 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 	}
 
 
+## Acumula, para um par (animal, elemento) de peso w, o teto de cada traco e da variante
+## somando sobre todos os caminhos de presenca da cadeia.
+static func _percorrer_cadeia(tabelas: TabelasProbabilidade, a: String, e: String, w: float,
+		acumulado: Dictionary, variante: Array) -> void:
+	var caminhos: Array = [[{}, 1.0]]
+	for f: String in tabelas.ordem_cadeia():
+		var maior_variante: float = _maior_peso_relativo(tabelas.vies_variante(f, e))
+		var proximos: Array = []
+		for caminho: Array in caminhos:
+			var sorteados: Dictionary = caminho[0]
+			var massa: float = caminho[1]
+			var p: float = tabelas.prob_feature_v2(a, e, f, sorteados)
+			acumulado[f] += w * massa * maxf(p, 1.0 - p)
+			variante[0] += w * massa * p * maior_variante
+			variante[1] += w * massa * p
+			var com: Dictionary = sorteados.duplicate()
+			com[f] = true
+			var sem: Dictionary = sorteados.duplicate()
+			sem[f] = false
+			proximos.append([com, massa * p])
+			proximos.append([sem, massa * (1.0 - p)])
+		caminhos = proximos
+
+
 # --- 2. Informacao mutua --------------------------------------------------
 
 ## I(primario; derivado) para os pares que sustentam a tese do trabalho.
@@ -182,6 +240,7 @@ static func _tetos_teoricos(tabelas: TabelasProbabilidade, features: Array) -> D
 static func avaliar_info_mutua(bestiario: Array, features: Array) -> Dictionary:
 	var r: Dictionary = {}
 	r["elemento->porte"] = _info_mutua(_pares(bestiario, "elemento", "porte"))
+	r["animal->porte"] = _info_mutua(_pares(bestiario, "animal_base", "porte"))
 	r["elemento->paleta"] = _info_mutua(_pares(bestiario, "elemento", "paleta"))
 	r["elemento->matiz"] = _info_mutua(_pares(bestiario, "elemento", "matiz"))
 	r["elemento->cor"] = _info_mutua(_pares_cor(bestiario))

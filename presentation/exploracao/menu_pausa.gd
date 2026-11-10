@@ -31,6 +31,7 @@ enum Pagina { RAIZ, OPCOES }
 const OPCOES_RAIZ := [
 	{"id": "continuar", "texto": "CONTINUAR"},
 	{"id": "equipe", "texto": "EQUIPE"},
+	{"id": "bestiario", "texto": "BESTIÁRIO"},
 	{"id": "bolsa", "texto": "BOLSA"},
 	{"id": "opcoes", "texto": "OPÇÕES"},
 	{"id": "salvar", "texto": "SALVAR"},
@@ -39,6 +40,15 @@ const OPCOES_RAIZ := [
 
 var bolsa: TelaBolsa
 var tela_equipe: TelaEquipe
+var tela_bestiario: TelaBestiario
+
+## O que o bestiario mostra. A cena do mundo entrega: bestiario da seed, como saber se
+## uma criatura foi capturada, tabelas de batalha e o rotulo da seed.
+var bestiario: Array = []
+var capturada: Callable
+var tabelas_batalha: TabelasBatalha
+var tabelas_probabilidade: TabelasProbabilidade
+var rotulo_seed: String = ""
 
 ## Quem resolve um item usado na bolsa, porque esta classe nao sabe o que e curar:
 ## recebe o ItemJogo e devolve a frase do resultado. A cena do mundo liga aqui.
@@ -52,12 +62,18 @@ var catalogo_corpos: CatalogoCorpos
 ## entrou por atalho tem de sair por atalho: fechar a bolsa devolve o jogo, em
 ## vez de deixar o jogador num menu de pausa que ele nunca pediu.
 var _bolsa_direta: bool = false
+var _bestiario_direto: bool = false
 
 var _raiz: Control
 var _bloco: CenterContainer
 var _menu: MenuEscolhas
 var _painel_opcoes: PainelOpcoes
 var _nota: Label
+var _controles: Label
+
+## Linha de controles mostrada sob o menu. A cena do mundo entrega: e ela que sabe se
+## as teclas de desenvolvimento valem nesta build.
+var texto_controles: String = ""
 var _pagina: Pagina = Pagina.RAIZ
 var _aberto: bool = false
 
@@ -105,6 +121,10 @@ func _ready() -> void:
 	_nota.custom_minimum_size = Vector2(MenuEscolhas.LARGURA, 0)
 	coluna.add_child(_nota)
 
+	_controles = TemaEncontro.rotulo("", TemaEncontro.PERG_E)
+	_controles.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	coluna.add_child(_controles)
+
 	_painel_opcoes = PainelOpcoes.new()
 	_painel_opcoes.cancelado.connect(_voltar_para_raiz)
 	_raiz.add_child(_painel_opcoes)
@@ -120,6 +140,11 @@ func _ready() -> void:
 	tela_equipe.fechada.connect(_voltar_da_equipe)
 	add_child(tela_equipe)
 
+	tela_bestiario = TelaBestiario.new()
+	tela_bestiario.name = "TelaBestiario"
+	tela_bestiario.fechada.connect(_ao_fechar_bestiario)
+	add_child(tela_bestiario)
+
 	visible = false
 
 
@@ -131,6 +156,7 @@ func abrir() -> void:
 	_aberto = true
 	visible = true
 	_nota.text = ""
+	_controles.text = texto_controles
 	_bolsa_direta = false
 	_ir_para(Pagina.RAIZ)
 	get_tree().paused = true
@@ -147,6 +173,8 @@ func fechar() -> void:
 		bolsa.fechar()
 	if tela_equipe.aberta():
 		tela_equipe.fechar()
+	if tela_bestiario.aberta():
+		tela_bestiario.fechar()
 	get_tree().paused = false
 
 
@@ -187,6 +215,8 @@ func _ao_escolher(indice: int) -> void:
 			retomar_pedido.emit()
 		"equipe":
 			_mostrar_equipe()
+		"bestiario":
+			_mostrar_bestiario(false)
 		"bolsa":
 			_mostrar_bolsa(false)
 		"opcoes":
@@ -209,6 +239,35 @@ func _mostrar_equipe() -> void:
 
 func _voltar_da_equipe() -> void:
 	if _aberto:
+		_ir_para(Pagina.RAIZ)
+
+
+## O bestiario da seed. `direta`: aberto pela tecla N, e nao pelo menu — fechar devolve
+## o jogo, como a bolsa aberta pelo B.
+func _mostrar_bestiario(direta: bool) -> void:
+	if bestiario.is_empty():
+		nota("Sem bestiário nesta cena.")
+		_ir_para(Pagina.RAIZ)
+		return
+	_bestiario_direto = direta
+	_raiz.visible = false
+	_menu.fechar()
+	tela_bestiario.abrir(bestiario, capturada, catalogo_corpos, tabelas_batalha, rotulo_seed,
+			tabelas_probabilidade)
+
+
+func abrir_no_bestiario() -> void:
+	abrir()
+	_mostrar_bestiario(true)
+
+
+func _ao_fechar_bestiario() -> void:
+	if not _aberto:
+		return
+	if _bestiario_direto:
+		_bestiario_direto = false
+		retomar_pedido.emit()
+	else:
 		_ir_para(Pagina.RAIZ)
 
 
@@ -255,8 +314,13 @@ func nota(texto: String) -> void:
 	_nota.text = texto
 
 
+## Bolsa, equipe ou bestiario abertos por cima do menu: eles tem a entrada.
+func _tela_por_cima() -> bool:
+	return bolsa.aberta() or tela_equipe.aberta() or tela_bestiario.aberta()
+
+
 func _unhandled_input(evento: InputEvent) -> void:
-	if not _aberto or bolsa.aberta() or tela_equipe.aberta():
+	if not _aberto or _tela_por_cima():
 		return
 	var tratou := false
 	if _pagina == Pagina.RAIZ:
@@ -268,7 +332,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 			# MenuEscolhas trava apos uma escolha; reabrir devolve o cursor a
 			# lista quando a acao escolhida nao mudou de pagina (Salvar).
 			if tratou and _pagina == Pagina.RAIZ and not _menu.ativo() \
-					and _aberto and not bolsa.aberta():
+					and _aberto and not _tela_por_cima():
 				_ir_para(Pagina.RAIZ)
 	else:
 		tratou = _painel_opcoes.tratar_entrada(evento)

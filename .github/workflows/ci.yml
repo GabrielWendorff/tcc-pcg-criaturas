@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [master, etapa-final/jogo-completo]
+  pull_request:
+
+env:
+  GODOT_VERSAO: 4.7-stable
+  GODOT_BIN: Godot_v4.7-stable_linux.x86_64
+
+jobs:
+  testes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar o Godot
+        run: |
+          curl -sSfLO "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSAO}/${GODOT_BIN}.zip"
+          unzip -q "${GODOT_BIN}.zip" -d "$HOME/godot"
+          echo "GODOT=$HOME/godot/${GODOT_BIN}" >> "$GITHUB_ENV"
+      - name: Validar as tabelas
+        run: python3 tools/validate_tables.py
+      - name: Importar o projeto
+        run: timeout 300 "$GODOT" --headless --path . --import || true
+      - name: Rodar a suite
+        run: tools/rodar_testes.sh logs-testes
+      - name: Balanceamento do combate
+        run: timeout 300 "$GODOT" --headless --path . -s res://tools/simular_batalha.gd -- --seeds 200
+      - name: Criterios do gerador v2
+        run: timeout 300 "$GODOT" --headless --path . -s res://tools/comparar_bracos.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-testes
+          path: logs-testes
+
+  analise-estatica:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "gdtoolkit==4.*"
+      - name: gdlint
+        # Informativo ate a primeira leitura do resultado: o projeto nunca passou por lint.
+        continue-on-error: true
+        run: gdlint procedural presentation sistemas
+
+  builds:
+    needs: testes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar o Godot e os modelos de exportacao
+        run: |
+          curl -sSfLO "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSAO}/${GODOT_BIN}.zip"
+          curl -sSfLO "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSAO}/Godot_v${GODOT_VERSAO}_export_templates.tpz"
+          unzip -q "${GODOT_BIN}.zip" -d "$HOME/godot"
+          unzip -q "Godot_v${GODOT_VERSAO}_export_templates.tpz" -d "$HOME/modelos"
+          DESTINO="$HOME/.local/share/godot/export_templates/${GODOT_VERSAO/-/.}"
+          mkdir -p "$(dirname "$DESTINO")"
+          mv "$HOME/modelos/templates" "$DESTINO"
+          echo "GODOT=$HOME/godot/${GODOT_BIN}" >> "$GITHUB_ENV"
+      - name: Importar o projeto
+        run: timeout 300 "$GODOT" --headless --path . --import || true
+      - name: Exportar
+        run: |
+          mkdir -p exports/linux exports/windows exports/web
+          "$GODOT" --headless --path . --export-release "Linux" exports/linux/rpg-pcg.x86_64
+          "$GODOT" --headless --path . --export-release "Windows" exports/windows/rpg-pcg.exe
+          "$GODOT" --headless --path . --export-release "Web" exports/web/index.html
+      - name: Conferir que nenhuma referencia local entrou
+        run: |
+          if grep -alE '_ref_direcoes|autoral/_ref' exports/linux/* exports/windows/*; then
+            echo "referencia local dentro da build"; exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: builds
+          path: exports

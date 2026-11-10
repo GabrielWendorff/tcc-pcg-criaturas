@@ -45,6 +45,7 @@ var _lista: VBoxContainer
 var _rolagem: ScrollContainer
 var _ficha: VBoxContainer
 var _rodape: Label
+var _gold: Label
 
 var _categorias: Array = []
 var _itens: Array[ItemJogo] = []
@@ -106,8 +107,14 @@ func _montar() -> void:
 	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margem.add_child(coluna)
 
-	coluna.add_child(TemaEncontro.rotulo("BOLSA", TemaEncontro.OURO,
-			TemaEncontro.Corpo.TITULO))
+	var topo := HBoxContainer.new()
+	topo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	coluna.add_child(topo)
+	var titulo := TemaEncontro.rotulo("BOLSA", TemaEncontro.OURO, TemaEncontro.Corpo.TITULO)
+	titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	topo.add_child(titulo)
+	_gold = TemaEncontro.rotulo("", TemaEncontro.OURO_C, TemaEncontro.Corpo.TITULO)
+	topo.add_child(_gold)
 
 	_abas = HBoxContainer.new()
 	_abas.name = "Abas"
@@ -162,6 +169,7 @@ func abrir(criatura: Criatura = null) -> void:
 		_cat_atual = String(_categorias[0]["id"]) if not _categorias.is_empty() else ""
 	_aberta = true
 	visible = true
+	_gold.text = "%d GOLD" % Bolsa.gold
 	_rodape.text = TEXTO_RODAPE
 	_reconstruir_abas()
 	_reconstruir_lista()

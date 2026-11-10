@@ -9,6 +9,8 @@ reservado a conteúdo de jogo fixo (NPCs, mapas, diálogos).
 arte/
 ├── corpos/    32 máscaras 32×32 (8 animais × 4 portes) + corpos_ancoras.json
 ├── garras/     4 máscaras 16×16 (curtas, curvas, serrilhadas, adaga)
+├── apendices/ asas e nadadeiras (dorsal e peitoral), 4 modelos cada, + apendices.json
+│   └── escamas/  128 sobreposições: 4 modelos para cada um dos 32 corpos
 ├── mundo/     cenário isométrico: atlas_terreno.png + props/ + os dois JSON
 ├── itens/     16 ícones 20×20 de dispositivo e isca: itens.png + itens.json
 ├── ui/        molduras 9-slice, medidor, selo, balão, vinheta e a fonte pixel
@@ -17,7 +19,7 @@ arte/
 
 ## Três famílias de arte, e por que elas são diferentes
 
-`corpos/` e `garras/` são **máscaras indexadas**: a cor da criatura é um
+`corpos/`, `garras/` e `apendices/` são **máscaras indexadas**: a cor da criatura é um
 atributo *derivado sorteado* (RF04) e só pode ser resolvida em tempo de
 execução, pelo shader. Já `mundo/`, `itens/` e `ui/` saem **coloridos**: a vila é
 conteúdo autoral fixo e um ícone de osso não tem matiz sorteado. Passá-los pelo
@@ -26,6 +28,29 @@ shader de paleta inventaria um grau de liberdade que o modelo não tem.
 Uma convenção atravessa as três: **luz no alto à esquerda**, contorno escuro de
 1px por fora e rampa de três tons. É o que faz criatura, cenário e interface
 conviverem no mesmo quadro sem parecerem recortados de jogos diferentes.
+
+## Onde cada traço encosta
+
+Cada corpo declara pontos de encaixe medidos na própria silhueta
+(`arte/corpos/corpos_ancoras.json`, por `tools/arte/corpos_tipos.py`), e cada peça
+declara o pixel que encosta neles, o **pivô** (`arte/apendices/apendices.json`):
+
+| traço | onde | como |
+|---|---|---|
+| garras | `pe_frente`, `pe_tras` | a ponta da garra no chão, sob cada pé |
+| asas | `dorso` (ombro) | a raiz da asa no ombro; ela sobe e varre para trás |
+| nadadeiras | `dorso_tras` e `flanco` | dorsal mais atrás no dorso; peitoral na lateral do tronco |
+| escamas | o corpo inteiro | textura recortada pela silhueta, só no miolo, sem tocar o contorno |
+
+Ordem de desenho, de trás para a frente: corpo, escamas, nadadeiras, garras, asas.
+Cada traço só aparece se o gerador o sorteou, no modelo sorteado
+(`CatalogoCorpos.quadros_de_tracos`). A ave e o peixe **não** têm asa nem
+nadadeiras pintadas no corpo: antes tinham, e uma ave sem o traço `asas` aparecia
+com asa. `tools/test_arte_criaturas.gd` confere encaixes, recorte e contagem de peças.
+
+```bash
+python3 tools/arte/gerar_corpos.py && python3 tools/arte/gerar_apendices.py
+```
 
 ## Máscara indexada
 
