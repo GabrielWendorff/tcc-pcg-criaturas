@@ -3,7 +3,7 @@
 O que vive **fora** de qualquer cena, porque tem tempo de vida maior que o dela.
 
 ```bash
-godot --headless --path . -s res://tools/test_save.gd    # regra + disco + autoload
+godot --headless --path . res://tools/test_save.tscn    # regra + disco + autoload
 ```
 
 ## Por que este diretório existe
