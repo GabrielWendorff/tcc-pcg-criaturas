@@ -280,6 +280,8 @@ func _comecar(criaturas: Array, tipo: String, guardiao: Dictionary) -> void:
 	if _jogador != null:
 		_jogador.congelar(true)
 	encontro_iniciado.emit(_criatura)
+	Som.tocar("encontro")
+	Som.musica("batalha")
 	await _roteiro_de_abertura(_geracao)
 
 
@@ -763,6 +765,7 @@ func _encerrar(desfecho: String) -> void:
 		_jogador.congelar(false)
 		_posicao_anterior = _jogador.global_position
 	estado.mudar_para(EstadoEncontro.Estado.INATIVO)
+	Som.musica("vila")
 	encontro_terminado.emit(desfecho, criatura)
 
 

@@ -147,6 +147,7 @@ func _selecionar(i: int) -> void:
 		return
 	if not _habilitados[i]:
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_pintar()
 
@@ -221,5 +222,6 @@ func tratar_entrada(evento: InputEvent) -> bool:
 func _confirmar() -> void:
 	if not _ativo:
 		return
+	Som.tocar("ui_confirmar")
 	_ativo = false            # trava ate o gerenciador reabrir com o proximo no
 	escolhido.emit(_indice)

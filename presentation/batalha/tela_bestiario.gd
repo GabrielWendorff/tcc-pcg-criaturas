@@ -213,6 +213,7 @@ func _montar_celula(c: Criatura, i: int) -> PanelContainer:
 func _selecionar(i: int, forcar: bool = false) -> void:
 	if not _aberta or i < 0 or i >= _celulas.size() or (i == _indice and not forcar):
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	for j in _celulas.size():
 		_celulas[j].add_theme_stylebox_override("panel",

@@ -268,6 +268,7 @@ func _vizinho_alcancavel(de: int, passo: int) -> int:
 func _selecionar(i: int) -> void:
 	if not _ativo or i == _indice or not _alcancavel(i):
 		return
+	Som.tocar("ui_mover")
 	# Mover o cursor cancela uma confirmacao pendente: confirmar o apagamento de
 	# um cartao enquanto se olha para outro seria a pior forma de perder um save.
 	var cancelou: bool = _confirmando != 0
@@ -350,6 +351,7 @@ func _pedir_apagar() -> void:
 func _confirmar() -> void:
 	if not _ativo:
 		return
+	Som.tocar("ui_confirmar")
 	var slot := _slot_do_indice()
 	if slot == 0:
 		return

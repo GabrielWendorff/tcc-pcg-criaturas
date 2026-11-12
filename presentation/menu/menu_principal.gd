@@ -67,6 +67,7 @@ var _saindo: bool = false
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	Som.musica("vila")
 	# Voltar ao menu encerra a partida em curso. Sem isto, sair do jogo e abrir
 	# "Novo jogo" comecaria a partida nova por cima do estado da anterior, com o
 	# cronometro da velha ainda correndo.
@@ -267,6 +268,7 @@ func _slot_ocupado(slot: int) -> bool:
 # --------------------------------------------------------------------- acoes
 
 func _ao_escolher_raiz(indice: int) -> void:
+	Som.tocar("ui_confirmar")
 	match String(OPCOES_RAIZ[indice]["id"]):
 		"novo":
 			_intencao = Intencao.NOVO
@@ -292,6 +294,7 @@ func _ao_escolher_slot(slot: int) -> void:
 		_slots.atualizar(Save.resumos())
 		_nota_curta("Não foi possível carregar o slot %d." % slot)
 		return
+	Som.tocar("ui_confirmar")
 	_entrar_no_jogo()
 
 

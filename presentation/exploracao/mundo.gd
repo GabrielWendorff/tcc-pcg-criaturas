@@ -149,6 +149,7 @@ var _hud_visivel: bool = true
 
 
 func _ready() -> void:
+	Som.musica("vila")
 	# Antes de qualquer montagem: o bestiario inteiro depende destes dois numeros.
 	if Save.em_partida():
 		seed_do_mundo = Save.partida.seed_mundo
@@ -513,6 +514,7 @@ func _atravessar(porta: Dictionary) -> void:
 		_nota("Sem partida em curso: portas só funcionam numa partida do menu.")
 		return
 	_atravessando = true
+	Som.tocar("porta")
 	jogador.congelar(true)
 	Save.coletar()
 	var chegada: Array = porta.get("chegada", [0, 0])
@@ -1046,6 +1048,8 @@ func _piscar_objetivo() -> void:
 
 
 func _mostrar_vitoria() -> void:
+	Som.musica("")
+	Som.tocar("vitoria")
 	jogador.congelar(true)
 	dialogos.suspender(true)
 	tela_desfecho.abrir("VITÓRIA", TemaEncontro.OURO, _texto_de_vitoria(), [
@@ -1084,6 +1088,8 @@ static func _coerencia_media(metricas: Dictionary) -> float:
 
 
 func _mostrar_derrota() -> void:
+	Som.musica("")
+	Som.tocar("derrota")
 	jogador.congelar(true)
 	dialogos.suspender(true)
 	var opcoes: Array = []
@@ -1100,6 +1106,7 @@ func _mostrar_derrota() -> void:
 func _ao_escolher_no_desfecho(id: String) -> void:
 	match id:
 		"continuar":
+			Som.musica("vila")
 			jogador.congelar(false)
 			dialogos.suspender(false)
 		"menu":
@@ -1421,6 +1428,7 @@ func _recompensar_selvagem(c: Criatura) -> void:
 	var forca := FichaCombate.de_criatura(c, tabelas).forca(tabelas)
 	var gold := Bolsa.economia.recompensa_selvagem(forca)
 	Bolsa.ganhar_gold(gold)
+	Som.tocar("moeda")
 	_nota("+%d gold" % gold)
 
 
@@ -1432,6 +1440,7 @@ func _ao_vencer_duelo(guardiao: Dictionary) -> void:
 		premio = int(guardiao.get("premio_gold", 0))
 		Bolsa.ganhar_gold(premio)
 	estado_mundo.definir(selo)
+	Som.tocar("selo")
 	if premio > 0:
 		_nota("%s entregou o selo e %d gold." % [String(guardiao.get("nome", "")), premio])
 	else:

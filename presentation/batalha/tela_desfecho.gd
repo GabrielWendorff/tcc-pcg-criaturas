@@ -92,6 +92,7 @@ func fechar() -> void:
 func _ao_escolher(indice: int) -> void:
 	if indice < 0 or indice >= _opcoes.size():
 		return
+	Som.tocar("ui_confirmar")
 	var id := String(_opcoes[indice]["id"])
 	fechar()
 	opcao_escolhida.emit(id)

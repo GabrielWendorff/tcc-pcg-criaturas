@@ -553,6 +553,7 @@ func _atualizar_menu() -> void:
 func _selecionar(i: int) -> void:
 	if not _menu_ativo or i == _indice or i < 0 or i >= _opcoes.size():
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_atualizar_menu()
 
@@ -592,6 +593,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 func _confirmar() -> void:
 	if not _menu_ativo:
 		return
+	Som.tocar("ui_confirmar")
 	_menu_ativo = false      # trava ate o gerenciador devolver o controle
 	_atualizar_menu()
 	if _em_lista:
@@ -638,6 +640,7 @@ func animar_lancamento(dispositivo: DispositivoCaptura, cfg: ConfiguracaoEncontr
 	icone.position = Vector2(alvo.x - 20.0, _raiz.size.y - 70.0)
 	_raiz.add_child(icone)
 
+	Som.tocar("captura_lancar")
 	var voo := create_tween()
 	voo.set_parallel(true)
 	voo.tween_property(icone, "position", alvo - icone.size * 0.5, cfg.duracao_lancamento) \
@@ -654,6 +657,7 @@ func animar_lancamento(dispositivo: DispositivoCaptura, cfg: ConfiguracaoEncontr
 	await sugada.finished
 
 	for i in cfg.balancos:
+		Som.tocar("captura_balanco")
 		var b := create_tween()
 		var amplitude: float = 0.35
 		b.tween_property(icone, "rotation", amplitude, cfg.duracao_balanco * 0.34) \
@@ -670,6 +674,7 @@ func animar_lancamento(dispositivo: DispositivoCaptura, cfg: ConfiguracaoEncontr
 func animar_desfecho(sucesso: bool, cfg: ConfiguracaoEncontro) -> void:
 	var icone := _icone_em_voo
 	_icone_em_voo = null
+	Som.tocar("captura_sucesso" if sucesso else "captura_falha")
 	var t := create_tween()
 	if sucesso:
 		t.set_parallel(true)

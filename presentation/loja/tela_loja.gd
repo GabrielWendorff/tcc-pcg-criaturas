@@ -203,6 +203,7 @@ func _atualizar_ficha() -> void:
 func _selecionar(i: int) -> void:
 	if not _aberta or i == _indice or i < 0 or i >= _cartoes.size():
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_pintar()
 
@@ -220,6 +221,7 @@ func comprar_selecionado() -> String:
 		return "Nada à venda."
 	var item := _itens[_indice]
 	var erro := Bolsa.comprar(item.id)
+	Som.tocar("moeda" if erro == "" else "ui_cancelar")
 	_rodape.text = erro if erro != "" else "Comprou: %s." % item.nome
 	_pintar()
 	return erro

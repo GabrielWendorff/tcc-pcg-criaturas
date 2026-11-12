@@ -27,6 +27,7 @@ Save="*res://sistemas/gerenciador_save.gd"
 Opcoes="*res://sistemas/opcoes.gd"
 Bolsa="*res://sistemas/bolsa.gd"
 RegistroSessao="*res://sistemas/registro_sessao.gd"
+Audio="*res://sistemas/audio.gd"
 
 [display]
 

@@ -295,6 +295,7 @@ func _pintar_lista() -> void:
 func _selecionar(i: int) -> void:
 	if not _aberta or i == _indice or i < 0 or i >= _cartoes.size():
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_pintar_lista()
 	_atualizar_ficha()
