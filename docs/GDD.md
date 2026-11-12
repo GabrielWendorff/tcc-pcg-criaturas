@@ -147,7 +147,6 @@ o selo da Dulce abre a fábrica.
 - Interiores de casa, missões paralelas e agenda de NPCs
 - XP e níveis
 - Busca evolutiva na geração
-- Áudio, até o momento (seção 10)
 
 ---
 
@@ -234,11 +233,19 @@ pontos medidos na silhueta.
 
 # 10. Áudio
 
-Ainda não há áudio no jogo. Previsto para a etapa de polimento, e o primeiro corte em caso de atraso.
+Todo o som é sintetizado por `tools/audio/gerar_audio.py` (onda quadrada, triângulo e ruído),
+sem amostra de terceiros. Volume de música e de efeitos nas opções.
 
 | Áudio | Onde usa | Loop | Descrição |
 |---|---|---|---|
-| *(a definir)* | | | |
+| música da vila | menu e exploração | sim | Dó maior, 96 bpm, melodia em onda quadrada e baixo em triângulo |
+| música de batalha | encontros e duelos | sim | Lá menor, 144 bpm, com bumbo e caixa |
+| interface | mover, confirmar, cancelar, fala | não | bipes curtos |
+| golpe e golpe eficaz | acerto na batalha | não | ruído com queda de tom; o eficaz tem brilho agudo |
+| errou, caiu, cura, reforço | eventos da batalha | não | varreduras e arpejos |
+| captura | lançar, balanço, sucesso, falha | não | subida, batidas, fanfarra curta ou estouro |
+| gold, achado, porta, fisgou | exploração, loja e pesca | não | moeda, brilho, batida, alerta |
+| selo, vitória, derrota | fim de duelo e do jogo | não | fanfarras e descida cromática |
 
 ---
 
@@ -249,7 +256,7 @@ Ainda não há áudio no jogo. Previsto para a etapa de polimento, e o primeiro 
 | Caminhada do jogador | exploração | sim | folha própria por direção |
 | Caminhada dos NPCs | exploração e abertura | sim | 8 animações por NPC |
 | Ônibus | abertura | não | deslocamento com balanço de 1 pixel e recorte na boca do túnel |
-| Dano | batalha | não | o alvo treme |
+| Golpe | batalha | não | quem ataca dá um pulo, o alvo pisca em branco, treme e mostra o dano subindo |
 | Criaturas passeando | menu principal | sim | deslocamento pela praça |
 
 ---
@@ -257,7 +264,7 @@ Ainda não há áudio no jogo. Previsto para a etapa de polimento, e o primeiro 
 # 12. Arquitetura de Software
 
 Quatro camadas alimentadas por uma seed: núcleo autoral (`autoral/`), gerador de criaturas
-(`procedural/creatures/`, `data/`), ambientação (`procedural/ambiance/`, ainda vazia) e apresentação
+(`procedural/creatures/`, `data/`), ambientação (`procedural/ambiance/`) e apresentação
 (`presentation/`). Regras puras ficam separadas da cena e são testáveis sem abrir o jogo. Números ficam em
 JSON. O save guarda seed, índice e modelo do gerador, e não os atributos. O detalhe está na Wiki.
 
@@ -266,6 +273,7 @@ JSON. O save guarda seed, índice e modelo do gerador, e não os atributos. O de
 | Categoria | Ferramenta |
 |---|---|
 | Engine | Godot 4.7 |
+| Áudio | síntese própria em Python (NumPy) |
 | Linguagem | GDScript; Python nas ferramentas de arte e mapa |
 | Versionamento | Git + GitHub |
 | CI | GitHub Actions: testes, gdlint, simulador e builds |
@@ -307,15 +315,13 @@ Ver `docs/plano-etapa-final.md`. Entrega em 30/11/2026.
 |---|---|---|
 | Playtest tardio | pouco tempo para iterar | build pública antes de 19/11 |
 | O teste cego não confirmar a legibilidade | enfraquece a hipótese | três braços e relato honesto do resultado |
-| Atraso nas entregas finais | jogo sem polimento | cortar primeiro a Camada 3, depois o áudio |
+| Atraso nas entregas finais | jogo sem polimento | priorizar build pública e playtest; polimento depois |
 | Dificuldade calibrada só por IA | guardiões injustos | percentis em JSON, ajustáveis depois do playtest |
 
 ---
 
 # 16. Limitações Conhecidas
 
-- Ambientação gerada pela seed (Camada 3) não implementada
-- Sem áudio
 - Silhueta do anfíbio lê como bloco
 - A asa é desenhada só do lado de perto
 - Dificuldade medida por uma IA que não cura nem troca: a Mirela dá 27,7% a uma equipe mediana
