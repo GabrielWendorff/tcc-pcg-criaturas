@@ -80,3 +80,39 @@ jobs:
         with:
           name: builds
           path: exports
+
+  publicar-itch:
+    # So publica a master, e so quando o itch.io esta configurado: segredo BUTLER_API_KEY
+    # e variavel ITCH_ALVO ("usuario/jogo"). Sem os dois, o job passa sem publicar.
+    needs: builds
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      ITCH_ALVO: ${{ vars.ITCH_ALVO }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: builds
+          path: exports
+      - name: Conferir configuracao
+        id: config
+        run: |
+          if [ -z "$BUTLER_API_KEY" ] || [ -z "$ITCH_ALVO" ]; then
+            echo "::notice::itch.io nao configurado (BUTLER_API_KEY e ITCH_ALVO); nada publicado"
+            echo "publicar=nao" >> "$GITHUB_OUTPUT"
+          else
+            echo "publicar=sim" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Baixar o butler
+        if: steps.config.outputs.publicar == 'sim'
+        run: |
+          curl -sSfL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler && chmod +x butler/butler
+      - name: Publicar Web, Windows e Linux
+        if: steps.config.outputs.publicar == 'sim'
+        run: |
+          VERSAO="${GITHUB_SHA::7}"
+          butler/butler push exports/web "$ITCH_ALVO:html5" --userversion "$VERSAO"
+          butler/butler push exports/windows "$ITCH_ALVO:windows" --userversion "$VERSAO"
+          butler/butler push exports/linux "$ITCH_ALVO:linux" --userversion "$VERSAO"

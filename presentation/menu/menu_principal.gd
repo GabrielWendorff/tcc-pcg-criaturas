@@ -41,6 +41,13 @@ const OPCOES_RAIZ := [
 	{"id": "sair", "texto": "SAIR"},
 ]
 
+## No navegador, SAIR nao tem para onde ir: a aba continua aberta.
+static func opcoes_da_raiz() -> Array:
+	if OS.has_feature("web"):
+		return OPCOES_RAIZ.filter(func(o: Dictionary) -> bool: return o["id"] != "sair")
+	return OPCOES_RAIZ
+
+
 const DICAS := {
 	Pagina.RAIZ: "SETAS escolher     E / ENTER confirmar",
 	Pagina.SLOTS: "SETAS escolher     E / ENTER confirmar     DEL apagar     ESC voltar",
@@ -241,7 +248,7 @@ func _ir_para(pagina: Pagina) -> void:
 func _abrir_raiz() -> void:
 	var tem_save := Save.ha_save()
 	var opcoes: Array = []
-	for o: Dictionary in OPCOES_RAIZ:
+	for o: Dictionary in opcoes_da_raiz():
 		# "Continuar" sem nenhum save fica VISIVEL e apagada, nunca escondida:
 		# uma lista que muda de tamanho conforme o disco faz o jogador procurar
 		# a opcao que ele lembra de ter visto.
@@ -269,7 +276,7 @@ func _slot_ocupado(slot: int) -> bool:
 
 func _ao_escolher_raiz(indice: int) -> void:
 	Som.tocar("ui_confirmar")
-	match String(OPCOES_RAIZ[indice]["id"]):
+	match String(opcoes_da_raiz()[indice]["id"]):
 		"novo":
 			_intencao = Intencao.NOVO
 			_ir_para(Pagina.SLOTS)
