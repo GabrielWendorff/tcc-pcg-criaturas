@@ -52,7 +52,9 @@ const OPCOES_DUELO := [
 ]
 
 const CAMINHO_VINHETA := "res://arte/ui/vinheta.png"
-const LARGURA_DICA_ESTREIA := 560.0
+## A dica fica na faixa livre a esquerda dos paineis: no topo ela cobria o nome da criatura.
+const LARGURA_DICA_ESTREIA := 222.0
+const MARGEM_DICA_ESTREIA := Vector2(8.0, 72.0)
 
 const LARGURA_FICHA := 306.0
 const TAMANHO_RETRATO := 188.0
@@ -76,6 +78,8 @@ var _meio: Control
 var _ficha: PanelContainer
 var _moldura_retrato: PanelContainer
 var _render: CreatureSpriteRenderer
+## Para a linha SORTEIO da ficha: a criatura mostra de onde veio. Opcional.
+var tabelas_probabilidade: TabelasProbabilidade
 var _titulo: Label
 var _subtitulo: Label
 var _atributos: RichTextLabel
@@ -163,18 +167,16 @@ func _montar() -> void:
 	_montar_dica_estreia()
 
 
-## Pergaminho no topo com a dica da primeira batalha. Acima da roda de proposito: a
+## Pergaminho a esquerda com a dica da primeira batalha. Acima da roda de proposito: a
 ## dica da roda e lida com ela aberta.
 func _montar_dica_estreia() -> void:
 	_dica_estreia = PanelContainer.new()
 	_dica_estreia.name = "DicaEstreia"
 	_dica_estreia.add_theme_stylebox_override("panel", TemaEncontro.moldura("pergaminho"))
 	_dica_estreia.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dica_estreia.anchor_left = 0.5
-	_dica_estreia.anchor_right = 0.5
-	_dica_estreia.offset_left = -LARGURA_DICA_ESTREIA * 0.5
-	_dica_estreia.offset_right = LARGURA_DICA_ESTREIA * 0.5
-	_dica_estreia.offset_top = 10.0
+	_dica_estreia.offset_left = MARGEM_DICA_ESTREIA.x
+	_dica_estreia.offset_right = MARGEM_DICA_ESTREIA.x + LARGURA_DICA_ESTREIA
+	_dica_estreia.offset_top = MARGEM_DICA_ESTREIA.y
 	_dica_estreia.visible = false
 	_raiz.add_child(_dica_estreia)
 	var coluna := VBoxContainer.new()
@@ -406,10 +408,39 @@ func _preencher_ficha(c: Criatura, tabelas: TabelasCaptura) -> void:
 			+ "%s\n[color=%s]APÊNDICES[/color]  %s") % [
 		TemaEncontro.PERG_E.to_html(false), c.paleta, c.matiz,
 		TemaEncontro.PERG_E.to_html(false), _lista_de_tracos(c)]
+	_atributos.text += _linha_do_sorteio(c)
 	if _modo_captura:
 		_preencher_perfil(c, tabelas)
 	else:
 		_perfil.text = ""
+
+
+## O gerador a vista no meio da batalha: a nota da criatura e os dois derivados que o
+## modelo mais esperava para o par (elemento, animal) dela. "E" no bestiario mostra o resto.
+func _linha_do_sorteio(c: Criatura) -> String:
+	if tabelas_probabilidade == null:
+		return ""
+	var nota := NotaCoerencia.decompor(c, tabelas_probabilidade, NotaCoerencia.usa_v2(c))
+	var bits: float = float(nota["bits"])
+	var atipica := NotaCoerencia.atipica(bits, tabelas_probabilidade)
+	var destaques: Array = []
+	for linha: Dictionary in nota["linhas"]:
+		var atributo := String(linha["atributo"])
+		if atributo.ends_with(" (modelo)") or String(linha["valor"]) == "não":
+			continue
+		destaques.append(linha)
+	destaques.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a["p"]) > float(b["p"]))
+	var partes := PackedStringArray()
+	for linha: Dictionary in destaques.slice(0, 2):
+		var atributo := String(linha["atributo"])
+		var rotulo := String(linha["valor"]) if atributo in ["porte", "paleta", "matiz"] \
+				else atributo
+		partes.append("%s %d%%" % [rotulo, roundi(float(linha["p"]) * 100.0)])
+	var cor := TemaEncontro.FALHA if atipica else TemaEncontro.VERDE
+	return "\n[color=%s]SORTEIO[/color]  [color=%s]%s[/color] · %s" % [
+		TemaEncontro.PERG_E.to_html(false), cor.to_html(false),
+		"ATÍPICA" if atipica else "COERENTE", " · ".join(partes)]
 
 
 ## Troca quem esta na ficha: o proximo do guardiao entrou em campo.
@@ -739,6 +770,41 @@ func animar_reacao(positiva: bool) -> void:
 		t.tween_property(_render, "scale", Vector2.ONE, 0.14) \
 				.set_trans(Tween.TRANS_SINE)
 	await t.finished
+
+
+## O golpe que acertou: quem bate da um pulo, quem apanha pisca em branco, sacode e
+## mostra o dano subindo. Golpe eficaz pisca mais forte e o numero vem dourado.
+func animar_golpe(dano: int, eficaz: bool, no_jogador: bool) -> void:
+	var atacante: Control = _render if no_jogador else _render_jogador
+	var alvo: Control = _render_jogador if no_jogador else _render
+	if atacante != null:
+		atacante.pivot_offset = atacante.size * 0.5
+		var pulo := create_tween()
+		pulo.tween_property(atacante, "scale", Vector2(1.15, 1.15), 0.06)
+		pulo.tween_property(atacante, "scale", Vector2.ONE, 0.10)
+	if alvo != null:
+		var clarao := create_tween()
+		clarao.tween_property(alvo, "modulate", Color(2.4, 2.4, 2.4) if eficaz
+				else Color(1.8, 1.8, 1.8), 0.05)
+		clarao.tween_property(alvo, "modulate", Color.WHITE, 0.12)
+		if dano > 0:
+			_numero_de_dano(alvo, dano, eficaz)
+	await animar_ataque(9.0 if eficaz else 6.0, no_jogador)
+
+
+func _numero_de_dano(alvo: Control, dano: int, eficaz: bool) -> void:
+	var rotulo := TemaEncontro.rotulo("-%d" % dano,
+			TemaEncontro.OURO if eficaz else TemaEncontro.PERG_C, TemaEncontro.Corpo.TITULO)
+	rotulo.z_index = 10
+	_raiz.add_child(rotulo)
+	var centro: Vector2 = alvo.get_global_rect().get_center() - _raiz.global_position
+	rotulo.position = centro - Vector2(18.0, 10.0)
+	var sobe := create_tween()
+	sobe.set_parallel(true)
+	sobe.tween_property(rotulo, "position:y", rotulo.position.y - 34.0, 0.6) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	sobe.tween_property(rotulo, "modulate:a", 0.0, 0.6).set_delay(0.25)
+	sobe.chain().tween_callback(rotulo.queue_free)
 
 
 ## Sacode quem levou o golpe: a ficha do adversario ou o cartao do jogador.
