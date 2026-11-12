@@ -479,6 +479,23 @@ def caixa(nome):
         "tipo": "poligono", "pontos": pegada_losango(1, 1, encolher=0.14)})
 
 
+def bolsa_perdida(nome):
+    """Ponto de interesse da Camada 3: uma bolsa de couro com moedas, sem colisao,
+    porque o jogador a recolhe ao pisar nela."""
+    c = Cena(1, 1, altura_px=12, folga_x=0)
+    t = c.tela
+    bx, by = c.ancora
+    t.elipse(bx, by - 4, 6, 4, tom("madeira", 1))
+    t.elipse(bx - 1, by - 5, 4, 3, tom("madeira", 2))
+    t.ret(bx - 2, by - 10, bx + 1, by - 8, tom("madeira", 0))
+    t.ret(bx - 3, by - 11, bx + 2, by - 10, tom("madeira", 3))
+    for dx, dy in ((6, -1), (8, -3), (-7, -1)):
+        t.elipse(bx + dx, by + dy, 2, 1, tom("onibus", 3))
+    t.contornar(CONTORNO)
+    t.sombra_chao(bx + 1, by, 8, 3, alpha=70)
+    return registrar(nome, c, (1, 1), {"tipo": "nenhuma"})
+
+
 # ---------------------------------------------------------------------- main
 
 # ------------------------------------------------- distrito industrial
@@ -959,6 +976,7 @@ def main():
     g.append(caixa("caixa"))
     g.append(tunel("tunel", semente=18))
     g.append(onibus("onibus"))
+    g.append(bolsa_perdida("bolsa_perdida"))
 
     destino = os.path.join(DIR_MUNDO, "props.json")
     with open(destino, "w", encoding="utf-8") as f:

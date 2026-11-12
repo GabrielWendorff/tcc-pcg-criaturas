@@ -130,6 +130,8 @@ var _objetivo_mostrado: String = ""
 var _apos_conversa: Callable
 ## Guardiao do duelo em curso, para saber de quem e o selo quando ele terminar.
 var _duelo_atual: Dictionary = {}
+## Celula -> {dados, no} das bolsas perdidas ainda no chao (Camada 3).
+var _achados: Dictionary = {}
 ## A criatura fisgada foi para a batalha: a pesca espera ela terminar.
 var _pesca_em_batalha: bool = false
 var _atravessando: bool = false
@@ -201,6 +203,7 @@ func _ready() -> void:
 	_montar_arco()
 	_ligar_save()
 	_preparar_dicas_de_batalha()
+	_montar_ambientacao()
 	_talvez_chegar_de_onibus()
 	_atualizar_objetivo()
 	# Nasce sobre a celula de chegada, que nao e porta; a seguinte ja pode ser.
@@ -509,6 +512,49 @@ func _verificar_porta() -> void:
 	_atravessar(porta)
 
 
+## Camada 3: o que a seed espalha sobre o mapa autoral. Roda depois do save, porque os
+## achados ja recolhidos nao voltam. So no mundo aberto: interiores sao autorais.
+func _montar_ambientacao() -> void:
+	if encontros == null or mundo == null or not mundo.mundo_aberto:
+		return
+	var gerador := GeradorAmbientacao.carregar()
+	if gerador == null:
+		return
+	var reservadas: Array = []
+	if dialogos != null and dialogos.catalogo != null:
+		for ficha: DadosNpc in dialogos.catalogo.npcs:
+			reservadas.append(ficha.celula)
+	var geradas := gerador.gerar(seed_do_mundo, mundo.dados_do_mapa(), mundo.catalogo_de_props(),
+			encontros.bestiario, reservadas)
+	for item: Dictionary in geradas["props"]:
+		mundo.adicionar_prop(String(item["categoria"]), item)
+	for achado: Dictionary in geradas["achados"]:
+		if estado_mundo.ativa(String(achado["id"])):
+			continue
+		var c := Vector2i(int(achado["celula"][0]), int(achado["celula"][1]))
+		_achados[c] = {"dados": achado, "no": mundo.adicionar_prop("Decoracao", achado)}
+	RegistroSessao.evento("ambientacao", {"props": (geradas["props"] as Array).size(),
+			"dominantes": geradas["dominantes"]})
+
+
+## Pisar numa bolsa perdida paga uma vez. A bandeira vai para o save.
+func _verificar_achado() -> void:
+	if _achados.is_empty() or jogador == null or _dono_da_tela() != "":
+		return
+	var c := mundo.mundo_para_celula(jogador.position)
+	if not _achados.has(c):
+		return
+	var achado: Dictionary = _achados[c]
+	var dados: Dictionary = achado["dados"]
+	_achados.erase(c)
+	(achado["no"] as Node).queue_free()
+	estado_mundo.definir(String(dados["id"]))
+	Bolsa.ganhar_gold(int(dados["gold"]))
+	Som.tocar("achado")
+	_nota("Você achou uma bolsa perdida: +%d gold" % int(dados["gold"]))
+	_autosalvar()
+
+
 func _atravessar(porta: Dictionary) -> void:
 	if not Save.em_partida():
 		_nota("Sem partida em curso: portas só funcionam numa partida do menu.")
@@ -583,6 +629,7 @@ func _clarear_chegada() -> void:
 
 func _process(_delta: float) -> void:
 	_verificar_porta()
+	_verificar_achado()
 	_atualizar_avisos_de_porta()
 	# O marcador do jogador so precisa acompanhar enquanto a carta esta aberta —
 	# e, com o jogador congelado, ele nem se move. Atualizar assim mesmo mantem a

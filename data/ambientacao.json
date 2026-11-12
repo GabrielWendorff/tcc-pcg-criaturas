@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "descricao": "Camada 3: ambientacao sorteada pela seed. P(classe | regiao, elemento dominante) proporcional a pesos_por_regiao[regiao][classe] * vies_por_elemento[elemento][classe] (classe ausente vale 1). O elemento dominante e o que o bestiario DESTA seed mais trouxe para a regiao, entre os elementos_provaveis das zonas dela. Estende RF04 do interior da criatura para a relacao entre criatura e lugar.",
+    "versao": 1
+  },
+  "margem_do_caminho": 1,
+  "classes": {
+    "flor":     { "categoria": "Decoracao", "props": ["flores_01", "flores_02"] },
+    "junco":    { "categoria": "Decoracao", "props": ["junco_01", "junco_02"] },
+    "toco":     { "categoria": "Decoracao", "props": ["toco_01"] },
+    "sucata":   { "categoria": "Decoracao", "props": ["caixa", "barril"] },
+    "folhosa":  { "categoria": "Arvores",   "props": ["arvore_01", "arvore_02", "arvore_03"] },
+    "conifera": { "categoria": "Arvores",   "props": ["pinheiro_01", "pinheiro_02"] },
+    "rocha":    { "categoria": "Pedras",    "props": ["pedra_01", "pedra_02", "pedra_03"] }
+  },
+  "regioes": {
+    "vila":       { "densidade": 0.035, "pesos": { "flor": 5, "folhosa": 3, "toco": 1, "rocha": 1 } },
+    "ribeira":    { "densidade": 0.04,  "pesos": { "junco": 4, "conifera": 3, "flor": 2, "rocha": 1 } },
+    "industrial": { "densidade": 0.03,  "pesos": { "rocha": 4, "sucata": 2, "toco": 2, "flor": 1 } },
+    "fazenda":    { "densidade": 0.035, "pesos": { "flor": 4, "folhosa": 3, "toco": 1, "rocha": 1 } }
+  },
+  "vies_por_elemento": {
+    "fogo":     { "toco": 4, "rocha": 1.5, "flor": 0.4, "folhosa": 0.4, "conifera": 0.4 },
+    "agua":     { "junco": 3, "flor": 1.2, "rocha": 0.7 },
+    "terra":    { "rocha": 4, "toco": 1.2, "flor": 0.6 },
+    "ar":       { "conifera": 3, "flor": 1.5, "rocha": 0.5 },
+    "planta":   { "flor": 3, "folhosa": 3, "junco": 2, "rocha": 0.4, "sucata": 0.4 },
+    "eletrico": { "sucata": 5, "rocha": 1.5, "flor": 0.4, "folhosa": 0.5 },
+    "gelo":     { "conifera": 4, "rocha": 2, "flor": 0.3, "folhosa": 0.4 },
+    "sombra":   { "toco": 3, "conifera": 2, "flor": 0.3, "junco": 0.5 }
+  },
+  "fator_de_densidade_por_elemento": {
+    "fogo": 0.8, "agua": 1.0, "terra": 1.0, "ar": 0.8, "planta": 1.4, "eletrico": 0.8, "gelo": 1.0, "sombra": 1.2
+  },
+  "achados": {
+    "_descricao": "Um ponto de interesse por regiao: uma bolsa perdida em celula alcancavel, que paga gold uma vez.",
+    "prop": "bolsa_perdida",
+    "gold_minimo": 15,
+    "gold_maximo": 40
+  }
+}

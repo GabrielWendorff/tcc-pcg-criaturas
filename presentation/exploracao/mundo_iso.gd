@@ -341,6 +341,16 @@ func _montar_props() -> void:
 			adicionar_prop(categoria, item)
 
 
+## O mapa como foi lido do JSON e o catalogo de props. So leitura: e o contexto que a
+## Camada 3 recebe para decidir onde cabe cada coisa.
+func dados_do_mapa() -> Dictionary:
+	return _mapa
+
+
+func catalogo_de_props() -> Dictionary:
+	return _props
+
+
 ## Instancia um prop numa categoria. Publica de proposito: e por aqui que a
 ## Camada 3 (ambientacao procedural) vai pendurar a vegetacao sorteada pela
 ## seed, sem precisar tocar no mapa autoral nem no formato do JSON.

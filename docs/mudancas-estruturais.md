@@ -5,6 +5,23 @@ Refatorações que não alteram o modelo não entram aqui.
 
 ---
 
+## 2026-11-12 — Camada 3 implementada: ambientação condicionada ao bestiário
+
+**Exige atualização da Seção 3 do artigo**, que descreve a Camada 3 como prevista.
+
+`procedural/ambiance/gerador_ambientacao.gd` espalha vegetação, rochas, sucata e uma bolsa
+perdida por região sobre o mapa autoral. O que nasce numa região depende do elemento que o
+bestiário da seed mais trouxe para ela: a Camada 3 **lê** a saída da Camada 2, como os
+guardiões, e não a altera. Medido em `tools/test_ambientacao.gd`: I(elemento dominante;
+classe do prop) = 0,148 bit, contra 0,003 bit sem o elemento, em 300 seeds.
+
+O modelo de criaturas não mudou: o bestiário de toda seed é o mesmo de antes, e o teste confere.
+
+**No trade-off:** escala e coerência ganham (cada seed muda o lugar, e o lugar acompanha as
+criaturas); o custo é de cerca de 40 ms ao abrir o mundo, uma vez.
+
+---
+
 ## 2026-11-09 — Gerador v2: o modelo mudou, em um terceiro braço
 
 **Exige atualização da Seção 3 do artigo.** A v1 e o baseline independente não mudaram:

@@ -646,6 +646,19 @@ func _testar_bestiario() -> void:
 	tela.fechar()
 	_ok(_m.pausa.aberto() and _m.pausa._bloco.visible, "e fechar volta ao menu da pausa")
 	_m.pausa.fechar()
+	await get_tree().process_frame
+
+	# Camada 3: a bolsa perdida paga uma vez e vira bandeira.
+	_ok(_m._achados.size() == 4, "uma bolsa perdida por regiao", str(_m._achados.size()))
+	var celula_achado: Vector2i = _m._achados.keys()[0]
+	var achado: Dictionary = _m._achados[celula_achado]["dados"]
+	var gold_antes: int = Bolsa.gold
+	_m.jogador.position = _m.mundo.celula_para_mundo(celula_achado)
+	_m._verificar_achado()
+	_ok(Bolsa.gold == gold_antes + int(achado["gold"]), "pisar na bolsa paga o gold",
+			"%d -> %d" % [gold_antes, Bolsa.gold])
+	_ok(_m.estado_mundo.ativa(String(achado["id"])), "e fica registrada para o save")
+	_ok(_m._achados.size() == 3, "e some do chao")
 	_etapas += 1
 
 

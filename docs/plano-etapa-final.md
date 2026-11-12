@@ -144,7 +144,7 @@ registro lá e atualização da Seção 3.**
 | ~~13/11~~ | ~~**gerador v2**, em três braços (independente, v1, v2); simulador de novo; vitrine do algoritmo~~ (entregue em 09/11; ver `mudancas-estruturais.md`) |
 | ~~15/11~~ | ~~arte de asas e nadadeiras (escamas depois)~~ (entregue em 07/11, com escamas) |
 | ~~16/11~~ | ~~Anselmo, Otávio e duelo final (Mirela): **jogo completo**~~ (09/11) |
-| 18/11 | Camada 3 mínima; nota da Seção 3 do artigo |
+| ~~18/11~~ | ~~Camada 3 mínima~~ (12/11, `procedural/ambiance/`); nota da Seção 3 do artigo |
 | 19/11 | playtest da versão completa (≥ 10, com público externo), com o **teste cego** |
 | 22/11 | melhorias do playtest, áudio, game feel |
 | 24/11 | GDD v1.0, Wiki completa, peer review do PAC VIII |
