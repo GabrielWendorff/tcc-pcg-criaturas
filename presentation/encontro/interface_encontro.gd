@@ -38,7 +38,8 @@ signal roda_cancelada()
 ## esta: e a acao mais comum, e fugir fica por ultimo para nao ser apertado sem querer.
 const OPCOES_SELVAGEM := [
 	{"acao": Acao.GOLPES, "rotulo": "GOLPES", "dica": "enfraquece, mas se zerar ela foge"},
-	{"acao": Acao.CAPTURAR, "rotulo": "CAPTURAR", "dica": "escolhe o dispositivo; falhar gasta o turno"},
+	{"acao": Acao.CAPTURAR, "rotulo": "CAPTURAR",
+		"dica": "escolhe o dispositivo; falhar gasta o turno"},
 	{"acao": Acao.ISCA, "rotulo": "OFERECER ISCA", "dica": "atrai pelo animal base; gasta o turno"},
 	{"acao": Acao.BOLSA, "rotulo": "BOLSA", "dica": "poções; gasta o turno"},
 	{"acao": Acao.TROCAR, "rotulo": "TROCAR", "dica": "outra criatura; gasta o turno"},
@@ -401,7 +402,8 @@ func mensagem(texto: String, cor: Color = TemaEncontro.TINTA) -> void:
 func _preencher_ficha(c: Criatura, tabelas: TabelasCaptura) -> void:
 	_titulo.text = c.nome().to_upper()
 	_subtitulo.text = "%s + %s  ·  %s" % [c.elemento, c.animal_base, c.porte]
-	_atributos.text = "[color=%s]COR[/color]  paleta %s · matiz %s\n[color=%s]APÊNDICES[/color]  %s" % [
+	_atributos.text = ("[color=%s]COR[/color]  paleta %s · matiz "
+			+ "%s\n[color=%s]APÊNDICES[/color]  %s") % [
 		TemaEncontro.PERG_E.to_html(false), c.paleta, c.matiz,
 		TemaEncontro.PERG_E.to_html(false), _lista_de_tracos(c)]
 	if _modo_captura:

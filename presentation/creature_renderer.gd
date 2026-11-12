@@ -273,7 +273,8 @@ func _desenhar_nadadeiras(topo: Vector2, unit: float, modelo: int, corpo: Color,
 
 # --- Primitivas -----------------------------------------------------------
 
-func _elipse(centro: Vector2, rx: float, ry: float, cor: Color, contorno := Color(0, 0, 0, 0)) -> void:
+func _elipse(centro: Vector2, rx: float, ry: float, cor: Color,
+		contorno := Color(0, 0, 0, 0)) -> void:
 	_poligono(_elipse_pts(centro, rx, ry), cor, contorno)
 
 

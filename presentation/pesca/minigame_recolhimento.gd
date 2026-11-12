@@ -421,7 +421,8 @@ func _desenhar_agua() -> void:
 	var leito := Rect2(_cena.position.x, desde, _cena.size.x, _cena.end.y - desde)
 	draw_rect(leito, cor_leito)
 	for k in 9:
-		var px: float = _agua.position.x + fposmod(float(k) * 137.0 + 31.0, maxf(_agua.size.x - 10.0, 1.0))
+		var px: float = _agua.position.x \
+				+ fposmod(float(k) * 137.0 + 31.0, maxf(_agua.size.x - 10.0, 1.0))
 		var lado: float = 3.0 + float(k % 3) * 2.0
 		draw_rect(Rect2(Vector2(px, leito.position.y - lado * 0.5).round(),
 				Vector2(lado + 2.0, lado * 0.5 + 1.0)), cor_leito.lightened(0.18))
@@ -576,8 +577,10 @@ func _desenhar_trilho(com_silhueta: bool) -> void:
 	_frente.draw_rect(Rect2(cheio.position, Vector2(cheio.size.x, 2.0)), TemaEncontro.OURO)
 	if mostrar_alvos and com_silhueta:
 		var tol: float = simulacao.tolerancia_velocidade()
-		var xa: float = t.position.x + (1.0 - clampf(simulacao.velocidade_monstro + tol, 0.0, 1.0)) * t.size.x
-		var xb: float = t.position.x + (1.0 - clampf(simulacao.velocidade_monstro - tol, 0.0, 1.0)) * t.size.x
+		var xa: float = t.position.x \
+				+ (1.0 - clampf(simulacao.velocidade_monstro + tol, 0.0, 1.0)) * t.size.x
+		var xb: float = t.position.x \
+				+ (1.0 - clampf(simulacao.velocidade_monstro - tol, 0.0, 1.0)) * t.size.x
 		var faixa := Rect2(floorf(xa), t.position.y - 4.0, maxf(ceilf(xb - xa), 2.0), t.size.y + 8.0)
 		_frente.draw_rect(faixa, cor_alvo)
 		_frente.draw_rect(faixa, Color(cor_alvo, minf(cor_alvo.a * 3.0, 1.0)), false, 1.0)

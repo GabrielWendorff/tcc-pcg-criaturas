@@ -133,11 +133,11 @@ static func moldura(nome: String) -> StyleBoxTexture:
 
 
 ## Corpos disponiveis. CORPO_* mapeia para a folha de mesma escala.
-enum Corpo { TEXTO_, TITULO, CARTAZ }
+enum Corpo { TEXTO, TITULO, CARTAZ }
 
 
 ## Aplica a fonte pixel a um Label. Sempre no tamanho nativo da folha pedida.
-static func aplicar_fonte(lbl: Label, corpo: Corpo = Corpo.TEXTO_) -> void:
+static func aplicar_fonte(lbl: Label, corpo: Corpo = Corpo.TEXTO) -> void:
 	var f: FontFile = fonte()
 	var tam: int = TAM_TEXTO
 	if corpo == Corpo.TITULO:
@@ -151,7 +151,7 @@ static func aplicar_fonte(lbl: Label, corpo: Corpo = Corpo.TEXTO_) -> void:
 
 
 static func rotulo(texto: String, cor: Color = TEXTO,
-		corpo: Corpo = Corpo.TEXTO_) -> Label:
+		corpo: Corpo = Corpo.TEXTO) -> Label:
 	var lbl := Label.new()
 	lbl.text = texto
 	lbl.add_theme_color_override("font_color", cor)
@@ -164,7 +164,7 @@ static func rotulo(texto: String, cor: Color = TEXTO,
 ## escuro, e a sombra. E como pixel art resolve legibilidade sobre fundo
 ## arbitrario — e o unico jeito, com fonte de bitmap, de nao depender de contorno.
 static func rotulo_sombreado(texto: String, cor: Color = TEXTO,
-		corpo: Corpo = Corpo.TEXTO_) -> Control:
+		corpo: Corpo = Corpo.TEXTO) -> Control:
 	var raiz := Control.new()
 	raiz.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var desloc: float = [2.0, 3.0, 4.0][int(corpo)]

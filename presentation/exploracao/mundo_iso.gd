@@ -490,13 +490,13 @@ func quinas_do_mapa() -> PackedVector2Array:
 
 
 # ----------------------------------------------------------------- consulta
-## Centro, em pixels do mundo, da pegada de W x D celulas ancorada nesta celula.
+## Centro, em pixels do mundo, da pegada de largura x fundo celulas ancorada nesta celula.
 ## Para um prop de uma celula (o padrao) e o centro do losango dela.
-func celula_para_mundo(c: Vector2i, W: int = 1, D: int = 1) -> Vector2:
+func celula_para_mundo(c: Vector2i, largura: int = 1, fundo: int = 1) -> Vector2:
 	var base := chao.map_to_local(c) if chao != null else Vector2(
 			(c.x - c.y + 1) * celula.x * 0.5, (c.x + c.y + 1) * celula.y * 0.5)
-	return base + Vector2((W - D) * celula.x * 0.25,
-			(W + D) * celula.y * 0.25 - celula.y * 0.5)
+	return base + Vector2((largura - fundo) * celula.x * 0.25,
+			(largura + fundo) * celula.y * 0.25 - celula.y * 0.5)
 
 
 ## Ponto da grade em coordenadas FRACIONARIAS -> pixels do mundo. (gx + 0.5, gy +

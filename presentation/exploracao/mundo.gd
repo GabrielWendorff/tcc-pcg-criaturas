@@ -60,7 +60,8 @@ const BANDEIRA_DICAS_BATALHA := "viu_dicas_batalha"
 
 ## Linha de teclas do HUD. Constante (e nao literal em _montar_hud) para o teste
 ## de integracao conferir os glifos contra a fonte pixel.
-const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   N bestiário   M mapa   ESC pausa"
+const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   " \
+		+ "N bestiário   M mapa   ESC pausa"
 const TEXTO_TECLAS_DEV := "   F3 zonas   F2 bestiário   F4 encontro"
 ## Quanto tempo a linha de controles fica no rodape no comeco. Depois, so na pausa.
 const SEGUNDOS_DE_CONTROLES := 12.0
@@ -1068,7 +1069,8 @@ func _texto_de_vitoria() -> String:
 			GeradorCriaturas.nome_do_modo(encontros.modo_gerador))
 	var tempo := Save.partida.tempo_legivel() if Save.em_partida() else "—"
 	var nome_seed := Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
-	return "SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS  %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%" % [
+	return ("SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS "
+			+ " %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%") % [
 		nome_seed, tempo, encontros.inventario.colecao.size(), n,
 		int(cond["unicidade"]["distintas"]),
 		_coerencia_media(cond) * 100.0, _coerencia_media(indep) * 100.0]
@@ -1415,7 +1417,8 @@ func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 func _recompensar_selvagem(c: Criatura) -> void:
 	if c == null or encontros == null:
 		return
-	var forca := FichaCombate.de_criatura(c, encontros.tabelas_batalha).forca(encontros.tabelas_batalha)
+	var tabelas := encontros.tabelas_batalha
+	var forca := FichaCombate.de_criatura(c, tabelas).forca(tabelas)
 	var gold := Bolsa.economia.recompensa_selvagem(forca)
 	Bolsa.ganhar_gold(gold)
 	_nota("+%d gold" % gold)

@@ -173,7 +173,8 @@ func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
 	var meta_cor := "5bbf5b" if dt_ms < 2000.0 else "e14b4b"
 	var moda: Dictionary = m["moda"]
 	var linhas := PackedStringArray()
-	linhas.append("[b]Seed:[/b] %d    [b]Criaturas:[/b] %d    [b]Tempo:[/b] [color=%s]%.2f ms[/color]" % [
+	linhas.append(("[b]Seed:[/b] %d    [b]Criaturas:[/b] %d   "
+			+ " [b]Tempo:[/b] [color=%s]%.2f ms[/color]") % [
 		world_seed, m["total"], meta_cor, dt_ms
 	])
 
@@ -192,7 +193,8 @@ func _atualizar_header(world_seed: int, dt_ms: float, m: Dictionary) -> void:
 	var im: Dictionary = m["info_mutua"]["elemento->cor"]
 	var ip: Dictionary = m["info_mutua"]["elemento->porte"]
 	var un: Dictionary = m["unicidade"]
-	linhas.append("[color=b0b6c0]I(elemento;cor) = %.2f bits (explica %.0f%%)  ·  I(elemento;porte) = %.2f bits  ·  distintas (k=%d): %d/%d[/color]" % [
+	linhas.append(("[color=b0b6c0]I(elemento;cor) = %.2f bits (explica %.0f%%)  ·  "
+			+ "I(elemento;porte) = %.2f bits  ·  distintas (k=%d): %d/%d[/color]") % [
 		im["i_bits"], im["u"] * 100.0, ip["i_bits"], un["k"], un["distintas"], m["total"]
 	])
 	_header.text = "\n".join(linhas)
@@ -252,7 +254,8 @@ func _selecionar(c: Criatura) -> void:
 func _descricao_card(c: Criatura) -> String:
 	var coerente := _coerente(c)
 	var tag := "[color=5bbf5b]● coerente[/color]" if coerente else "[color=8a909c]○ atípica[/color]"
-	return "[b]%s[/b]   %s\n[color=b0b6c0]%s + %s · %s[/color]  ·  paleta [b]%s[/b]  ·  matiz [b]%s[/b]\n%s" % [
+	return ("[b]%s[/b]   %s\n[color=b0b6c0]%s + %s · %s[/color] "
+			+ " ·  paleta [b]%s[/b]  ·  matiz [b]%s[/b]\n%s") % [
 		c.nome(), tag, c.elemento, c.animal_base, c.porte, c.paleta, c.matiz, _lista_partes(c)
 	]
 
@@ -260,10 +263,13 @@ func _descricao_card(c: Criatura) -> String:
 func _descricao_detalhe(c: Criatura) -> String:
 	var linhas := PackedStringArray()
 	linhas.append("[b][font_size=18]%s[/font_size][/b]" % c.nome())
-	linhas.append("[color=b0b6c0]Primários:[/color]  elemento [b]%s[/b]  ·  animal [b]%s[/b]" % [c.elemento, c.animal_base])
-	linhas.append("[color=b0b6c0]Silhueta:[/color]  porte [b]%s[/b]  ·  arquétipo [b]%s[/b]  [color=6a7080](%s)[/color]" % [
+	linhas.append(("[color=b0b6c0]Primários:[/color]  "
+			+ "elemento [b]%s[/b]  ·  animal [b]%s[/b]") % [c.elemento, c.animal_base])
+	linhas.append(("[color=b0b6c0]Silhueta:[/color]  porte [b]%s[/b]  "
+			+ "·  arquétipo [b]%s[/b]  [color=6a7080](%s)[/color]") % [
 		c.porte, c.arquetipo, c.body_id])
-	linhas.append("[color=b0b6c0]Cor:[/color]  paleta [b]%s[/b]  ·  matiz [b]%s[/b]" % [c.paleta, c.matiz])
+	linhas.append(("[color=b0b6c0]Cor:[/color]  paleta "
+			+ "[b]%s[/b]  ·  matiz [b]%s[/b]") % [c.paleta, c.matiz])
 	linhas.append("[color=b0b6c0]Morfologia (modelo):[/color]")
 	var achou := false
 	for f in _tabelas.features_morfologia():
@@ -278,8 +284,10 @@ func _descricao_detalhe(c: Criatura) -> String:
 			])
 	if not achou:
 		linhas.append("   [color=6a7080](nenhuma)[/color]")
-	var tag := "[color=5bbf5b]● coerente[/color]" if _coerente(c) else "[color=e8a83a]○ atípica[/color]"
-	linhas.append("[color=b0b6c0]Coerência:[/color] %s   [color=6a7080](seed ind. %d)[/color]" % [tag, c.seed_individual])
+	var tag := "[color=5bbf5b]● coerente[/color]" if _coerente(c) \
+			else "[color=e8a83a]○ atípica[/color]"
+	linhas.append(("[color=b0b6c0]Coerência:[/color] %s   "
+			+ "[color=6a7080](seed ind. %d)[/color]") % [tag, c.seed_individual])
 	return "\n".join(linhas)
 
 

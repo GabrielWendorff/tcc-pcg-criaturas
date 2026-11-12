@@ -79,7 +79,8 @@ func gerar_bestiario(world_seed: int, quantidade: int, modo: Modo = Modo.CONDICI
 
 
 ## Gera uma criatura isolada e reproduzivel a partir da sua seed individual.
-func _gerar_uma(world_seed: int, seed_individual: int, id: int, modo: Modo = Modo.CONDICIONADO) -> Criatura:
+func _gerar_uma(world_seed: int, seed_individual: int, id: int,
+		modo: Modo = Modo.CONDICIONADO) -> Criatura:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_individual
 	var condicionado: bool = modo == Modo.CONDICIONADO

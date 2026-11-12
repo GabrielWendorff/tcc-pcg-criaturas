@@ -1,0 +1,18 @@
+# Regras do gdlint para este projeto. So o que difere do padrao, e por que:
+#
+# class-definitions-order: desligada. Os arquivos agrupam constantes e variaveis por
+#   assunto, com o comentario que explica o grupo. E decisao de leitura, sem risco de defeito.
+# *-name com "_" final: convencao do projeto para nao sombrear um membro
+#   (func _init(tabelas_) -> tabelas = tabelas_).
+# max-returns: guardas de saida antecipada em tratadores de entrada.
+# max-public-methods: TabelasProbabilidade e a fachada de leitura das tabelas.
+# max-file-lines: mundo.gd costura o arco do jogo. E divida conhecida, com teto para nao crescer.
+disable:
+- class-definitions-order
+function-argument-name: _?[a-z][a-z0-9]*(_[a-z0-9]+)*_?
+function-variable-name: '[a-z][a-z0-9]*(_[a-z0-9]+)*_?'
+loop-variable-name: _?[a-z][a-z0-9]*(_[a-z0-9]+)*_?
+enum-name: _?([A-Z][a-z0-9]*)+
+max-returns: 12
+max-public-methods: 30
+max-file-lines: 1600

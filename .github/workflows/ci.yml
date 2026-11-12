@@ -45,8 +45,6 @@ jobs:
           python-version: "3.12"
       - run: pip install "gdtoolkit==4.*"
       - name: gdlint
-        # Informativo ate a primeira leitura do resultado: o projeto nunca passou por lint.
-        continue-on-error: true
         run: gdlint procedural presentation sistemas
 
   builds:
