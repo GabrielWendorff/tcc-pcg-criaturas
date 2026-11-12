@@ -9,8 +9,8 @@ LIMITE=280
 mkdir -p "$LOGS"
 cd "$(dirname "$0")/.."
 
-CENAS="test_arco test_bolsa test_chegada test_encontro test_interacao test_pesca_integracao test_registro test_save"
-PUROS="test_arte_criaturas test_batalha test_dialogo test_economia test_equipamento test_gerador test_gerador_v2 test_mundo test_pesca test_tutorial"
+CENAS="test_arco test_audio test_bolsa test_chegada test_encontro test_interacao test_pesca_integracao test_registro test_save"
+PUROS="test_ambientacao test_arte_criaturas test_batalha test_dialogo test_economia test_equipamento test_gerador test_gerador_v2 test_mundo test_pesca test_tutorial"
 
 falhas=0
 avaliar() {

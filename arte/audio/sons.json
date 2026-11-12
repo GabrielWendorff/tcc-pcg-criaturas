@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "descricao": "Gerado por tools/audio/gerar_audio.py. Nao editar a mao.",
+    "taxa": 22050
+  },
+  "efeitos": {
+    "ui_mover": "ui_mover.wav",
+    "ui_confirmar": "ui_confirmar.wav",
+    "ui_cancelar": "ui_cancelar.wav",
+    "dialogo": "dialogo.wav",
+    "encontro": "encontro.wav",
+    "golpe": "golpe.wav",
+    "golpe_eficaz": "golpe_eficaz.wav",
+    "errou": "errou.wav",
+    "caiu": "caiu.wav",
+    "cura": "cura.wav",
+    "reforco": "reforco.wav",
+    "captura_lancar": "captura_lancar.wav",
+    "captura_balanco": "captura_balanco.wav",
+    "captura_sucesso": "captura_sucesso.wav",
+    "captura_falha": "captura_falha.wav",
+    "moeda": "moeda.wav",
+    "achado": "achado.wav",
+    "porta": "porta.wav",
+    "fisgou": "fisgou.wav",
+    "selo": "selo.wav",
+    "vitoria": "vitoria.wav",
+    "derrota": "derrota.wav",
+    "passos_ponte": "passos_ponte.wav"
+  },
+  "musicas": {
+    "vila": "musica_vila.wav",
+    "batalha": "musica_batalha.wav"
+  }
+}

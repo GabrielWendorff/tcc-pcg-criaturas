@@ -1,0 +1,2325 @@
+{
+  "criaturas": [
+    {
+      "animal": "gato",
+      "arquivo": "exemplo_fogo_gato.png",
+      "atipica": false,
+      "bits": 4.74015235396927,
+      "elemento": "fogo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.361709666042243,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.65,
+          "valor": "quente"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "vermelho"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.454545454545455,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.93,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "vermelho",
+      "modo": "condicionado_v2",
+      "nome": "Fogo-Gato #010",
+      "paleta": "quente",
+      "porte": "esbelto",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "peixe",
+      "arquivo": "exemplo_agua_peixe.png",
+      "atipica": false,
+      "bits": 5.6222184578827,
+      "elemento": "agua",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.359656469740623,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.68,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.45,
+          "valor": "azul"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.4,
+          "valor": "lisas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.5,
+          "valor": "largas"
+        }
+      ],
+      "matiz": "azul",
+      "modo": "condicionado_v2",
+      "nome": "Agua-Peixe #001",
+      "paleta": "fria",
+      "porte": "esbelto",
+      "tracos": [
+        "escamas",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "ave",
+      "arquivo": "exemplo_ar_ave.png",
+      "atipica": false,
+      "bits": 6.39144770268469,
+      "elemento": "ar",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.396835824321327,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.4,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.35,
+          "valor": "branco"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.47,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.95,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.5,
+          "valor": "emplumadas"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "branco",
+      "modo": "condicionado_v2",
+      "nome": "Ar-Ave #090",
+      "paleta": "neutra",
+      "porte": "alongado",
+      "tracos": [
+        "asas"
+      ]
+    },
+    {
+      "animal": "reptil",
+      "arquivo": "exemplo_terra_reptil.png",
+      "atipica": false,
+      "bits": 5.88003331377366,
+      "elemento": "terra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.402599335554052,
+          "valor": "compacto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.6,
+          "valor": "terrosa"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.5,
+          "valor": "marrom"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.83,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.363636363636364,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.97,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.5,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "marrom",
+      "modo": "condicionado_v2",
+      "nome": "Terra-Reptil #085",
+      "paleta": "terrosa",
+      "porte": "compacto",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "inseto",
+      "arquivo": "exemplo_eletrico_inseto.png",
+      "atipica": false,
+      "bits": 6.72328367425466,
+      "elemento": "eletrico",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.418275939521619,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.55,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.45,
+          "valor": "amarelo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.65,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.92,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.78,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.2,
+          "valor": "insetoides"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "amarelo",
+      "modo": "condicionado_v2",
+      "nome": "Eletrico-Inseto #046",
+      "paleta": "vibrante",
+      "porte": "esbelto",
+      "tracos": [
+        "asas"
+      ]
+    },
+    {
+      "animal": "canino",
+      "arquivo": "exemplo_gelo_canino.png",
+      "atipica": false,
+      "bits": 4.97415619747733,
+      "elemento": "gelo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.36953240407383,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.7,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.4,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.87,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.92,
+          "valor": "não"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado_v2",
+      "nome": "Gelo-Canino #075",
+      "paleta": "fria",
+      "porte": "medio",
+      "tracos": [
+        "garras"
+      ]
+    }
+  ],
+  "grade": [
+    {
+      "animal": "anfibio",
+      "arquivo": "grade_000.png",
+      "atipica": false,
+      "bits": 7.81496359016562,
+      "elemento": "eletrico",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.349095576574523,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.55,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.45,
+          "valor": "amarelo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.75,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.77,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.89,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.5,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.2,
+          "valor": "largas"
+        }
+      ],
+      "matiz": "amarelo",
+      "modo": "condicionado_v2",
+      "nome": "Eletrico-Anfibio #000",
+      "paleta": "vibrante",
+      "porte": "esbelto",
+      "tracos": [
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "peixe",
+      "arquivo": "grade_001.png",
+      "atipica": false,
+      "bits": 10.962292338222,
+      "elemento": "ar",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.512465094273114,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.08,
+          "valor": "quente"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.28,
+          "valor": "cinza"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.85,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.2,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.78,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.84,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.4,
+          "valor": "translucidas"
+        }
+      ],
+      "matiz": "cinza",
+      "modo": "condicionado_v2",
+      "nome": "Ar-Peixe #001",
+      "paleta": "quente",
+      "porte": "alongado",
+      "tracos": [
+        "escamas",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "canino",
+      "arquivo": "grade_002.png",
+      "atipica": false,
+      "bits": 8.66473409614935,
+      "elemento": "agua",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.324684267156029,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.68,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.1,
+          "valor": "branco"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.87,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.2,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.85,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.77,
+          "valor": "não"
+        }
+      ],
+      "matiz": "branco",
+      "modo": "condicionado_v2",
+      "nome": "Agua-Canino #002",
+      "paleta": "fria",
+      "porte": "esbelto",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "inseto",
+      "arquivo": "grade_003.png",
+      "atipica": false,
+      "bits": 10.6194884325426,
+      "elemento": "terra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.270409159850179,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.1,
+          "valor": "cinza"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.62,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.78,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.62,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.444444444444444,
+          "valor": "emplumadas"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "cinza",
+      "modo": "condicionado_v2",
+      "nome": "Terra-Inseto #003",
+      "paleta": "neutra",
+      "porte": "medio",
+      "tracos": [
+        "asas"
+      ]
+    },
+    {
+      "animal": "reptil",
+      "arquivo": "grade_004.png",
+      "atipica": false,
+      "bits": 10.2152785720146,
+      "elemento": "agua",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.315710338521563,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.68,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.1,
+          "valor": "branco"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.67,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.3,
+          "valor": "curvas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.95,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.95,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.72,
+          "valor": "não"
+        }
+      ],
+      "matiz": "branco",
+      "modo": "condicionado_v2",
+      "nome": "Agua-Reptil #004",
+      "paleta": "fria",
+      "porte": "esbelto",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "ave",
+      "arquivo": "grade_005.png",
+      "atipica": false,
+      "bits": 8.28693538128676,
+      "elemento": "terra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.315229861036542,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.6,
+          "valor": "terrosa"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.5,
+          "valor": "marrom"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.63,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.181818181818182,
+          "valor": "curtas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.78,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.87,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.444444444444444,
+          "valor": "emplumadas"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "marrom",
+      "modo": "condicionado_v2",
+      "nome": "Terra-Ave #005",
+      "paleta": "terrosa",
+      "porte": "medio",
+      "tracos": [
+        "garras",
+        "asas"
+      ]
+    },
+    {
+      "animal": "peixe",
+      "arquivo": "grade_006.png",
+      "atipica": false,
+      "bits": 13.526401408262,
+      "elemento": "gelo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.257866532628545,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.7,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.07,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.3,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.2,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.97,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.3,
+          "valor": "largas"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado_v2",
+      "nome": "Gelo-Peixe #006",
+      "paleta": "fria",
+      "porte": "esbelto",
+      "tracos": [
+        "garras",
+        "escamas",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "grade_007.png",
+      "atipica": true,
+      "bits": 15.5049146380133,
+      "elemento": "planta",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.338925042448273,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.07,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.95,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.2,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.1,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.93,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.95,
+          "valor": "não"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado_v2",
+      "nome": "Planta-Gato #007",
+      "paleta": "fria",
+      "porte": "medio",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "grade_008.png",
+      "atipica": true,
+      "bits": 16.6471132713104,
+      "elemento": "planta",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.33272558695196,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.55,
+          "valor": "verde"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.85,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.3,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.1,
+          "valor": "cristalinas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.05,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.4,
+          "valor": "insetoides"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.58,
+          "valor": "não"
+        }
+      ],
+      "matiz": "verde",
+      "modo": "condicionado_v2",
+      "nome": "Planta-Anfibio #008",
+      "paleta": "fria",
+      "porte": "medio",
+      "tracos": [
+        "escamas",
+        "asas"
+      ]
+    },
+    {
+      "animal": "reptil",
+      "arquivo": "grade_009.png",
+      "atipica": true,
+      "bits": 17.7604812028689,
+      "elemento": "sombra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.156438515200909,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.1,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.12,
+          "valor": "azul"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.32,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.85,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.15,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.2,
+          "valor": "emplumadas"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "azul",
+      "modo": "condicionado_v2",
+      "nome": "Sombra-Reptil #009",
+      "paleta": "vibrante",
+      "porte": "medio",
+      "tracos": [
+        "escamas",
+        "asas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "grade_010.png",
+      "atipica": false,
+      "bits": 13.9690983478331,
+      "elemento": "agua",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.123772909814838,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.68,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.3,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.12,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.4,
+          "valor": "curtas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.35,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.4,
+          "valor": "lisas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.75,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.5,
+          "valor": "largas"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado_v2",
+      "nome": "Agua-Anfibio #010",
+      "paleta": "fria",
+      "porte": "alongado",
+      "tracos": [
+        "garras",
+        "escamas",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "peixe",
+      "arquivo": "grade_011.png",
+      "atipica": true,
+      "bits": 19.7703595785671,
+      "elemento": "terra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.237717650223472,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.5,
+          "valor": "marrom"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.1,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.363636363636364,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.5,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.02,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.444444444444444,
+          "valor": "emplumadas"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.33,
+          "valor": "não"
+        }
+      ],
+      "matiz": "marrom",
+      "modo": "condicionado_v2",
+      "nome": "Terra-Peixe #011",
+      "paleta": "neutra",
+      "porte": "esbelto",
+      "tracos": [
+        "garras",
+        "escamas",
+        "asas"
+      ]
+    },
+    {
+      "animal": "inseto",
+      "arquivo": "grade_012.png",
+      "atipica": false,
+      "bits": 13.3610296339992,
+      "elemento": "sombra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.183422602489313,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.25,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.3,
+          "valor": "cinza"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.47,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.2,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.25,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "cinza",
+      "modo": "condicionado_v2",
+      "nome": "Sombra-Inseto #012",
+      "paleta": "fria",
+      "porte": "medio",
+      "tracos": [
+        "escamas"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "grade_013.png",
+      "atipica": true,
+      "bits": 16.4598623442573,
+      "elemento": "planta",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.255680295180277,
+          "valor": "compacto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.12,
+          "valor": "amarelo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.8,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.2,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.9,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.93,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.05,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.3,
+          "valor": "espinhosas"
+        }
+      ],
+      "matiz": "amarelo",
+      "modo": "condicionado_v2",
+      "nome": "Planta-Gato #013",
+      "paleta": "fria",
+      "porte": "compacto",
+      "tracos": [
+        "garras",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "grade_014.png",
+      "atipica": false,
+      "bits": 6.41419063449876,
+      "elemento": "agua",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.324684267156029,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.68,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.3,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.92,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.3,
+          "valor": "curvas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.85,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.77,
+          "valor": "não"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado_v2",
+      "nome": "Agua-Gato #014",
+      "paleta": "fria",
+      "porte": "medio",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "grade_015.png",
+      "atipica": false,
+      "bits": 8.72406532946207,
+      "elemento": "eletrico",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.445770887585152,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.1,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.18,
+          "valor": "branco"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.363636363636364,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.97,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.87,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "branco",
+      "modo": "condicionado_v2",
+      "nome": "Eletrico-Gato #015",
+      "paleta": "fria",
+      "porte": "esbelto",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "peixe",
+      "arquivo": "grade_016.png",
+      "atipica": false,
+      "bits": 7.86291073929744,
+      "elemento": "fogo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.359656469740623,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.65,
+          "valor": "quente"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "vermelho"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.73,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.95,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.96,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.23,
+          "valor": "não"
+        }
+      ],
+      "matiz": "vermelho",
+      "modo": "condicionado_v2",
+      "nome": "Fogo-Peixe #016",
+      "paleta": "quente",
+      "porte": "esbelto",
+      "tracos": [
+        "escamas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "grade_017.png",
+      "atipica": false,
+      "bits": 8.94029805803558,
+      "elemento": "fogo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.277490878455847,
+          "valor": "compacto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.65,
+          "valor": "quente"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "vermelho"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.55,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.3,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.95,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.6,
+          "valor": "não"
+        }
+      ],
+      "matiz": "vermelho",
+      "modo": "condicionado_v2",
+      "nome": "Fogo-Anfibio #017",
+      "paleta": "quente",
+      "porte": "compacto",
+      "tracos": [
+        "escamas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "grade_018.png",
+      "atipica": false,
+      "bits": 9.21205815320625,
+      "elemento": "eletrico",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.349095576574523,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "quente"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.15,
+          "valor": "roxo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.6,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.67,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.89,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.5,
+          "valor": "não"
+        }
+      ],
+      "matiz": "roxo",
+      "modo": "condicionado_v2",
+      "nome": "Eletrico-Anfibio #018",
+      "paleta": "quente",
+      "porte": "esbelto",
+      "tracos": []
+    },
+    {
+      "animal": "gato",
+      "arquivo": "grade_019.png",
+      "atipica": false,
+      "bits": 12.0526018829046,
+      "elemento": "sombra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.212350492628837,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.45,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.38,
+          "valor": "roxo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.98,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.5,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.05,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.9,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "roxo",
+      "modo": "condicionado_v2",
+      "nome": "Sombra-Gato #019",
+      "paleta": "neutra",
+      "porte": "medio",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "ave",
+      "arquivo": "grade_020.png",
+      "atipica": false,
+      "bits": 10.7053201623949,
+      "elemento": "planta",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.343168195550639,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.12,
+          "valor": "amarelo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.5,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.85,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.97,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.2,
+          "valor": "membranosas"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "amarelo",
+      "modo": "condicionado_v2",
+      "nome": "Planta-Ave #020",
+      "paleta": "fria",
+      "porte": "medio",
+      "tracos": [
+        "asas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "grade_021.png",
+      "atipica": false,
+      "bits": 12.7454994225385,
+      "elemento": "terra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.571972802224235,
+          "valor": "compacto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.5,
+          "valor": "marrom"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.28,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.363636363636364,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.63,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.45,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.1,
+          "valor": "translucidas"
+        }
+      ],
+      "matiz": "marrom",
+      "modo": "condicionado_v2",
+      "nome": "Terra-Anfibio #021",
+      "paleta": "neutra",
+      "porte": "compacto",
+      "tracos": [
+        "garras",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "grade_022.png",
+      "atipica": false,
+      "bits": 13.2298093911176,
+      "elemento": "agua",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.156803033400864,
+          "valor": "compacto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.15,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.3,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.77,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.2,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.85,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.23,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.5,
+          "valor": "largas"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado_v2",
+      "nome": "Agua-Gato #022",
+      "paleta": "neutra",
+      "porte": "compacto",
+      "tracos": [
+        "garras",
+        "nadadeiras"
+      ]
+    },
+    {
+      "animal": "canino",
+      "arquivo": "grade_023.png",
+      "atipica": true,
+      "bits": 14.0780825476163,
+      "elemento": "sombra",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.336283318822605,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.45,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.38,
+          "valor": "roxo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.12,
+          "valor": "não"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.95,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.09,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.1,
+          "valor": "insetoides"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "roxo",
+      "modo": "condicionado_v2",
+      "nome": "Sombra-Canino #023",
+      "paleta": "neutra",
+      "porte": "esbelto",
+      "tracos": [
+        "asas"
+      ]
+    }
+  ],
+  "mapa": {
+    "arquivo": "mapa.png",
+    "tamanho": [
+      2944,
+      1568
+    ]
+  },
+  "pares": [
+    {
+      "animal": "canino",
+      "arquivo": "par_091_condicionado.png",
+      "atipica": false,
+      "bits": 7.06517598443209,
+      "elemento": "gelo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.1,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.7,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.85,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.4,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.87,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.92,
+          "valor": "não"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado",
+      "nome": "Gelo-Canino #091",
+      "paleta": "fria",
+      "porte": "alongado",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "canino",
+      "arquivo": "par_091_independente.png",
+      "atipica": true,
+      "bits": 29.639712657913,
+      "elemento": "gelo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.1,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.03,
+          "valor": "terrosa"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.0001,
+          "valor": "laranja"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.85,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.4,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.13,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.1,
+          "valor": "lisas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.92,
+          "valor": "não"
+        }
+      ],
+      "matiz": "laranja",
+      "modo": "independente",
+      "nome": "Gelo-Canino #091",
+      "paleta": "terrosa",
+      "porte": "alongado",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "par_012_condicionado.png",
+      "atipica": true,
+      "bits": 14.1272175781239,
+      "elemento": "gelo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.2,
+          "valor": "esbelto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.18,
+          "valor": "neutra"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.4,
+          "valor": "ciano"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.25,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.4,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.33,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.4,
+          "valor": "não"
+        }
+      ],
+      "matiz": "ciano",
+      "modo": "condicionado",
+      "nome": "Gelo-Anfibio #012",
+      "paleta": "neutra",
+      "porte": "esbelto",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "anfibio",
+      "arquivo": "par_012_independente.png",
+      "atipica": true,
+      "bits": 35.8072473804521,
+      "elemento": "gelo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.1,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.07,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.0001,
+          "valor": "amarelo"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.25,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.4,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.33,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.3,
+          "valor": "placas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.02,
+          "valor": "sim"
+        },
+        {
+          "atributo": "asas (modelo)",
+          "p": 0.3,
+          "valor": "energia"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.4,
+          "valor": "não"
+        }
+      ],
+      "matiz": "amarelo",
+      "modo": "independente",
+      "nome": "Gelo-Anfibio #012",
+      "paleta": "vibrante",
+      "porte": "alongado",
+      "tracos": [
+        "garras",
+        "escamas",
+        "asas"
+      ]
+    },
+    {
+      "animal": "roedor",
+      "arquivo": "par_046_condicionado.png",
+      "atipica": false,
+      "bits": 8.49800816431353,
+      "elemento": "eletrico",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.363636363636364,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.55,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.18,
+          "valor": "branco"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.5,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.181818181818182,
+          "valor": "curvas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.88,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "branco",
+      "modo": "condicionado",
+      "nome": "Eletrico-Roedor #046",
+      "paleta": "vibrante",
+      "porte": "alongado",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "roedor",
+      "arquivo": "par_046_independente.png",
+      "atipica": true,
+      "bits": 29.7078589131704,
+      "elemento": "eletrico",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.363636363636364,
+          "valor": "alongado"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.1,
+          "valor": "fria"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.0001,
+          "valor": "azul"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.5,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.181818181818182,
+          "valor": "curvas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.02,
+          "valor": "sim"
+        },
+        {
+          "atributo": "escamas (modelo)",
+          "p": 0.2,
+          "valor": "granuladas"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.88,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "azul",
+      "modo": "independente",
+      "nome": "Eletrico-Roedor #046",
+      "paleta": "fria",
+      "porte": "alongado",
+      "tracos": [
+        "garras",
+        "escamas"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "par_081_condicionado.png",
+      "atipica": false,
+      "bits": 6.94796103706277,
+      "elemento": "fogo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.3,
+          "valor": "medio"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.2,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.35,
+          "valor": "laranja"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.95,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.454545454545455,
+          "valor": "adaga"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.93,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.98,
+          "valor": "não"
+        }
+      ],
+      "matiz": "laranja",
+      "modo": "condicionado",
+      "nome": "Fogo-Gato #081",
+      "paleta": "vibrante",
+      "porte": "medio",
+      "tracos": [
+        "garras"
+      ]
+    },
+    {
+      "animal": "gato",
+      "arquivo": "par_081_independente.png",
+      "atipica": true,
+      "bits": 26.9796662776724,
+      "elemento": "fogo",
+      "linhas": [
+        {
+          "atributo": "porte",
+          "p": 0.2,
+          "valor": "compacto"
+        },
+        {
+          "atributo": "paleta",
+          "p": 0.2,
+          "valor": "vibrante"
+        },
+        {
+          "atributo": "matiz",
+          "p": 0.0001,
+          "valor": "azul"
+        },
+        {
+          "atributo": "garras",
+          "p": 0.95,
+          "valor": "sim"
+        },
+        {
+          "atributo": "garras (modelo)",
+          "p": 0.272727272727273,
+          "valor": "serrilhadas"
+        },
+        {
+          "atributo": "escamas",
+          "p": 0.98,
+          "valor": "não"
+        },
+        {
+          "atributo": "asas",
+          "p": 0.93,
+          "valor": "não"
+        },
+        {
+          "atributo": "nadadeiras",
+          "p": 0.02,
+          "valor": "sim"
+        },
+        {
+          "atributo": "nadadeiras (modelo)",
+          "p": 0.4,
+          "valor": "espinhosas"
+        }
+      ],
+      "matiz": "azul",
+      "modo": "independente",
+      "nome": "Fogo-Gato #081",
+      "paleta": "vibrante",
+      "porte": "compacto",
+      "tracos": [
+        "garras",
+        "nadadeiras"
+      ]
+    }
+  ],
+  "textos": {
+    "chamada": "texto_chamada.png",
+    "rotulo_seed": "texto_rotulo_seed.png",
+    "subtitulo": "texto_subtitulo.png",
+    "titulo_ouro": "texto_titulo_ouro.png",
+    "titulo_vermelho": "texto_titulo_vermelho.png"
+  }
+}

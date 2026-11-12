@@ -210,6 +210,7 @@ func _voltar_para_raiz() -> void:
 
 
 func _ao_escolher(indice: int) -> void:
+	Som.tocar("ui_confirmar")
 	match String(OPCOES_RAIZ[indice]["id"]):
 		"continuar":
 			retomar_pedido.emit()

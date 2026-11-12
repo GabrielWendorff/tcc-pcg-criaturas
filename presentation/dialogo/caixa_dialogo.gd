@@ -207,6 +207,7 @@ func mostrar_fala(texto: String, nome: String, papel: String,
 	_moldura_retrato.visible = textura != null
 
 	_parar_tweens()
+	Som.tocar("dialogo")
 	_texto.text = texto
 	_texto.visible_ratio = 0.0
 	_indicador.modulate.a = 0.0

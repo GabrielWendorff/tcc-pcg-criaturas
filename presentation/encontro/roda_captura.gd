@@ -519,6 +519,7 @@ func _girar(passo: int) -> void:
 func _selecionar(i: int) -> void:
 	if i == _indice or not _disponivel(i):
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_atualizar_selecao()
 
@@ -665,6 +666,7 @@ func _slot_sob(pos: Vector2) -> int:
 
 
 func _confirmar() -> void:
+	Som.tocar("ui_confirmar")
 	var item := item_selecionado()
 	if item == null or not _disponivel(_indice):
 		return

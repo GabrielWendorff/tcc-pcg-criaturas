@@ -341,6 +341,16 @@ func _montar_props() -> void:
 			adicionar_prop(categoria, item)
 
 
+## O mapa como foi lido do JSON e o catalogo de props. So leitura: e o contexto que a
+## Camada 3 recebe para decidir onde cabe cada coisa.
+func dados_do_mapa() -> Dictionary:
+	return _mapa
+
+
+func catalogo_de_props() -> Dictionary:
+	return _props
+
+
 ## Instancia um prop numa categoria. Publica de proposito: e por aqui que a
 ## Camada 3 (ambientacao procedural) vai pendurar a vegetacao sorteada pela
 ## seed, sem precisar tocar no mapa autoral nem no formato do JSON.
@@ -490,13 +500,13 @@ func quinas_do_mapa() -> PackedVector2Array:
 
 
 # ----------------------------------------------------------------- consulta
-## Centro, em pixels do mundo, da pegada de W x D celulas ancorada nesta celula.
+## Centro, em pixels do mundo, da pegada de largura x fundo celulas ancorada nesta celula.
 ## Para um prop de uma celula (o padrao) e o centro do losango dela.
-func celula_para_mundo(c: Vector2i, W: int = 1, D: int = 1) -> Vector2:
+func celula_para_mundo(c: Vector2i, largura: int = 1, fundo: int = 1) -> Vector2:
 	var base := chao.map_to_local(c) if chao != null else Vector2(
 			(c.x - c.y + 1) * celula.x * 0.5, (c.x + c.y + 1) * celula.y * 0.5)
-	return base + Vector2((W - D) * celula.x * 0.25,
-			(W + D) * celula.y * 0.25 - celula.y * 0.5)
+	return base + Vector2((largura - fundo) * celula.x * 0.25,
+			(largura + fundo) * celula.y * 0.25 - celula.y * 0.5)
 
 
 ## Ponto da grade em coordenadas FRACIONARIAS -> pixels do mundo. (gx + 0.5, gy +

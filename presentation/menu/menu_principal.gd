@@ -41,6 +41,13 @@ const OPCOES_RAIZ := [
 	{"id": "sair", "texto": "SAIR"},
 ]
 
+## No navegador, SAIR nao tem para onde ir: a aba continua aberta.
+static func opcoes_da_raiz() -> Array:
+	if OS.has_feature("web"):
+		return OPCOES_RAIZ.filter(func(o: Dictionary) -> bool: return o["id"] != "sair")
+	return OPCOES_RAIZ
+
+
 const DICAS := {
 	Pagina.RAIZ: "SETAS escolher     E / ENTER confirmar",
 	Pagina.SLOTS: "SETAS escolher     E / ENTER confirmar     DEL apagar     ESC voltar",
@@ -67,6 +74,7 @@ var _saindo: bool = false
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	Som.musica("vila")
 	# Voltar ao menu encerra a partida em curso. Sem isto, sair do jogo e abrir
 	# "Novo jogo" comecaria a partida nova por cima do estado da anterior, com o
 	# cronometro da velha ainda correndo.
@@ -240,7 +248,7 @@ func _ir_para(pagina: Pagina) -> void:
 func _abrir_raiz() -> void:
 	var tem_save := Save.ha_save()
 	var opcoes: Array = []
-	for o: Dictionary in OPCOES_RAIZ:
+	for o: Dictionary in opcoes_da_raiz():
 		# "Continuar" sem nenhum save fica VISIVEL e apagada, nunca escondida:
 		# uma lista que muda de tamanho conforme o disco faz o jogador procurar
 		# a opcao que ele lembra de ter visto.
@@ -267,7 +275,8 @@ func _slot_ocupado(slot: int) -> bool:
 # --------------------------------------------------------------------- acoes
 
 func _ao_escolher_raiz(indice: int) -> void:
-	match String(OPCOES_RAIZ[indice]["id"]):
+	Som.tocar("ui_confirmar")
+	match String(opcoes_da_raiz()[indice]["id"]):
 		"novo":
 			_intencao = Intencao.NOVO
 			_ir_para(Pagina.SLOTS)
@@ -292,6 +301,7 @@ func _ao_escolher_slot(slot: int) -> void:
 		_slots.atualizar(Save.resumos())
 		_nota_curta("Não foi possível carregar o slot %d." % slot)
 		return
+	Som.tocar("ui_confirmar")
 	_entrar_no_jogo()
 
 

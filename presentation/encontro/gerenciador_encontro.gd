@@ -170,6 +170,7 @@ func _montar_nos() -> void:
 	add_child(_transicao)
 
 	_interface = InterfaceEncontro.new()
+	_interface.tabelas_probabilidade = tabelas
 	_interface.name = "InterfaceEncontro"
 	_interface.layer = CAMADA_INTERFACE
 	_interface.acao_escolhida.connect(_on_acao)
@@ -280,6 +281,8 @@ func _comecar(criaturas: Array, tipo: String, guardiao: Dictionary) -> void:
 	if _jogador != null:
 		_jogador.congelar(true)
 	encontro_iniciado.emit(_criatura)
+	Som.tocar("encontro")
+	Som.musica("batalha")
 	await _roteiro_de_abertura(_geracao)
 
 
@@ -662,9 +665,23 @@ func _mostrar_eventos(eventos: Array, token: int) -> void:
 			"golpe":
 				_atualizar_barras()
 				if ev.get("acertou", false):
-					await _interface.animar_ataque(6.0, lado == MotorBatalha.INIMIGO)
+					var eficaz: bool = float(ev.get("mult", 1.0)) > 1.0
+					Som.tocar("golpe_eficaz" if eficaz else "golpe", 0.06)
+					await _interface.animar_golpe(int(ev.get("dano", 0)), eficaz,
+							lado == MotorBatalha.INIMIGO)
 					if _abandonado(token):
 						return
+				else:
+					Som.tocar("errou")
+			"caiu":
+				Som.tocar("caiu")
+				_atualizar_barras()
+			"item":
+				Som.tocar("cura")
+				_atualizar_barras()
+			"reforco":
+				Som.tocar("reforco")
+				_atualizar_barras()
 			"entrou":
 				if lado == MotorBatalha.INIMIGO:
 					_criatura = motor.inimigo().criatura
@@ -763,6 +780,7 @@ func _encerrar(desfecho: String) -> void:
 		_jogador.congelar(false)
 		_posicao_anterior = _jogador.global_position
 	estado.mudar_para(EstadoEncontro.Estado.INATIVO)
+	Som.musica("vila")
 	encontro_terminado.emit(desfecho, criatura)
 
 

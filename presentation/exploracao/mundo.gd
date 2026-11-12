@@ -60,7 +60,8 @@ const BANDEIRA_DICAS_BATALHA := "viu_dicas_batalha"
 
 ## Linha de teclas do HUD. Constante (e nao literal em _montar_hud) para o teste
 ## de integracao conferir os glifos contra a fonte pixel.
-const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   N bestiário   M mapa   ESC pausa"
+const TEXTO_TECLAS := "SETAS/WASD andar   E falar   Q itens  F usar   B bolsa   " \
+		+ "N bestiário   M mapa   ESC pausa"
 const TEXTO_TECLAS_DEV := "   F3 zonas   F2 bestiário   F4 encontro"
 ## Quanto tempo a linha de controles fica no rodape no comeco. Depois, so na pausa.
 const SEGUNDOS_DE_CONTROLES := 12.0
@@ -129,6 +130,8 @@ var _objetivo_mostrado: String = ""
 var _apos_conversa: Callable
 ## Guardiao do duelo em curso, para saber de quem e o selo quando ele terminar.
 var _duelo_atual: Dictionary = {}
+## Celula -> {dados, no} das bolsas perdidas ainda no chao (Camada 3).
+var _achados: Dictionary = {}
 ## A criatura fisgada foi para a batalha: a pesca espera ela terminar.
 var _pesca_em_batalha: bool = false
 var _atravessando: bool = false
@@ -148,6 +151,7 @@ var _hud_visivel: bool = true
 
 
 func _ready() -> void:
+	Som.musica("vila")
 	# Antes de qualquer montagem: o bestiario inteiro depende destes dois numeros.
 	if Save.em_partida():
 		seed_do_mundo = Save.partida.seed_mundo
@@ -199,6 +203,7 @@ func _ready() -> void:
 	_montar_arco()
 	_ligar_save()
 	_preparar_dicas_de_batalha()
+	_montar_ambientacao()
 	_talvez_chegar_de_onibus()
 	_atualizar_objetivo()
 	# Nasce sobre a celula de chegada, que nao e porta; a seguinte ja pode ser.
@@ -507,11 +512,55 @@ func _verificar_porta() -> void:
 	_atravessar(porta)
 
 
+## Camada 3: o que a seed espalha sobre o mapa autoral. Roda depois do save, porque os
+## achados ja recolhidos nao voltam. So no mundo aberto: interiores sao autorais.
+func _montar_ambientacao() -> void:
+	if encontros == null or mundo == null or not mundo.mundo_aberto:
+		return
+	var gerador := GeradorAmbientacao.carregar()
+	if gerador == null:
+		return
+	var reservadas: Array = []
+	if dialogos != null and dialogos.catalogo != null:
+		for ficha: DadosNpc in dialogos.catalogo.npcs:
+			reservadas.append(ficha.celula)
+	var geradas := gerador.gerar(seed_do_mundo, mundo.dados_do_mapa(), mundo.catalogo_de_props(),
+			encontros.bestiario, reservadas)
+	for item: Dictionary in geradas["props"]:
+		mundo.adicionar_prop(String(item["categoria"]), item)
+	for achado: Dictionary in geradas["achados"]:
+		if estado_mundo.ativa(String(achado["id"])):
+			continue
+		var c := Vector2i(int(achado["celula"][0]), int(achado["celula"][1]))
+		_achados[c] = {"dados": achado, "no": mundo.adicionar_prop("Decoracao", achado)}
+	RegistroSessao.evento("ambientacao", {"props": (geradas["props"] as Array).size(),
+			"dominantes": geradas["dominantes"]})
+
+
+## Pisar numa bolsa perdida paga uma vez. A bandeira vai para o save.
+func _verificar_achado() -> void:
+	if _achados.is_empty() or jogador == null or _dono_da_tela() != "":
+		return
+	var c := mundo.mundo_para_celula(jogador.position)
+	if not _achados.has(c):
+		return
+	var achado: Dictionary = _achados[c]
+	var dados: Dictionary = achado["dados"]
+	_achados.erase(c)
+	(achado["no"] as Node).queue_free()
+	estado_mundo.definir(String(dados["id"]))
+	Bolsa.ganhar_gold(int(dados["gold"]))
+	Som.tocar("achado")
+	_nota("Você achou uma bolsa perdida: +%d gold" % int(dados["gold"]))
+	_autosalvar()
+
+
 func _atravessar(porta: Dictionary) -> void:
 	if not Save.em_partida():
 		_nota("Sem partida em curso: portas só funcionam numa partida do menu.")
 		return
 	_atravessando = true
+	Som.tocar("porta")
 	jogador.congelar(true)
 	Save.coletar()
 	var chegada: Array = porta.get("chegada", [0, 0])
@@ -580,6 +629,7 @@ func _clarear_chegada() -> void:
 
 func _process(_delta: float) -> void:
 	_verificar_porta()
+	_verificar_achado()
 	_atualizar_avisos_de_porta()
 	# O marcador do jogador so precisa acompanhar enquanto a carta esta aberta —
 	# e, com o jogador congelado, ele nem se move. Atualizar assim mesmo mantem a
@@ -1045,6 +1095,8 @@ func _piscar_objetivo() -> void:
 
 
 func _mostrar_vitoria() -> void:
+	Som.musica("")
+	Som.tocar("vitoria")
 	jogador.congelar(true)
 	dialogos.suspender(true)
 	tela_desfecho.abrir("VITÓRIA", TemaEncontro.OURO, _texto_de_vitoria(), [
@@ -1068,7 +1120,8 @@ func _texto_de_vitoria() -> String:
 			GeradorCriaturas.nome_do_modo(encontros.modo_gerador))
 	var tempo := Save.partida.tempo_legivel() if Save.em_partida() else "—"
 	var nome_seed := Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
-	return "SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS  %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%" % [
+	return ("SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS "
+			+ " %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%") % [
 		nome_seed, tempo, encontros.inventario.colecao.size(), n,
 		int(cond["unicidade"]["distintas"]),
 		_coerencia_media(cond) * 100.0, _coerencia_media(indep) * 100.0]
@@ -1082,6 +1135,8 @@ static func _coerencia_media(metricas: Dictionary) -> float:
 
 
 func _mostrar_derrota() -> void:
+	Som.musica("")
+	Som.tocar("derrota")
 	jogador.congelar(true)
 	dialogos.suspender(true)
 	var opcoes: Array = []
@@ -1098,6 +1153,7 @@ func _mostrar_derrota() -> void:
 func _ao_escolher_no_desfecho(id: String) -> void:
 	match id:
 		"continuar":
+			Som.musica("vila")
 			jogador.congelar(false)
 			dialogos.suspender(false)
 		"menu":
@@ -1415,9 +1471,11 @@ func _on_encontro_terminado(desfecho: String, criatura: Criatura) -> void:
 func _recompensar_selvagem(c: Criatura) -> void:
 	if c == null or encontros == null:
 		return
-	var forca := FichaCombate.de_criatura(c, encontros.tabelas_batalha).forca(encontros.tabelas_batalha)
+	var tabelas := encontros.tabelas_batalha
+	var forca := FichaCombate.de_criatura(c, tabelas).forca(tabelas)
 	var gold := Bolsa.economia.recompensa_selvagem(forca)
 	Bolsa.ganhar_gold(gold)
+	Som.tocar("moeda")
 	_nota("+%d gold" % gold)
 
 
@@ -1429,6 +1487,7 @@ func _ao_vencer_duelo(guardiao: Dictionary) -> void:
 		premio = int(guardiao.get("premio_gold", 0))
 		Bolsa.ganhar_gold(premio)
 	estado_mundo.definir(selo)
+	Som.tocar("selo")
 	if premio > 0:
 		_nota("%s entregou o selo e %d gold." % [String(guardiao.get("nome", "")), premio])
 	else:

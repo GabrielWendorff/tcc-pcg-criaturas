@@ -120,6 +120,7 @@ func ativo() -> bool:
 func _selecionar(i: int) -> void:
 	if not _ativo or i == _indice or i < 0 or i >= _itens.size():
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_pintar()
 
@@ -178,6 +179,7 @@ func tratar_entrada(evento: InputEvent) -> bool:
 
 
 func _confirmar() -> void:
+	Som.tocar("ui_confirmar")
 	var id := _ids[_indice]
 	if id != "":
 		Opcoes.alternar(id)

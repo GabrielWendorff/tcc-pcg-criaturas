@@ -47,3 +47,7 @@ __pycache__/
 !/tools/arte/_preview/.gdignore
 /tools/mapas/_preview/*
 !/tools/mapas/_preview/.gdignore
+
+# Saidas regeneraveis do poster (tools/poster/gerar_poster.py)
+docs/poster/gerado/
+docs/poster/poster.html

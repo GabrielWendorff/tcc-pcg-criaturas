@@ -24,7 +24,8 @@ static func lista_de_tracos(c: Criatura) -> String:
 
 static func ficha_em_bbcode(c: Criatura, f: FichaCombate) -> String:
 	var apoio := TemaEncontro.PERG_E.to_html(false)
-	return "[color=%s]%s + %s · %s[/color]\n[color=%s]TRAÇOS[/color]  %s\n%s\n[color=%s]GOLPES[/color]  %s" % [
+	return ("[color=%s]%s + %s · %s[/color]\n[color=%s]TRAÇOS[/color] "
+			+ " %s\n%s\n[color=%s]GOLPES[/color]  %s") % [
 		apoio, c.elemento, c.animal_base, c.porte,
 		apoio, lista_de_tracos(c),
 		stats(f),

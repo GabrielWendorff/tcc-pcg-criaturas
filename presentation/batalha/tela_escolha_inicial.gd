@@ -131,6 +131,7 @@ func _pintar() -> void:
 func _selecionar(i: int) -> void:
 	if not _aberta or i == _indice or i < 0 or i >= _cartoes.size():
 		return
+	Som.tocar("ui_mover")
 	_indice = i
 	_pintar()
 
@@ -145,6 +146,7 @@ func _ao_clicar(evento: InputEvent, i: int) -> void:
 func _confirmar() -> void:
 	if not _aberta or _opcoes.is_empty():
 		return
+	Som.tocar("ui_confirmar")
 	var c: Criatura = _opcoes[_indice]
 	fechar()
 	escolhida.emit(c)

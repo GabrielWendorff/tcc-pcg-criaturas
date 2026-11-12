@@ -5,7 +5,8 @@ extends CanvasLayer
 ##
 ## Prima da RodaCaptura (presentation/encontro/roda_captura.gd) na linguagem —
 ## madeira, pergaminho, ouro na selecao, fonte pixel, trilho pontilhado, um
-## marcador dourado ligando o miolo ao escolhido — e diferente no gesto. A de captura e um MENU: abre,
+## marcador dourado ligando o miolo ao escolhido — e diferente no gesto. A de captura e
+## um MENU: abre,
 ## o jogador navega com calma e confirma. Esta e um ATALHO no meio da
 ## exploracao: abre enquanto a tecla esta segura e fecha ao soltar, entao tudo
 ## nela tem de ser lido de relance. Por isso os slots sao medalhoes so com o

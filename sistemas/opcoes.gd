@@ -56,6 +56,31 @@ const DEFINICOES := [
 		"padrao": false,
 	},
 	{
+		"id": "volume_musica",
+		"rotulo": "Música",
+		"descricao": "Volume da música de fundo.",
+		"padrao": "media",
+		# `dado` e o volume em dB.
+		"valores": [
+			{"id": "desligada", "rotulo": "DESLIGADA", "dado": -80.0},
+			{"id": "baixa", "rotulo": "BAIXA", "dado": -20.0},
+			{"id": "media", "rotulo": "MÉDIA", "dado": -12.0},
+			{"id": "alta", "rotulo": "ALTA", "dado": -5.0},
+		],
+	},
+	{
+		"id": "volume_efeitos",
+		"rotulo": "Efeitos sonoros",
+		"descricao": "Volume dos sons de menu, batalha e captura.",
+		"padrao": "medio",
+		"valores": [
+			{"id": "desligados", "rotulo": "DESLIGADOS", "dado": -80.0},
+			{"id": "baixo", "rotulo": "BAIXO", "dado": -14.0},
+			{"id": "medio", "rotulo": "MÉDIO", "dado": -6.0},
+			{"id": "alto", "rotulo": "ALTO", "dado": 0.0},
+		],
+	},
+	{
 		"id": "velocidade_texto",
 		"rotulo": "Velocidade do texto",
 		"descricao": "Ritmo da máquina de escrever nos diálogos.",

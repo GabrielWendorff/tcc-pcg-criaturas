@@ -258,6 +258,7 @@ func fechar_pergunta() -> void:
 func _ao_escolher(indice: int) -> void:
 	if not _perguntando:
 		return
+	Som.tocar("ui_confirmar")
 	var confirmou := indice == _indice_sim
 	fechar_pergunta()
 	resposta_pulo.emit(confirmou)

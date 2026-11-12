@@ -1466,6 +1466,24 @@
       "colisao": {
         "tipo": "nenhuma"
       }
+    },
+    "bolsa_perdida": {
+      "arquivo": "bolsa_perdida.png",
+      "tamanho": [
+        32,
+        28
+      ],
+      "ancora": [
+        16,
+        20
+      ],
+      "celulas": [
+        1,
+        1
+      ],
+      "colisao": {
+        "tipo": "nenhuma"
+      }
     }
   }
 }

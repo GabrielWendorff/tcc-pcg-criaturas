@@ -232,6 +232,7 @@ func _atualizar_leitura() -> void:
 func _selecionar(linha: int) -> void:
 	if not _ativo or _editando or linha == _indice:
 		return
+	Som.tocar("ui_mover")
 	_indice = linha
 	_pintar()
 
@@ -289,6 +290,7 @@ func tratar_entrada(evento: InputEvent) -> bool:
 
 
 func _confirmar() -> void:
+	Som.tocar("ui_confirmar")
 	match _indice:
 		Linha.CAMPO:
 			_entrar_na_edicao()

@@ -456,6 +456,7 @@ func _fisgar(perfil: PerfilPesca) -> void:
 		if _camera.tremendo():
 			interface.tremer(duracao_tremor, intensidade_tremor)
 	interface.mostrar_resultado(cfg.texto("fisgou"), TemaEncontro.OURO)
+	Som.tocar("fisgou")
 	peixe_fisgado.emit(_criatura)
 	if not encerrar_ao_fisgar or _abandonado(token):
 		return
