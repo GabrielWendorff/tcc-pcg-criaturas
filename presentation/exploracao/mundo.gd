@@ -650,6 +650,13 @@ func _ceder_topo_a_dica() -> void:
 	for no: Control in [_hud_dica, _hud_objetivo]:
 		if no != null:
 			no.visible = _hud_visivel and not dica_na_tela
+	if _hud_dica != null and _toque_na_tela():
+		_hud_dica.visible = false
+
+
+func _toque_na_tela() -> bool:
+	var toque: Node = get_node_or_null("/root/ControlesToque")
+	return toque != null and bool(toque.get("visivel_agora"))
 
 
 ## Liga a cena ao autoload `Save`. Ultima montagem de proposito: cada secao le e
@@ -1334,6 +1341,10 @@ func _montar_hud() -> void:
 	_hud_dica.offset_left = 14.0
 	_hud_dica.offset_top = -30.0
 	camada.add_child(_hud_dica)
+	# Com os controles de toque na tela, a legenda de TECLAS nao serve: some junto.
+	var toque: Node = get_node_or_null("/root/ControlesToque")
+	if toque != null:
+		toque.visibilidade_mudou.connect(func(_sim: bool) -> void: _ceder_topo_a_dica())
 	# Quem acabou de passar por uma porta ja viu os controles: eles nao reaparecem.
 	if Save.has_meta(META_CHEGADA_POR_PORTA):
 		_hud_dica.modulate.a = 0.0

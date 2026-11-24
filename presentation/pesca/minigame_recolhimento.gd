@@ -275,7 +275,11 @@ func _avancar_teclas(delta: float) -> void:
 	var m := get_local_mouse_position()
 	if m.distance_to(_ultimo_mouse) > limiar_mouse:
 		_ultimo_mouse = m
-		_usa_mouse = true
+		# No celular o dedo do joystick arrasta o mouse emulado junto: sobre os
+		# controles da tela, o mouse nao toma o controle (arrastar na agua, sim).
+		var toque: Node = get_node_or_null("/root/ControlesToque")
+		if toque == null or not toque.call("ocupa", get_viewport().get_mouse_position()):
+			_usa_mouse = true
 	var eixo := Input.get_vector("mover_esquerda", "mover_direita", "mover_cima", "mover_baixo")
 	if eixo == Vector2.ZERO:
 		return
