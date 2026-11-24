@@ -34,6 +34,8 @@ extends Node
 signal encontro_iniciado(criatura: Criatura)
 signal encontro_terminado(desfecho: String, criatura: Criatura)
 signal mensagem_registrada(texto: String)
+## Primeira captura desta criatura: `registradas` ja conta com ela (especies distintas).
+signal especie_registrada(criatura: Criatura, registradas: int)
 
 ## Camadas de CanvasLayer. A interface fica ACIMA do escurecimento porque o menu
 ## precisa ser lido sobre a tela ja escura.
@@ -48,6 +50,8 @@ const DESLOCAMENTO_BATALHA := 0xBA7A
 
 var world_seed: int = 0
 var bestiario: Array = []
+## Raridade de cada criatura do bestiario (o "shiny": o sorteio improvavel).
+var raridade: RaridadeSorteio
 
 var tabelas: TabelasProbabilidade
 var catalogo: CatalogoCorpos
@@ -151,6 +155,7 @@ func preparar(mundo: MundoIso, jogador: Jogador, camera: CameraExploracao,
 	if bestiario.is_empty():
 		erro = "bestiario vazio"
 		return false
+	raridade = RaridadeSorteio.do_bestiario(bestiario, tabelas)
 
 	_montar_nos()
 	_conectar_zonas(mundo)
@@ -171,6 +176,7 @@ func _montar_nos() -> void:
 
 	_interface = InterfaceEncontro.new()
 	_interface.tabelas_probabilidade = tabelas
+	_interface.raridade = raridade
 	_interface.name = "InterfaceEncontro"
 	_interface.layer = CAMADA_INTERFACE
 	_interface.acao_escolhida.connect(_on_acao)
@@ -327,6 +333,11 @@ func _roteiro_de_abertura(token: int) -> void:
 	estado.mudar_para(EstadoEncontro.Estado.APRESENTACAO)
 	var cartaz: String = String(_guardiao.get("titulo", "")) if em_duelo() \
 			else cfg.texto_criatura_encontrada
+	var niv: String = raridade.nivel(_criatura) if raridade != null and not em_duelo() \
+			else RaridadeSorteio.COMUM
+	if niv != RaridadeSorteio.COMUM:
+		cartaz = raridade.texto("cartaz_" + niv)
+		Som.tocar("selo" if niv == RaridadeSorteio.LENDARIA else "achado")
 	await _transicao.apresentar(cartaz, cfg.duracao_texto_encontro)
 	if _abandonado(token):
 		return
@@ -337,6 +348,8 @@ func _roteiro_de_abertura(token: int) -> void:
 	# que a maquina diz INTERACAO enquanto a interface ainda esta subindo.
 	var abertura: String = "%s te desafia!" % String(_guardiao.get("nome", "")) if em_duelo() \
 			else "Uma criatura selvagem apareceu!"
+	if niv != RaridadeSorteio.COMUM:
+		abertura = raridade.texto("abertura_" + niv)
 	await _interface.abrir(_criatura, catalogo, captura, cfg.duracao_abertura_menu,
 			not em_duelo(), abertura)
 	if _abandonado(token):
@@ -400,6 +413,7 @@ func _abrir_lista_de_golpes() -> void:
 		itens.append({
 			"rotulo": g.nome.to_upper(),
 			"dica": TextoBatalha.dica_do_golpe(g, motor.jogador(), motor.inimigo(), tabelas_batalha),
+			"selo": TextoBatalha.selo_do_golpe(g, motor.inimigo(), tabelas_batalha),
 			"valor": {"tipo": "golpe", "golpe": g},
 		})
 	_interface.abrir_lista(itens)
@@ -602,6 +616,7 @@ func _lancar(dispositivo: DispositivoCaptura) -> void:
 		return
 
 	if sucesso:
+		var nova: bool = not inventario.ja_capturou(_criatura)
 		inventario.guardar_criatura(_criatura)
 		# Com a vida que tinha: o que apanhou na captura continua machucado.
 		var capturada: Combatente = motor.inimigo()
@@ -612,6 +627,10 @@ func _lancar(dispositivo: DispositivoCaptura) -> void:
 				roundi(float(r["p"]) * 100.0)], TemaEncontro.SUCESSO)
 		mensagem_registrada.emit("capturada: " + _criatura.nome())
 		await get_tree().create_timer(cfg.duracao_desfecho).timeout
+		if nova and not _abandonado(token):
+			await _celebrar_nova_especie()
+		if _abandonado(token):
+			return
 		_encerrar("capturada")
 		return
 
@@ -630,6 +649,24 @@ func _lancar(dispositivo: DispositivoCaptura) -> void:
 	if _abandonado(token):
 		return
 	_resolver_turno({"tipo": "passar"})
+
+
+## Pokedex do jogo: a primeira captura de uma criatura sobe um cartaz com a contagem
+## do bestiario. A recompensa dos marcos e de quem escuta `especie_registrada`.
+func _celebrar_nova_especie() -> void:
+	var registradas: int = inventario.especies_registradas()
+	var linha: String = raridade.texto("registradas") % [registradas, bestiario.size()] \
+			if raridade != null else ""
+	var cor: Color = TemaEncontro.OURO
+	if raridade != null and raridade.e_especial(_criatura):
+		var niv := raridade.nivel(_criatura)
+		linha += "  ·  " + raridade.rotulo(niv)
+		cor = raridade.cor(niv)
+	Som.tocar("achado")
+	especie_registrada.emit(_criatura, registradas)
+	await _interface.celebrar_nova_especie(
+			raridade.texto("nova_especie") if raridade != null else "NOVA ESPÉCIE!",
+			linha, cor, cfg.duracao_nova_especie)
 
 
 # -------------------------------------------------------------------- batalha

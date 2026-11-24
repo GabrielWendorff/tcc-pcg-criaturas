@@ -40,6 +40,8 @@ var duracao_lancamento: float = 0.75
 var duracao_balanco: float = 0.55
 var balancos: int = 3
 var duracao_desfecho: float = 1.20
+## Cartaz de NOVA ESPECIE depois de uma captura inedita (entrada, pausa e saida).
+var duracao_nova_especie: float = 2.2
 var duracao_encerramento: float = 0.40
 ## Quanto cada evento do turno fica na tela antes do proximo.
 var duracao_evento_batalha: float = 0.95
@@ -73,6 +75,7 @@ func _aplicar(d: Dictionary) -> void:
 
 	var r: Dictionary = d.get("ritmo", {})
 	duracao_aviso = float(r.get("duracao_aviso", duracao_aviso))
+	duracao_nova_especie = float(r.get("duracao_nova_especie", duracao_nova_especie))
 	duracao_tremor = float(r.get("duracao_tremor", duracao_tremor))
 	intensidade_tremor = float(r.get("intensidade_tremor", intensidade_tremor))
 	atraso_apos_aviso = float(r.get("atraso_apos_aviso", atraso_apos_aviso))

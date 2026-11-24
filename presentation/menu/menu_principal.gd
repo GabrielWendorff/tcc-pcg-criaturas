@@ -126,6 +126,11 @@ func _ready() -> void:
 	add_child(_veu)
 
 	_ir_para(Pagina.RAIZ)
+	# "OUTRA SEED" na vitoria: direto para escolher o slot do jogo novo.
+	if Save.has_meta(ColecaoSeed.META_OUTRA_SEED):
+		Save.remove_meta(ColecaoSeed.META_OUTRA_SEED)
+		_intencao = Intencao.NOVO
+		_ir_para(Pagina.SLOTS)
 
 
 # ---------------------------------------------------------------- construcao

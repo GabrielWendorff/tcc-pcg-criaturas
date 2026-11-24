@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "descricao": "Colecao do bestiario: raridade do sorteio e marcos de especies registradas. Nada aqui participa da geracao: a raridade LE o que o gerador ja sorteou (NotaCoerencia, a surpresa -log2 P(derivados | primarios)), e os marcos so dao itens da economia. Lido por RaridadeSorteio e ColecaoSeed.",
+    "versao": 1
+  },
+
+  "raridade": {
+    "_descricao": "RARA = atipica pelo limiar de data/modelo_v2.json (nota_coerencia.limiar_atipica_bits, ~1 em 10 do modelo). LENDARIA = as 'lendarias_por_seed' maiores surpresas do bestiario da seed, entre as atipicas. O resto e COMUM. Por ser posto na seed, toda seed tem lendarias para cacar.",
+    "lendarias_por_seed": 3
+  },
+
+  "marcos": {
+    "_descricao": "Especies DISTINTAS registradas (capturadas ao menos uma vez) -> recompensa, dada uma vez, no momento em que a contagem cruza o marco. 'itens' usa ids da Bolsa; 'gold' soma ao dinheiro.",
+    "lista": [
+      {"especies": 3, "gold": 40, "itens": {"esfera_reforcada": 2}},
+      {"especies": 6, "gold": 60, "itens": {"pocao_simples": 2}},
+      {"especies": 10, "gold": 100, "itens": {"prisma_selante": 1}},
+      {"especies": 15, "gold": 150, "itens": {"pocao_forte": 2}},
+      {"especies": 25, "gold": 250, "itens": {"prisma_selante": 2}},
+      {"especies": 40, "gold": 400, "itens": {"elixir_de_folego": 1}},
+      {"especies": 60, "gold": 600, "itens": {"prisma_selante": 3}},
+      {"especies": 100, "gold": 1000, "itens": {}}
+    ]
+  },
+
+  "textos": {
+    "comum": "",
+    "rara": "RARA",
+    "lendaria": "LENDÁRIA",
+    "abertura_rara": "Uma criatura RARA apareceu! O sorteio dela era improvável.",
+    "abertura_lendaria": "Uma criatura LENDÁRIA apareceu! Uma das 3 mais improváveis deste mundo.",
+    "cartaz_rara": "CRIATURA RARA!",
+    "cartaz_lendaria": "CRIATURA LENDÁRIA!",
+    "nova_especie": "NOVA ESPÉCIE!",
+    "registradas": "BESTIÁRIO %d/%d",
+    "marco": "Marco do bestiário: %d espécies! Recebeu %s."
+  }
+}

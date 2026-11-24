@@ -71,10 +71,18 @@ static func dica_do_golpe(g: Golpe, atacante: Combatente, defensor: Combatente,
 		return g.descricao
 	var dano: int = roundi(CalculoBatalha.dano_base(g, atacante, defensor, tabelas))
 	var acerto: int = roundi(CalculoBatalha.chance_de_acerto(g, defensor) * 100.0)
+	return "%d de dano · %d%% de acerto" % [dano, acerto]
+
+
+## Selo ao lado do NOME do golpe: a vantagem de elemento contra ESTE adversario, em
+## cor, em todos os cartoes ao mesmo tempo. Antes ela vinha no fim da dica, em texto
+## apagado — o jogador so via depois de escolher. {} = golpe neutro ou de apoio.
+static func selo_do_golpe(g: Golpe, defensor: Combatente, tabelas: TabelasBatalha) -> Dictionary:
+	if not g.causa_dano():
+		return {}
 	var mult: float = CalculoBatalha.multiplicador(g, defensor, tabelas)
-	var nota := ""
 	if mult > 1.0:
-		nota = "  MUITO EFICAZ ×%.2f" % mult
-	elif mult < 1.0:
-		nota = "  POUCO EFICAZ ×%.2f" % mult
-	return "%d de dano · %d%% de acerto%s" % [dano, acerto, nota]
+		return {"texto": "EFICAZ ×%s" % String.num(mult, 2), "cor": TemaEncontro.VERDE_C}
+	if mult < 1.0:
+		return {"texto": "FRACO ×%s" % String.num(mult, 2), "cor": TemaEncontro.VERMELHO_C}
+	return {}
