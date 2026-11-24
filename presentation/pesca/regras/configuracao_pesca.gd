@@ -34,7 +34,7 @@ const SECOES := {
 	"surgimento": ["intervalo_surgimento", "chance_surgimento",
 			"atraso_minimo_surgimento", "distancia_minima_para_surgir"],
 	"interesse": ["interesse_inicial", "interesse_ganho", "interesse_perda",
-			"interesse_alvo"],
+			"interesse_alvo", "multiplicador_tolerancia"],
 	"deriva": ["deriva_ativa", "deriva_amplitude_profundidade",
 			"deriva_amplitude_velocidade", "deriva_periodo_min", "deriva_periodo_max"],
 	"silhueta": ["silhueta_distancia_longe", "silhueta_distancia_perto",
@@ -77,38 +77,43 @@ var profundidade_inicial: float = 0.12
 ## fator fixo, para a resposta nao depender da taxa de quadros.
 var suavidade_profundidade: float = 6.0
 var suavidade_velocidade: float = 8.0
-## Celulas/s. Com o maximo, um arremesso de 7 celulas volta em ~3 s; com o
-## minimo, a isca quase para — e o "esperar o peixe" do pescador.
-var velocidade_min: float = 0.35
+## Celulas/s. Com o maximo, um arremesso de 7 celulas volta em ~3 s. O minimo e 0:
+## com o mouse (ou a seta) toda a direita a linha PARA, e a isca fica esperando o
+## peixe. A linha nunca volta sozinha — recolher e uma decisao do jogador.
+var velocidade_min: float = 0.0
 var velocidade_max: float = 2.4
 
 # --- surgimento -------------------------------------------------------------
 ## Um sorteio a cada `intervalo_surgimento` s, depois de `atraso_minimo_surgimento`
-## s de recolhimento. Com 0.22 por sorteio, um arremesso medio recolhido devagar
-## tem ~7 sorteios: ~1.5 silhuetas esperadas, ~80% de chance de ver ao menos uma.
+## s na agua. Com a linha parada e 0.30 por sorteio, a sombra aparece em media
+## 1 + 1.2/0.30 = 5 s depois do arremesso.
 var intervalo_surgimento: float = 1.2
-var chance_surgimento: float = 0.22
+var chance_surgimento: float = 0.30
 var atraso_minimo_surgimento: float = 1.0
 ## Silhueta nao nasce com a isca ja na beira: nao haveria trajeto para fisgar.
 var distancia_minima_para_surgir: float = 1.0
 
 # --- interesse --------------------------------------------------------------
-## Com a politica perfeita, (100 - 40)/20 = 3.0 s mais ~0.2 s de inercia da linha:
-## ~3.2 s do surgimento a fisgada. Errando tudo, 40/9 = 4.4 s ate o monstro fugir.
-## A perda e mais lenta que o ganho de proposito: o jogador tem tempo de corrigir.
-var interesse_inicial: float = 40.0
-var interesse_ganho: float = 20.0
-var interesse_perda: float = 9.0
+## Com a politica perfeita, (100 - 50)/25 = 2.0 s mais ~0.2 s de inercia da linha:
+## ~2.2 s do surgimento a fisgada. Errando tudo, 50/6 = 8.3 s ate o monstro fugir.
+## A perda e bem mais lenta que o ganho de proposito: o jogador tem tempo de corrigir.
+var interesse_inicial: float = 50.0
+var interesse_ganho: float = 25.0
+var interesse_perda: float = 6.0
 var interesse_alvo: float = 100.0
+## Alarga as folgas de altura e velocidade de TODO perfil fora do tutorial. As folgas
+## relativas entre criaturas (nadadeiras mais escorregadias, escamas mais folgadas)
+## continuam as de perfil.json; isto so muda o quanto a pesca e exigente no geral.
+var multiplicador_tolerancia: float = 1.4
 
 # --- deriva -----------------------------------------------------------------
 ## O monstro oscila levemente de altura e velocidade (senoide de fase e periodo
 ## sorteados). Desligavel: sem ela o minigame vira "ache a faixa e solte o mouse".
 var deriva_ativa: bool = true
-var deriva_amplitude_profundidade: float = 0.08
-var deriva_amplitude_velocidade: float = 0.06
-var deriva_periodo_min: float = 3.0
-var deriva_periodo_max: float = 6.0
+var deriva_amplitude_profundidade: float = 0.05
+var deriva_amplitude_velocidade: float = 0.04
+var deriva_periodo_min: float = 4.0
+var deriva_periodo_max: float = 8.0
 
 # --- silhueta (visual) -------------------------------------------------------
 ## Celulas atras da isca: longe com interesse 0, perto com interesse no alvo.
@@ -148,7 +153,7 @@ var textos: Dictionary = {
 	"zona_medio": "MÉDIO",
 	"zona_maximo": "MÁXIMO",
 	"dica_arremesso": "[F] trava a força do arremesso.",
-	"dica_recolher": "Mouse à esquerda: rápido · à direita: devagar · cima/baixo: altura",
+	"dica_recolher": "Cima/baixo: altura · esquerda: recolhe · direita: linha parada",
 	"rotulo_velocidade": "VELOCIDADE",
 	"rotulo_interesse": "INTERESSE",
 	"rotulo_altura_ok": "ALTURA OK",
@@ -204,8 +209,8 @@ func validar() -> PackedStringArray:
 	if not (0.0 <= profundidade_min and profundidade_min < profundidade_max
 			and profundidade_max <= 1.0):
 		p.append("recolhimento: exige 0 <= profundidade_min < profundidade_max <= 1")
-	if not (0.0 < velocidade_min and velocidade_min < velocidade_max):
-		p.append("recolhimento: exige 0 < velocidade_min < velocidade_max")
+	if not (0.0 <= velocidade_min and velocidade_min < velocidade_max):
+		p.append("recolhimento: exige 0 <= velocidade_min < velocidade_max")
 	if intervalo_surgimento <= 0.0:
 		p.append("surgimento: intervalo_surgimento tem de ser > 0")
 	if not (0.0 <= chance_surgimento and chance_surgimento <= 1.0):
@@ -216,6 +221,8 @@ func validar() -> PackedStringArray:
 		p.append("interesse: ganho tem de ser > 0 e perda >= 0")
 	if not (0.0 < deriva_periodo_min and deriva_periodo_min <= deriva_periodo_max):
 		p.append("deriva: exige 0 < deriva_periodo_min <= deriva_periodo_max")
+	if multiplicador_tolerancia <= 0.0:
+		p.append("interesse: multiplicador_tolerancia tem de ser > 0")
 	if tutorial_multiplicador_tolerancia < 1.0:
 		p.append("tutorial: multiplicador de tolerancia < 1 deixaria o tutorial MAIS dificil")
 	if tutorial_interesse_minimo <= 0.0:
