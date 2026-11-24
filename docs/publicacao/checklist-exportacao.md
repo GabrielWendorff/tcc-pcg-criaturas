@@ -16,10 +16,20 @@ Plataformas: **Web** (jogar no navegador, é o link do QR Code e da demonstraç�
 |---|---|---|
 | Linux | `exports/linux/rpg-pcg.x86_64` | |
 | Windows | `exports/windows/rpg-pcg.exe` | sem assinatura de código: o Windows avisa "editor desconhecido" |
-| Web | `exports/web/index.html` | sem threads: dispensa os cabeçalhos COOP/COEP, e o itch.io roda direto |
+| Web | `exports/web/index.html` | sem threads: dispensa os cabeçalhos COOP/COEP, e o itch.io roda direto. `html/head_include` recarrega a página quando o navegador descarta o WebGL (ver abaixo) |
 
 - [ ] Os três presets têm `exclude_filter` com `autoral/_*` (referências locais fora da build).
 - [ ] Conferir o binário: `grep -ac '_ref_direcoes\|autoral/_ref' exports/*/*` dá 0.
+
+### Tela preta ao voltar para a aba (celular)
+
+No celular, o navegador descarta o contexto WebGL de uma aba que foi para o fundo. O Godot
+responde com `alert("WebGL context lost...")`, que no iframe do itch.io é bloqueado: sobra
+uma tela preta que não volta. O script em `html/head_include` (preset Web) intercepta o
+evento antes do Godot e checa o contexto a cada quadro; com a aba visível recarrega na hora,
+escondida recarrega quando ela volta. O save fica no navegador, então o CONTINUAR continua lá.
+Para conferir no PC: no console, `document.getElementById('canvas').getContext('webgl2')
+.getExtension('WEBGL_lose_context').loseContext()` tem de recarregar a página no menu.
 
 ## 3. Tamanho (medido em 12/11/2026)
 
