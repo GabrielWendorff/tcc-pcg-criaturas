@@ -3,12 +3,12 @@
 # RPG PCG - Coerência Semântica
 
 **Aluno:** Gabriel Wendorff
-**E-mail:** *(preencher com o e-mail institucional)*
+**E-mail:** gabriel.wendorff@catolicasc.edu.br
 
-**Status do Projeto:** Produção
+**Status do Projeto:** Release (build pública no itch.io)
 
-**Versão do Documento:** v0.5
-**Última atualização:** 09/11/2026
+**Versão do Documento:** v1.0
+**Última atualização:** 24/11/2026
 
 ---
 
@@ -33,8 +33,8 @@ Jogadores de RPG de coleta de criaturas, com sessão-alvo de 15 a 20 minutos. O 
 
 ## Plataformas
 
-- PC (Linux e Windows)
-- Web (exportação no CI; publicação pendente)
+- Web (navegador, inclusive no celular, com joystick e botões na tela)
+- PC (Linux e Windows, para baixar)
 
 ---
 
@@ -42,7 +42,7 @@ Jogadores de RPG de coleta de criaturas, com sessão-alvo de 15 a 20 minutos. O 
 
 | Item | Link |
 |---|---|
-| Build jogável | pendente (publicação web prevista) |
+| Build jogável | https://vvendorff.itch.io/tcc-coerncia-semntica (Web, Windows e Linux; publicada pelo CI a cada merge na `master`) |
 | Repositório | https://github.com/GabrielWendorff/tcc-pcg-criaturas |
 | Wiki | https://github.com/GabrielWendorff/tcc-pcg-criaturas/wiki |
 | Vídeo gameplay | pendente |
@@ -60,11 +60,18 @@ Jogadores de RPG de coleta de criaturas, com sessão-alvo de 15 a 20 minutos. O 
 | No Man's Sky | universo gerado em escala extrema | o problema central: escala sem coerência entre os atributos |
 | Minecraft | mundo gerado por ruído | o contraponto da geração estocástica pura |
 | Pokémon Emerald | RPG de coleta de criaturas | gênero; formato e proporção do protagonista, usados só como referência |
-| Stardew Valley | simulação de vida no campo | a chegada de ônibus na abertura |
+| Stardew Valley | simulação de vida no campo | a chegada de ônibus na abertura; ciclo curto e pouca punição, que guiaram a pesca tranquila |
+| Steal an Egg ("Roube um Ovo", Roblox) | coleção de pets por raridade | raridades à vista e coleção que dá motivo para voltar |
 
-*(Adicionar imagens.)*
+As imagens dos jogos de referência não são reproduzidas aqui: são obras de terceiros. O efeito de cada
+uma no projeto está nas capturas das seções 8 e 9.
 
 ## Análise das Referências
+
+Pokémon e Steal an Egg prendem pela raridade: o encontro improvável vale porque não se sabe quando
+virá, e completar a coleção dá recompensa. Stardew Valley prende pelo ciclo curto e por punir pouco.
+O jogo traz as duas coisas para o centro da tese: a raridade de uma criatura **é** a probabilidade
+condicionada do sorteio dela (seção 5).
 
 Os jogos comerciais geram conteúdo em grande escala e em tempo real, mas sem coerência entre os atributos.
 Os trabalhos acadêmicos analisados (Hendrikx et al., 2013; Togelius et al., 2011; Shaker, Togelius e Nelson,
@@ -81,6 +88,7 @@ condicionadas: nenhuma busca evolutiva, e custo linear no número de criaturas.
 | A correlação é mensurável | informação mútua contra o sorteio independente, n=5000 (RF08) |
 | Derivar o combate do corpo faz o jogador ler a criatura | playtest |
 | Sem XP nem níveis, a coleção basta como progressão | playtest |
+| A raridade tirada da probabilidade condicionada motiva a caça e mostra o gerador | playtest |
 | Dá para ter escala, coerência e tempo real | 100 criaturas em cerca de 2 ms |
 
 ## Pilares do jogo
@@ -95,7 +103,7 @@ condicionadas: nenhuma busca evolutiva, e custo linear no número de criaturas.
 
 ## Core Loop
 
-Explorar → encontrar criatura → ler o corpo → lutar ou capturar → montar a equipe → enfrentar o guardião
+Explorar → encontrar criatura → ler o corpo → lutar ou capturar → registrar no bestiário → montar a equipe → enfrentar o guardião
 
 ## Loops Secundários
 
@@ -103,6 +111,8 @@ Explorar → encontrar criatura → ler o corpo → lutar ou capturar → montar
 - Ganhar gold e comprar dispositivos, iscas e poções
 - Conversar com os NPCs da vila
 - Consultar o bestiário da seed e o sorteio de cada criatura
+- Caçar as raras e as 3 lendárias da seed e cruzar os marcos do bestiário
+- Começar outra seed para um bestiário novo
 
 ## Mecânicas Principais
 
@@ -110,9 +120,11 @@ Explorar → encontrar criatura → ler o corpo → lutar ou capturar → montar
 |---|---|
 | Movimento | caminhada em mapa isométrico, em 8 direções |
 | Encontro | zonas de mato alto disparam encontros com criaturas da seed, filtradas por região |
-| Combate | 1×1 por turnos, equipe de até 3; stats e golpes derivados da morfologia |
+| Combate | 1×1 por turnos, equipe de até 3; stats e golpes derivados da morfologia; cada golpe mostra o selo EFICAZ ou FRACO contra o alvo |
 | Captura | dispositivos e iscas; enfraquecer ajuda, zerar a vida faz a criatura fugir |
-| Pesca | item na mão, de frente para a água; o nado deriva da morfologia |
+| Pesca | item na mão, de frente para a água; o nado deriva da morfologia. A linha fica parada até o jogador recolher, e a fisgada pede a mesma altura e a mesma velocidade da sombra |
+| Raridade | COMUM, RARA (atípica, cerca de 1 em 10) e LENDÁRIA (as 3 maiores surpresas da seed), tiradas da surpresa −log2 P(derivados \| primários); o encontro raro tem cartaz, som e brilho, e a ficha mostra a chance do sorteio ("1 em 222.043") |
+| Coleção | a primeira captura de uma criatura registra a espécie ("BESTIÁRIO n/100"); marcos de 3 a 100 espécies dão itens e gold |
 | Loja | 3 lojas abertas pelo diálogo do vendedor |
 | Interação | diálogo ramificado com condições e efeitos |
 
@@ -123,7 +135,8 @@ Câmera 2D isométrica que segue o jogador. Na abertura, acompanha o ônibus.
 ## Sistemas
 
 **Vitória:** vencer Dulce, Anselmo e Otávio e, com os três selos, o duelo final com a Mirela na praça. A
-tela final mostra os dados da seed e a coerência do bestiário contra o sorteio independente.
+tela final mostra os dados da seed, a coleção (registradas, raras e lendárias) e a coerência do
+bestiário contra o sorteio independente, e oferece OUTRA SEED.
 
 **Derrota:** a equipe inteira sem vida. A tela de derrota volta ao último save.
 
@@ -140,6 +153,8 @@ o selo da Dulce abre a fábrica.
 - 4 regiões num mapa de 96×88, mais o interior da fábrica
 - 6 NPCs com diálogo, 4 guardiões e 3 lojas
 - Batalha, captura, pesca, gold, save em 3 slots, bestiário e abertura com cena
+- Raridade, marcos de coleção e convite a outra seed
+- Controles de toque para jogar no navegador do celular
 
 ## O jogo não inclui
 
@@ -166,15 +181,25 @@ o selo da Dulce abre a fábrica.
 
 ## HUD
 
-*(Adicionar capturas.)*
+![Exploração com o card de objetivo](poster/recursos/tela_exploracao.png)
+
+![Controles de toque no celular](imagens/controles_toque.png)
 
 - Card de objetivo e equipe no canto superior direito
 - Item na mão e roda de itens
 - Controles, por alguns segundos, ao começar
+- No celular: joystick à esquerda, OK, VOLTAR, USAR e ITENS à direita, e MENU, BOLSA, MAPA,
+  BESTIÁRIO e PULAR na lateral; aparecem com tela de toque e somem com o teclado
 
 ## Menus
 
-*(Adicionar capturas.)*
+![Batalha com a linha SORTEIO](poster/recursos/tela_batalha.png)
+
+![Encontro com uma lendária: título dourado e "1 em 222.043"](imagens/encontro_lendaria.png)
+
+![Cartaz de nova espécie](imagens/nova_especie.png)
+
+![Bestiário com a coleção: registradas, raras e lendárias](imagens/bestiario_colecao.png)
 
 - Menu principal, com a vila e criaturas de uma seed sorteada ao fundo
 - Nova partida com seed, e 3 slots
@@ -197,6 +222,7 @@ flowchart LR
     J --> D[Derrota]
     D --> J
     V --> M
+    V -->|OUTRA SEED| N
 ```
 
 ## Controles
@@ -215,6 +241,9 @@ flowchart LR
 | F5 | salvar |
 | F11 | tela cheia |
 
+Os mesmos comandos funcionam num controle e nos botões de toque: cada toque vira um botão de
+controle virtual, e o mapa de entradas do projeto liga botão e ação.
+
 ---
 
 # 9. Direção Visual
@@ -227,7 +256,9 @@ pontos medidos na silhueta.
 
 ## Referências Visuais
 
-*(Adicionar imagens.)*
+![Banner do itch.io, montado com peças renderizadas pelo jogo](../arte/divulgacao/banner_960x320.png)
+
+![Bestiário com o sorteio de uma criatura (tecla E)](poster/recursos/tela_bestiario.png)
 
 ---
 
@@ -257,6 +288,8 @@ sem amostra de terceiros. Volume de música e de efeitos nas opções.
 | Caminhada dos NPCs | exploração e abertura | sim | 8 animações por NPC |
 | Ônibus | abertura | não | deslocamento com balanço de 1 pixel e recorte na boca do túnel |
 | Golpe | batalha | não | quem ataca dá um pulo, o alvo pisca em branco, treme e mostra o dano subindo |
+| Criatura rara | encontro | sim | a moldura do retrato pulsa na cor da raridade |
+| Nova espécie | captura | não | cartaz que cresce, fica e some |
 | Criaturas passeando | menu principal | sim | deslocamento pela praça |
 
 ---
@@ -277,6 +310,7 @@ JSON. O save guarda seed, índice e modelo do gerador, e não os atributos. O de
 | Linguagem | GDScript; Python nas ferramentas de arte e mapa |
 | Versionamento | Git + GitHub |
 | CI | GitHub Actions: testes, gdlint, simulador e builds |
+| CD | o CI publica Web, Windows e Linux no itch.io com o butler a cada merge na `master` |
 | Monitoramento | log local de sessão e erros, em JSONL |
 | Assets | gerados por scripts próprios |
 
@@ -300,6 +334,11 @@ Testes do próprio autor:
 - Voltar ao save depois de uma derrota fechava a build → saídas de cena adiadas.
 - Controles cobriam o topo da tela → objetivo em card e controles temporários.
 - Na abertura, o jogador descia atrás de uma casa → parada do ônibus movida.
+- A pesca estava difícil: a linha voltava sozinha e o peixe fugia em 4,4 s → a linha só anda quando
+  o jogador recolhe, folgas 1,4× e fuga em 8,3 s (24/11).
+- No celular a tela ficava preta ao voltar para a aba → a página recarrega quando o navegador
+  descarta o WebGL (24/11).
+- No celular não havia como jogar sem teclado → joystick e botões na tela (24/11).
 
 ---
 
@@ -337,6 +376,8 @@ Ver `docs/plano-etapa-final.md`. Entrega em 30/11/2026.
 | 06/11/2026 | gold, lojas, fábrica e abertura de ônibus | pedido após a primeira aula |
 | 09/11/2026 | gerador v2 como modelo do jogo | cobertura dos 64 pares e dependência entre traços |
 | 09/11/2026 | a Mirela faz o duelo final | quem abre a história a fecha, na praça |
+| 24/11/2026 | raridade tirada da surpresa do sorteio | o "shiny" do jogo é a tese: nada de tabela de raridade à parte |
+| 24/11/2026 | toque como controle virtual | todas as telas respondem sem código novo |
 
 O registro completo está em `docs/mudancas-estruturais.md` e na Wiki.
 
@@ -348,9 +389,9 @@ O registro completo está em `docs/mudancas-estruturais.md` e na Wiki.
 |---|---|---|
 | Arte das criaturas, cenário e NPCs | scripts próprios em `tools/arte/` | do autor |
 | Engine | Godot Engine | MIT |
+| Fonte pixel da interface | desenhada glifo a glifo em `tools/arte/fonte_glifos.py` | do autor |
+| Música e efeitos | sintetizados por `tools/audio/gerar_audio.py` | do autor |
 | Referência de proporção do protagonista | sprite de Pokémon Emerald (Game Freak/Nintendo), fora do repositório e das builds | somente referência |
-
-*(Conferir a origem e a licença da fonte pixel usada na interface.)*
 
 ---
 

@@ -8,9 +8,12 @@ Levantamento de 03/11/2026 (terça-feira) contra o
 
 Faltam **27 dias** para a entrega de 30/11/2026 (segunda-feira), contados de 03/11.
 
-**Estado em 04/11/2026:** a fatia de combate, vitória e derrota está pronta e foi testada
-pelo autor, e as builds para a aula estão geradas (seção 4.1). O próximo marco é a aula de
-06/11.
+**Estado em 24/11/2026:** o jogo está completo e público no itch.io (Web, inclusive no
+celular, Windows e Linux), publicado pelo CI a cada merge na `master`. Entregues desde 04/11:
+gerador v2 e vitrine, arte dos traços, os 4 guardiões e o duelo final, Camada 3, áudio, CI com
+testes e `gdlint`, log de sessão, GDD v1.0, pôster com QR e e-mail, pesca tranquila, controles
+de toque e a coleção com raridade (`docs/jogabilidade.md`). **O que falta é do autor:** playtest
+e relatório, orientações, PAC VIII, artigo, vídeo e a prova de autoria (seção 1).
 
 ---
 
@@ -18,19 +21,19 @@ pelo autor, e as builds para a aula estão geradas (seção 4.1). O próximo mar
 
 | Gate | Prazo | Estado | Ação |
 |---|---|---|---|
-| 2 orientações evidenciadas | 30/09/2026 | **não realizadas: não houve aula até agora; prazo vencido** | pedir nova data por escrito na aula de 06/11/2026 |
-| Playtest com ≥ 10 pessoas | 30/10/2026 | **não realizado; prazo vencido** | possivelmente na aula de 06/11/2026; levar build |
-| Relatório do playtest | 30/10/2026 | **não realizado; prazo vencido** | pedir nova data por escrito na aula de 06/11/2026 |
-| 5 orientações evidenciadas | 30/11/2026 | **nenhuma até agora** | agendar as 5 em 06/11/2026 |
-| Jogo do início ao fim, com vitória e derrota | 30/11/2026 | **fatia atende** (1 guardiã); faltam 2 guardiões e o duelo final | seção 3 |
-| Build pública (Itch.io, loja, WebGL, APK) | 30/11/2026 | só builds locais de Linux e Windows (seção 4.1) | CI + itch.io |
-| GDD (mínimo: visão, loop, mecânicas, tecnologias) | 30/11/2026 | não existe | template de 19 seções |
-| Wiki | 30/11/2026 | **primeira versão publicada em 04/11**; cresce com CI, GDD, playtest e gerador v2 | fechar em 24/11 |
-| CI/CD com build automatizado | 30/11/2026 | não existe | GitHub Actions |
-| Análise estática | 30/11/2026 | não existe | `gdlint` no CI |
-| Monitoramento (log de erros ou telemetria) | 30/11/2026 | não existe | log de sessão e erros |
-| Pôster A0 em PDF com QR Code | 30/11/2026 | não existe | template oficial |
-| Prova de autoria | 30/11/2026 (2ª tentativa: 03/12/2026) | a preparar | ensaio das 25 perguntas |
+| 2 orientações evidenciadas | 30/09/2026 | **prazo vencido**; depende do autor | confirmar a nova data por escrito |
+| Playtest com ≥ 10 pessoas | 30/10/2026 | **não realizado; prazo vencido** | **prioridade máxima**: build do itch, celular, teste cego |
+| Relatório do playtest | 30/10/2026 | **não realizado; prazo vencido** | sai do playtest; alimenta a seção 13 do GDD |
+| 5 orientações evidenciadas | 30/11/2026 | depende do autor | registrar as 5 |
+| Jogo do início ao fim, com vitória e derrota | 30/11/2026 | ✅ 4 guardiões, duelo final, vitória e derrota | — |
+| Build pública (Itch.io, loja, WebGL, APK) | 30/11/2026 | ✅ https://vvendorff.itch.io/tcc-coerncia-semntica | — |
+| GDD (mínimo: visão, loop, mecânicas, tecnologias) | 30/11/2026 | ✅ v1.0 em 24/11; falta o playtest (seção 13) e a reflexão final | autor: seção 19 |
+| Wiki | 30/11/2026 | ✅ atualizada em 24/11, com diagrama C4 | — |
+| CI/CD com build automatizado | 30/11/2026 | ✅ testes, `gdlint`, builds e publicação no itch.io | — |
+| Análise estática | 30/11/2026 | ✅ `gdlint` barra o CI | — |
+| Monitoramento (log de erros ou telemetria) | 30/11/2026 | ✅ `RegistroSessao`, JSONL local | — |
+| Pôster A0 em PDF com QR Code | 30/11/2026 | ✅ com e-mail e QR do jogo; falta testar o QR e imprimir um trecho a 100% | autor |
+| Prova de autoria | 30/11/2026 (2ª tentativa: 03/12/2026) | mapa em `docs/prova-de-autoria.md` | ensaio do autor |
 | PAC VIII: release, peer review, aceite | 30/11/2026 | **a confirmar** | ver decisão D4 |
 | Visitar outra noite do Demo Day e avaliar colegas | 10, 15 ou 16/12/2026 | futuro | requisito de aprovação |
 
@@ -55,7 +58,12 @@ com os três professores.** O critério 5 é eliminatório.
 *Destaque* pede ainda polimento e **evidência de iteração a partir de playtests**;
 playtest com público externo é diferencial.
 
-### 2.1 Estado dos testes (Godot 4.7, 03/11/2026)
+### 2.1 Estado dos testes
+
+**24/11/2026:** os 22 testes de `tools/rodar_testes.sh` passam, no CI e local, com `gdlint` sem
+problemas. A tabela abaixo é o retrato de 03/11, mantido como histórico.
+
+### Retrato de 03/11/2026
 
 | Teste | Resultado |
 |---|---|
@@ -145,9 +153,9 @@ registro lá e atualização da Seção 3.**
 | ~~15/11~~ | ~~arte de asas e nadadeiras (escamas depois)~~ (entregue em 07/11, com escamas) |
 | ~~16/11~~ | ~~Anselmo, Otávio e duelo final (Mirela): **jogo completo**~~ (09/11) |
 | ~~18/11~~ | ~~Camada 3 mínima~~ (12/11, `procedural/ambiance/`); nota da Seção 3 do artigo |
-| 19/11 | playtest da versão completa (≥ 10, com público externo), com o **teste cego** |
-| 22/11 | melhorias do playtest, áudio, game feel |
-| 24/11 | GDD v1.0, Wiki completa, peer review do PAC VIII |
+| 19/11 | playtest da versão completa (≥ 10, com público externo), com o **teste cego** (**não feito; fazer até 28/11**) |
+| ~~22/11~~ | ~~melhorias do playtest, áudio, game feel~~ (áudio e game feel em 12/11; pesca, toque e coleção em 24/11, sem playtest) |
+| 24/11 | ~~GDD v1.0, Wiki completa~~ (24/11), peer review do PAC VIII |
 | 26/11 | pôster, vídeo, QR Code; artigo final |
 | 27/11 | ensaio da prova de autoria; congelar a release |
 | 30/11 | **entrega** e prova de autoria |

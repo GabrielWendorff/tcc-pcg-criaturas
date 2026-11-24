@@ -11,15 +11,15 @@ linha de Jogos Digitais do [Playbook](https://github.com/CatolicaSC-Portfolio/Th
 | Cabeçalho, rodapé e cores do template oficial | ✅ |
 | Logo da Católica SC | ✅ do template; trocar por alta resolução para imprimir |
 | Título | ✅ "TCC: Coerência Semântica" |
-| Nome e e-mail do integrante | ⚠️ falta o e-mail institucional (`config.json`) |
-| QR Code para a solução em produção | ⚠️ falta a URL do itch.io (`config.json`); o do repositório já está |
+| Nome e e-mail do integrante | ✅ `gabriel.wendorff@catolicasc.edu.br` (`config.json`) |
+| QR Code para a solução em produção | ✅ página do itch.io e repositório |
 | Contexto e problema | ✅ Introdução |
 | Solução proposta | ✅ faixa do mapa, "O que é coerência semântica", "Como as tabelas funcionam" |
 | Arquitetura (diagrama) | ✅ 4 camadas e a seed |
 | Referências | ✅ Hendrikx 2013, Togelius 2011, Shaker 2016, jogos analisados |
 | Fonte de no mínimo 20 pt, Arial ou equivalente | ✅ |
 | Mais imagem e diagrama que texto; autoexplicativo | ✅ |
-| QR Code testado | ⚠️ testar no celular depois de preencher a URL |
+| QR Code testado | ⚠️ testar os dois no celular, no PDF impresso |
 | Impressão conferida em tamanho real | ⚠️ conferir um trecho impresso em A4 a 100% |
 
 ## Apresentação (critério 6 e nota da comunidade)
@@ -38,7 +38,7 @@ linha de Jogos Digitais do [Playbook](https://github.com/CatolicaSC-Portfolio/Th
 |---|---|---|
 | 5 orientações evidenciadas | 30/11/2026 | depende do autor |
 | Prova de autoria aprovada | 30/11/2026 (2ª tentativa: 03/12) | preparação em `docs/prova-de-autoria.md` |
-| Build pública | 30/11/2026 | pronta para enviar (`docs/publicacao/`) |
+| Build pública | 30/11/2026 | ✅ https://vvendorff.itch.io/tcc-coerncia-semntica, publicada pelo CI |
 | Playtest com 10 pessoas e relatório | conforme o calendário | pendente |
 | Visitar outra noite do evento e avaliar colegas | 10, 15 ou 16/12/2026 | requisito de aprovação |
 
