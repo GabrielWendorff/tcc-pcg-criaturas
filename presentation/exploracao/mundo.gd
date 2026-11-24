@@ -281,6 +281,7 @@ func _montar_encontros() -> void:
 	# carrega (bolsa) ja aparece dentro da roda, item por item.
 	encontros.encontro_iniciado.connect(func(_c): _mostrar_hud(false))
 	encontros.encontro_terminado.connect(_on_encontro_terminado)
+	encontros.especie_registrada.connect(_ao_registrar_especie)
 
 
 ## Liga NPCs e dialogo. Depois dos encontros de proposito: o dialogo consulta o
@@ -1108,37 +1109,16 @@ func _mostrar_vitoria() -> void:
 	dialogos.suspender(true)
 	tela_desfecho.abrir("VITÓRIA", TemaEncontro.OURO, _texto_de_vitoria(), [
 		{"id": "continuar", "texto": "CONTINUAR EXPLORANDO"},
+		{"id": "outra_seed", "texto": "OUTRA SEED"},
 		{"id": "menu", "texto": "MENU PRINCIPAL"},
 	])
 
 
-## Os dados da seed: o que este mundo gerou e o quanto isso e coerente contra o sorteio
-## independente da mesma seed (RF08). Coerencia por moda, a medida que vale em n=100: a
-## informacao mutua exige n >= 5000 (procedural/creatures/README.md).
+## Os dados da seed e a colecao: ColecaoSeed monta o texto.
 func _texto_de_vitoria() -> String:
-	var n: int = encontros.bestiario.size()
-	var ger := GeradorCriaturas.new(encontros.tabelas, encontros.catalogo)
-	var cond := MetricasCoerencia.avaliar(encontros.bestiario, encontros.tabelas)
-	# O baseline e medido com a regua do modelo desta partida: as duas colunas comparam
-	# a mesma coisa.
-	var indep := MetricasCoerencia.avaliar(
-			ger.gerar_bestiario(seed_do_mundo, n, GeradorCriaturas.Modo.INDEPENDENTE),
-			encontros.tabelas, MetricasCoerencia.K_UNICIDADE_PADRAO,
-			GeradorCriaturas.nome_do_modo(encontros.modo_gerador))
-	var tempo := Save.partida.tempo_legivel() if Save.em_partida() else "—"
-	var nome_seed := Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo)
-	return ("SEED  %s\nTEMPO  %s\nCAPTURAS  %d de %d criaturas deste mundo\nCRIATURAS DISTINTAS "
-			+ " %d\n\nCOERÊNCIA DO BESTIÁRIO\n  esta seed: %.0f%%\n  sorteio independente: %.0f%%") % [
-		nome_seed, tempo, encontros.inventario.colecao.size(), n,
-		int(cond["unicidade"]["distintas"]),
-		_coerencia_media(cond) * 100.0, _coerencia_media(indep) * 100.0]
-
-
-static func _coerencia_media(metricas: Dictionary) -> float:
-	var soma: float = 0.0
-	for dim: String in MetricasCoerencia.DIMENSOES_MODA:
-		soma += float(metricas["moda"][dim]["obs"])
-	return soma / MetricasCoerencia.DIMENSOES_MODA.size()
+	return ColecaoSeed.texto_de_vitoria(encontros, seed_do_mundo,
+			Save.partida.seed_legivel() if Save.em_partida() else str(seed_do_mundo),
+			Save.partida.tempo_legivel() if Save.em_partida() else "—")
 
 
 func _mostrar_derrota() -> void:
@@ -1164,6 +1144,9 @@ func _ao_escolher_no_desfecho(id: String) -> void:
 			jogador.congelar(false)
 			dialogos.suspender(false)
 		"menu":
+			_sair_para_o_menu()
+		"outra_seed":
+			Save.set_meta(ColecaoSeed.META_OUTRA_SEED, true)
 			_sair_para_o_menu()
 		"recarregar":
 			if Save.em_partida() and ArquivoSave.slot_valido(Save.slot_atual) \
@@ -1427,6 +1410,14 @@ func _escrever_hud(raiz: Control, texto: String) -> void:
 
 
 ## Mensagem curta no HUD, com sumico automatico.
+## Marcos do bestiario (data/captura/colecao.json): a recompensa vai para a Bolsa.
+func _ao_registrar_especie(_c: Criatura, registradas: int) -> void:
+	for m: Dictionary in ColecaoSeed.marcos_cruzados(encontros.raridade, registradas - 1,
+			registradas):
+		_nota(encontros.raridade.texto("marco") % [registradas, ColecaoSeed.entregar(m, Bolsa)])
+		Som.tocar("moeda")
+
+
 func _nota(texto: String) -> void:
 	if _hud_nota == null:
 		return

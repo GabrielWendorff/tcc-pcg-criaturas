@@ -25,6 +25,9 @@ const TEXTO_RODAPE := "SETAS criatura     E ver o sorteio     ESC ou N fechar"
 
 var _bestiario: Array = []
 var _capturadas: Callable
+## Raridade do sorteio de cada criatura: o numero da celula ganha a cor da raridade e
+## o cabecalho conta quantas raras e lendarias ja foram registradas.
+var _raridade: RaridadeSorteio
 var _catalogo: CatalogoCorpos
 var _tabelas: TabelasBatalha
 var _probabilidades: TabelasProbabilidade
@@ -142,9 +145,9 @@ func abrir(bestiario: Array, capturadas: Callable, catalogo: CatalogoCorpos,
 	_tabelas = tabelas
 	_aberta = true
 	visible = true
+	_raridade = RaridadeSorteio.do_bestiario(bestiario, probabilidades)
 	_reconstruir()
-	_subtitulo.text = "SEED %s   ·   CAPTURADAS %d DE %d" % [rotulo_seed, total_capturadas(),
-			_bestiario.size()]
+	_subtitulo.text = "SEED %s   ·   %s" % [rotulo_seed, ColecaoSeed.linha_de_colecao(_contagem())]
 	_selecionar(clampi(_indice, 0, maxi(_bestiario.size() - 1, 0)), true)
 
 
@@ -162,6 +165,10 @@ func total_capturadas() -> int:
 		if _capturada(c):
 			n += 1
 	return n
+
+
+func _contagem() -> Dictionary:
+	return ColecaoSeed.contagem(_bestiario, _capturada, _raridade)
 
 
 func _capturada(c: Criatura) -> bool:
@@ -198,7 +205,10 @@ func _montar_celula(c: Criatura, i: int) -> PanelContainer:
 	render.configurar(c, _catalogo)
 
 	# No canto de cima: embaixo ficam as patas e as garras.
-	var numero := TemaEncontro.rotulo("%03d" % c.id, TemaEncontro.PERG_E)
+	# Rara e lendaria: o numero na cor da raridade, para o jogador saber o que cacar.
+	var especial: bool = _raridade != null and _raridade.e_especial(c)
+	var numero := TemaEncontro.rotulo("%03d" % c.id,
+			_raridade.cor(_raridade.nivel(c)) if especial else TemaEncontro.PERG_E)
 	numero.position = Vector2(3, 1)
 	area.add_child(numero)
 
@@ -231,6 +241,10 @@ func _atualizar_ficha() -> void:
 	var situacao := "[color=%s]CAPTURADA[/color]" % TemaEncontro.VERDE_C.to_html(false) \
 			if _capturada(c) else "[color=%s]ainda não capturada[/color]" \
 			% TemaEncontro.PERG_E.to_html(false)
+	if _raridade != null and _raridade.e_especial(c):
+		var niv := _raridade.nivel(c)
+		situacao += "   [color=%s]%s · sorteio de %s[/color]" % [
+				_raridade.cor(niv).to_html(false), _raridade.rotulo(niv), _raridade.uma_em(c)]
 	_ficha_texto.text = "[color=%s]%s[/color]\n%s\n%s" % [TemaEncontro.OURO_C.to_html(false),
 			c.nome().to_upper(), situacao,
 			TextoBatalha.ficha_em_bbcode(c, FichaCombate.de_criatura(c, _tabelas))]

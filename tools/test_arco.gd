@@ -320,8 +320,8 @@ func _testar_vitoria() -> void:
 	var corpo: String = _m.tela_desfecho._corpo.text
 	_ok(corpo.contains("COERÊNCIA") and corpo.contains("independente"),
 			"com a coerencia contra o baseline", corpo.replace("\n", " | "))
-	_ok(_m._coerencia_media(MetricasCoerencia.avaliar(g.bestiario, g.tabelas))
-			> _m._coerencia_media(MetricasCoerencia.avaliar(
+	_ok(ColecaoSeed.coerencia_media(MetricasCoerencia.avaliar(g.bestiario, g.tabelas))
+			> ColecaoSeed.coerencia_media(MetricasCoerencia.avaliar(
 			GeradorCriaturas.new(g.tabelas, g.catalogo).gerar_bestiario(
 			SEED_TESTE, 100, GeradorCriaturas.Modo.INDEPENDENTE), g.tabelas,
 			MetricasCoerencia.K_UNICIDADE_PADRAO, MetricasCoerencia.MODELO_V2)),
@@ -439,6 +439,9 @@ func _testar_glifos() -> void:
 		amostra += TextoBatalha.dica_do_golpe(g, a, b, tabelas)
 	amostra += TextoBatalha.ficha_em_bbcode(a.criatura, a.ficha).replace("[color=", "").replace("[/color]", "")
 	amostra += "MUITO EFICAZ ×1.50 POUCO EFICAZ ×0.75 %"
+	for g: Golpe in a.ficha.golpes:
+		amostra += String(TextoBatalha.selo_do_golpe(g, b, tabelas).get("texto", ""))
+	amostra += "EFICAZ ×1.5 FRACO ×0.75"
 	amostra += _m._objetivo_atual()
 	var faltando := PackedStringArray()
 	for fonte: FontFile in [TemaEncontro.fonte(), TemaEncontro.fonte_titulo()]:
@@ -611,8 +614,10 @@ func _testar_bestiario() -> void:
 	_ok(certas, "a marca aparece exatamente nas capturadas")
 	_ok(com_marca == tela.total_capturadas() and com_marca > 0, "e o total confere",
 			"%d marcadas" % com_marca)
-	_ok(tela._subtitulo.text.contains("CAPTURADAS %d DE %d" % [com_marca, g.bestiario.size()]),
-			"o topo mostra seed e capturadas", tela._subtitulo.text)
+	_ok(tela._subtitulo.text.contains("REGISTRADAS %d/%d" % [com_marca, g.bestiario.size()]),
+			"o topo mostra seed e registradas", tela._subtitulo.text)
+	_ok(tela._subtitulo.text.contains("RARAS") and tela._subtitulo.text.contains("LENDÁRIAS"),
+			"e quantas raras e lendarias ja foram registradas", tela._subtitulo.text)
 	var direita := InputEventAction.new()
 	direita.action = "mover_direita"
 	direita.pressed = true

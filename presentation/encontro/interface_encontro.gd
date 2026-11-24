@@ -112,6 +112,13 @@ var _indice: int = 0
 var _menu_ativo: bool = false
 
 var _criatura: Criatura
+## Raridade do bestiario (opcional): o titulo da ficha, o brilho do retrato e a linha
+## SORTEIO mostram RARA / LENDARIA. Sem ela, a ficha fica como era.
+var raridade: RaridadeSorteio
+var _brilho: Tween
+var _cartaz: PanelContainer
+var _cartaz_titulo: Label
+var _cartaz_linha: Label
 var _dica_estreia: PanelContainer
 var _dica_estreia_titulo: Label
 var _dica_estreia_texto: Label
@@ -165,6 +172,53 @@ func _montar() -> void:
 	_roda.cancelado.connect(func(): roda_cancelada.emit())
 	_raiz.add_child(_roda)
 	_montar_dica_estreia()
+	_montar_cartaz()
+
+
+## Cartaz no centro para a NOVA ESPECIE: titulo grande e a contagem do bestiario.
+func _montar_cartaz() -> void:
+	var centro := CenterContainer.new()
+	centro.set_anchors_preset(Control.PRESET_FULL_RECT)
+	centro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_raiz.add_child(centro)
+	_cartaz = PanelContainer.new()
+	_cartaz.add_theme_stylebox_override("panel", TemaEncontro.moldura("painel_ouro"))
+	_cartaz.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cartaz.visible = false
+	centro.add_child(_cartaz)
+	var v := VBoxContainer.new()
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cartaz.add_child(v)
+	_cartaz_titulo = TemaEncontro.rotulo("", TemaEncontro.OURO, TemaEncontro.Corpo.CARTAZ)
+	_cartaz_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(_cartaz_titulo)
+	_cartaz_linha = TemaEncontro.rotulo("", TemaEncontro.PERG_C, TemaEncontro.Corpo.TITULO)
+	_cartaz_linha.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(_cartaz_linha)
+
+
+## A captura de uma especie que o jogador ainda nao tinha: o cartaz sobe, fica e
+## some. `linha`: "BESTIARIO 12/100", com a raridade quando houver.
+func celebrar_nova_especie(titulo: String, linha: String, cor: Color, duracao: float) -> void:
+	_cartaz_titulo.text = titulo
+	_cartaz_titulo.add_theme_color_override("font_color", cor)
+	_cartaz_linha.text = linha
+	_cartaz.visible = true
+	_cartaz.modulate.a = 0.0
+	_cartaz.pivot_offset = _cartaz.size * 0.5
+	_cartaz.scale = Vector2(0.6, 0.6)
+	var t := create_tween()
+	t.set_parallel(true)
+	t.tween_property(_cartaz, "modulate:a", 1.0, duracao * 0.15)
+	t.tween_property(_cartaz, "scale", Vector2.ONE, duracao * 0.25) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await t.finished
+	await get_tree().create_timer(duracao * 0.6).timeout
+	var s := create_tween()
+	s.tween_property(_cartaz, "modulate:a", 0.0, duracao * 0.15)
+	await s.finished
+	_cartaz.visible = false
 
 
 ## Pergaminho a esquerda com a dica da primeira batalha. Acima da roda de proposito: a
@@ -367,6 +421,7 @@ func abrir(criatura: Criatura, catalogo: CatalogoCorpos, tabelas: TabelasCaptura
 
 func fechar(duracao: float) -> void:
 	_menu_ativo = false
+	_parar_brilho()
 	mostrar_dica_estreia("", "")
 	_limpar_icone()
 	var t := create_tween()
@@ -403,6 +458,13 @@ func mensagem(texto: String, cor: Color = TemaEncontro.TINTA) -> void:
 
 func _preencher_ficha(c: Criatura, tabelas: TabelasCaptura) -> void:
 	_titulo.text = c.nome().to_upper()
+	_titulo.add_theme_color_override("font_color", TemaEncontro.OURO_C)
+	_parar_brilho()
+	if raridade != null and raridade.e_especial(c):
+		var niv := raridade.nivel(c)
+		_titulo.text += "  " + raridade.rotulo(niv)
+		_titulo.add_theme_color_override("font_color", raridade.cor(niv))
+		_brilhar(raridade.cor(niv))
 	_subtitulo.text = "%s + %s  ·  %s" % [c.elemento, c.animal_base, c.porte]
 	_atributos.text = ("[color=%s]COR[/color]  paleta %s · matiz "
 			+ "%s\n[color=%s]APÊNDICES[/color]  %s") % [
@@ -438,9 +500,33 @@ func _linha_do_sorteio(c: Criatura) -> String:
 				else atributo
 		partes.append("%s %d%%" % [rotulo, roundi(float(linha["p"]) * 100.0)])
 	var cor := TemaEncontro.FALHA if atipica else TemaEncontro.VERDE
+	var rotulo_nota := "ATÍPICA" if atipica else "COERENTE"
+	# Rara: a chance do sorteio exato no lugar dos destaques — e a raridade em numero.
+	if raridade != null and raridade.e_especial(c):
+		var niv := raridade.nivel(c)
+		cor = raridade.cor(niv)
+		rotulo_nota = raridade.rotulo(niv)
+		partes = PackedStringArray([raridade.uma_em(c)]) + partes.slice(0, 1)
 	return "\n[color=%s]SORTEIO[/color]  [color=%s]%s[/color] · %s" % [
 		TemaEncontro.PERG_E.to_html(false), cor.to_html(false),
-		"ATÍPICA" if atipica else "COERENTE", " · ".join(partes)]
+		rotulo_nota, " · ".join(partes)]
+
+
+## Moldura do retrato pulsando na cor da raridade enquanto a ficha estiver na tela.
+func _brilhar(cor: Color) -> void:
+	_brilho = create_tween().set_loops()
+	var forte := Color(1.0 + cor.r * 0.8, 1.0 + cor.g * 0.8, 1.0 + cor.b * 0.8)
+	_brilho.tween_property(_moldura_retrato, "modulate", forte, 0.6).set_trans(Tween.TRANS_SINE)
+	_brilho.tween_property(_moldura_retrato, "modulate", Color.WHITE, 0.6) \
+			.set_trans(Tween.TRANS_SINE)
+
+
+func _parar_brilho() -> void:
+	if _brilho != null and _brilho.is_valid():
+		_brilho.kill()
+	_brilho = null
+	if _moldura_retrato != null:
+		_moldura_retrato.modulate = Color.WHITE
 
 
 ## Troca quem esta na ficha: o proximo do guardiao entrou em campo.
@@ -522,15 +608,24 @@ func _construir_menu(itens: Array) -> void:
 
 		var linha := VBoxContainer.new()
 		# Nomeado: sem nome explicito o no recebe "@VBoxContainer@NNN" e o
-		# get_node("Linhas/Nome") de _atualizar_menu nao acha nada.
+		# get_node("Linhas/Topo/Nome") de _atualizar_menu nao acha nada.
 		linha.name = "Linhas"
 		linha.add_theme_constant_override("separation", 1)
 		linha.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		painel.add_child(linha)
 
+		# Topo do cartao: o nome e, a direita, o selo (a vantagem do golpe).
+		var topo := HBoxContainer.new()
+		topo.name = "Topo"
+		topo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		linha.add_child(topo)
 		var nome := TemaEncontro.rotulo("", TemaEncontro.PERG_C)
 		nome.name = "Nome"
-		linha.add_child(nome)
+		nome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		topo.add_child(nome)
+		var selo := TemaEncontro.rotulo("", TemaEncontro.PERG_C)
+		selo.name = "Selo"
+		topo.add_child(selo)
 
 		var dica := TemaEncontro.rotulo(String(itens[i].get("dica", "")), TemaEncontro.TEXTO_FRACO)
 		dica.name = "Dica"
@@ -568,9 +663,14 @@ func _atualizar_menu() -> void:
 		var selecionada: bool = i == _indice and _menu_ativo
 		_opcoes[i].add_theme_stylebox_override("panel",
 				TemaEncontro.moldura("cartao_selecionado" if selecionada else "cartao"))
-		var nome: Label = _opcoes[i].get_node("Linhas/Nome")
+		var nome: Label = _opcoes[i].get_node("Linhas/Topo/Nome")
 		var dica: Label = _opcoes[i].get_node("Linhas/Dica")
 		var op: Dictionary = _itens_menu[i]
+		var selo: Label = _opcoes[i].get_node("Linhas/Topo/Selo")
+		var dados_selo: Dictionary = op.get("selo", {}) if op.get("selo") is Dictionary else {}
+		selo.text = String(dados_selo.get("texto", ""))
+		selo.add_theme_color_override("font_color", dados_selo.get("cor", TemaEncontro.PERG_C)
+				if _menu_ativo else TemaEncontro.TEXTO_FRACO)
 		nome.text = ("▶ " if selecionada else "   ") + String(op["rotulo"])
 		var cor: Color = TemaEncontro.TEXTO_FRACO
 		if _menu_ativo:
@@ -705,6 +805,8 @@ func animar_lancamento(dispositivo: DispositivoCaptura, cfg: ConfiguracaoEncontr
 func animar_desfecho(sucesso: bool, cfg: ConfiguracaoEncontro) -> void:
 	var icone := _icone_em_voo
 	_icone_em_voo = null
+	if sucesso:
+		_parar_brilho()
 	Som.tocar("captura_sucesso" if sucesso else "captura_falha")
 	var t := create_tween()
 	if sucesso:

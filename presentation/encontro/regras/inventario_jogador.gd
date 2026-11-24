@@ -96,6 +96,15 @@ func guardar_criatura(criatura: Criatura) -> void:
 	criatura_guardada.emit(criatura)
 
 
+## Especies distintas registradas: cada criatura do bestiario conta uma vez, mesmo
+## capturada de novo. E o "n" de "BESTIARIO n/100".
+func especies_registradas() -> int:
+	var vistas: Dictionary = {}
+	for c in colecao:
+		vistas["%d:%d" % [c.world_seed, c.id]] = true
+	return vistas.size()
+
+
 func ja_capturou(criatura: Criatura) -> bool:
 	for c in colecao:
 		if c.id == criatura.id and c.world_seed == criatura.world_seed:
