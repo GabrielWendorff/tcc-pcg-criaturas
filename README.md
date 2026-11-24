@@ -8,7 +8,9 @@ elemento e ao animal base da criatura.
 Trabalho de Portfólio PAC VII/VIII do Centro Universitário Católica de Santa Catarina, de
 Gabriel Wendorff. Feito em Godot 4 e GDScript.
 
-**[Documentação completa na Wiki](https://github.com/GabrielWendorff/tcc-pcg-criaturas/wiki)**
+**[Jogar no itch.io](https://vvendorff.itch.io/tcc-coerncia-semntica)** (navegador, inclusive no celular; Windows e Linux) ·
+**[Documentação completa na Wiki](https://github.com/GabrielWendorff/tcc-pcg-criaturas/wiki)** ·
+**[GDD](docs/GDD.md)**
 
 ## Por que isto existe
 
@@ -29,8 +31,10 @@ Medido na seed de teste:
 
 ## O jogo
 
-Você escolhe uma seed e recebe a primeira criatura na vila. Depois captura e pesca outras para montar
-uma equipe e enfrenta a guardiã do sítio. Ler o corpo da criatura importa: quem tem garras bate mais
+Você escolhe uma seed, chega de ônibus à vila e escolhe a primeira criatura. Depois captura e pesca
+outras para montar uma equipe, vence Dulce, Anselmo e Otávio e enfrenta a Mirela no duelo final. Cada
+seed tem as suas criaturas raras e 3 lendárias, e a raridade é a própria probabilidade condicionada: a
+lendária é o sorteio que o modelo quase nunca produz. Ler o corpo da criatura importa: quem tem garras bate mais
 forte e tem um golpe de garra, mas é mais difícil de capturar. Nenhuma dessas regras é escrita por
 espécie: todas são derivadas dos atributos que o gerador sorteou.
 
@@ -38,12 +42,15 @@ espécie: todas são derivadas dos atributos que o gerador sorteou.
 
 | Parte | Estado |
 |---|---|
-| Gerador de criaturas e métricas | funcionando; versão 2 planejada |
+| Gerador de criaturas e métricas | versão 2 em uso, com a v1 reproduzível para comparação |
 | Exploração, encontro, captura e pesca | funcionando |
-| Batalha, vitória e derrota | funcionando, com 1 guardiã; faltam 2 guardiões e o duelo final |
-| Arte de escamas, asas e nadadeiras | sorteadas e medidas, ainda não desenhadas |
-| Ambientação gerada pela seed | ainda não implementada |
-| Build pública | prevista |
+| Batalha, vitória e derrota | jogo completo: 3 guardiões e o duelo final |
+| Arte de garras, escamas, asas e nadadeiras | desenhada |
+| Ambientação gerada pela seed (Camada 3) | funcionando |
+| Áudio | música e efeitos sintetizados por script próprio |
+| Raridade, coleção e outra seed | funcionando |
+| Celular | joystick e botões na tela |
+| Build pública | [itch.io](https://vvendorff.itch.io/tcc-coerncia-semntica), publicada pelo CI a cada merge na `master` |
 
 O que falta até a entrega está no [Roteiro](https://github.com/GabrielWendorff/tcc-pcg-criaturas/wiki/Roteiro).
 
@@ -60,7 +67,8 @@ godot --path .
 
 Controles: setas ou WASD para andar, **E** para falar e confirmar, **Q** para a roda de itens, **F** para
 usar o item na mão, **B** para a bolsa, **N** para o bestiário da seed, **M** para o mapa,
-**F11** para tela cheia e **ESC** para a pausa.
+**F11** para tela cheia e **ESC** para a pausa. Também funciona com controle e, no celular, com o
+joystick da tela.
 
 ## Testes
 
@@ -69,6 +77,7 @@ godot --headless --path . -s res://tools/test_gerador.gd       # gerador e métr
 godot --headless --path . -s res://tools/test_batalha.gd       # regra de combate
 godot --headless --path . res://tools/test_arco.tscn           # o jogo de ponta a ponta
 godot --headless --path . -s res://tools/simular_batalha.gd    # critérios de balanceamento
+GODOT=godot tools/rodar_testes.sh                               # a suíte inteira (22 testes), como no CI
 ```
 
 A lista completa e os problemas conhecidos estão em
@@ -81,10 +90,10 @@ autoral/        Camada 1: mapa, NPCs, diálogos e guardiões, fixos em toda part
 procedural/     Camadas 2 e 3: gerador de criaturas e métricas; ambientação
 data/           tabelas do modelo e balanceamento de jogo, em JSON
 presentation/   Camada 4: exploração, encontro, batalha, pesca, diálogo
-sistemas/       save, opções e bolsa
+sistemas/       save, opções, bolsa, log de sessão, áudio e controles de toque
 arte/           máscaras de pixel art e shader de paleta
 tools/          testes, simulador e geradores de arte e mapa
-docs/           plano, pendências e registro de mudanças do modelo
+docs/           GDD, plano, pendências, registro de mudanças do modelo, pôster e publicação
 ```
 
 Cada módulo tem um README próprio. A visão de conjunto está em
