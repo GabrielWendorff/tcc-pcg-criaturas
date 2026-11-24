@@ -12,7 +12,7 @@ extends RefCounted
 ## delta fixo, e confere a calibragem ("fisga em ~3 s", "foge em ~4.4 s").
 ##
 ## Entradas por quadro: alvo de profundidade (mouse Y) e x normalizado (mouse X:
-## 0 = borda ESQUERDA = mais rapido, 1 = direita = mais devagar). A isca segue as
+## 0 = borda ESQUERDA = mais rapido, 1 = direita = linha parada). A isca segue as
 ## duas por lerp exponencial — o jogador comanda a intencao, a linha tem inercia.
 ##
 ## Fisgar = manter a isca na MESMA ALTURA e na MESMA VELOCIDADE do monstro (cada uma
@@ -266,7 +266,7 @@ func _terminar(d: String) -> void:
 
 
 func _multiplicador_tolerancia() -> float:
-	return cfg.tutorial_multiplicador_tolerancia if modo_tutorial else 1.0
+	return cfg.tutorial_multiplicador_tolerancia if modo_tutorial else cfg.multiplicador_tolerancia
 
 
 ## Fator do lerp exponencial: 1 - exp(-k*delta). Independe da taxa de quadros —

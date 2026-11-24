@@ -43,7 +43,7 @@
   },
   {
    "id": "recolher",
-   "dica": "Mouse à ESQUERDA recolhe rápido; à DIREITA, devagar. Mova o mouse para cima ou para baixo para mudar a altura da isca.",
+   "dica": "A linha fica parada até você mexer. Mouse ou setas à ESQUERDA recolhem; à DIREITA, a linha para. Para cima ou para baixo muda a altura da isca.",
    "esperar": {"evento": "silhueta_surgiu"},
    "se_falhar": "arremesso"
   },

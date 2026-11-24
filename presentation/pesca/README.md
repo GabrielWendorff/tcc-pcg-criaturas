@@ -18,7 +18,8 @@ OCIOSO ── vara na mão + água à frente ──→ "[F] PESCAR" sobre o joga
 ARREMESSO ── arco de 180° oscilando (verde → amarelo → vermelho → volta)
    │  usar_item trava a força ─→ a vara gira ─→ a boia voa e cai na água
    ▼
-RECOLHENDO ── corte da água: mouse X = velocidade, mouse Y = altura
+RECOLHENDO ── corte da água: mouse X ou ←/→ = velocidade, mouse Y ou ↑/↓ = altura
+   │           a linha começa PARADA e só volta quando o jogador recolhe
    │           silhueta surge → igualar altura E velocidade → INTERESSE enche
    ├──────────→ FISGADO  "FISGOU!" + tremor ─→ peixe_fisgado(criatura)
    └──────────→ FALHOU   "ESCAPOU..." (interesse zerou) · "Nada mordeu a isca."
@@ -29,7 +30,7 @@ OCIOSO ── tela fechada, linha recolhida, jogador livre ─→ pesca_encerrad
 | fase | o que o jogador vê | o que decide |
 |---|---|---|
 | 1. arremesso | `MedidorArremesso` embaixo-centro; no tutorial, FRACO / MÉDIO / MÁXIMO sobre as zonas | a força (0..1) vira distância: `lerp(1.5, 7.0)` células, presa ao trecho de água à frente |
-| 2. recolhimento | `MinigameRecolhimento` em tela cheia, com o topo livre para a dica do tutorial | a isca anda para a margem; chegar nela sem fisgar é FALHOU |
+| 2. recolhimento | `MinigameRecolhimento` em tela cheia, com o topo livre para a dica do tutorial | a isca só anda para a margem quando o jogador recolhe (`velocidade_min` = 0); chegar nela sem fisgar é FALHOU |
 | 3. silhueta | `SilhuetaCriatura` atrás da isca, chegando perto quando o interesse sobe | ALTURA OK + VELOCIDADE OK ao mesmo tempo enchem o interesse; fora, ele cai mais devagar |
 | 4. resultado | letreiro no centro, depois a tela fecha | FISGADO emite `peixe_fisgado` e **para aí** |
 
@@ -219,6 +220,14 @@ pesca.interface.minigame.fonte_de_entrada = func() -> Vector2:
 ```
 
 ## Calibragem
+
+**Pesca tranquila (24/11/2026).** No playtest a pesca saiu difícil: a linha voltava
+sozinha (mínimo de 0,35 célula/s), então um arremesso curto chegava à margem antes da
+fisgada, e o peixe fugia em 4,4 s. Agora a linha só anda quando o jogador recolhe, as
+folgas de todo perfil valem 1,4× (`multiplicador_tolerancia`), a deriva é menor e mais
+lenta, a fisgada leva ~2,1 s com a jogada certa e o peixe só foge depois de 8,3 s
+errando tudo. As folgas **relativas** entre criaturas (nadadeiras, escamas, asas)
+continuam as de `perfil.json`: ler o corpo ainda decide quem é fácil.
 
 Todos os números estão em `data/pesca/` (ver `data/README.md`): arco, distâncias,
 velocidades de recolhimento, chance de surgimento, ganho e perda de interesse,

@@ -12,8 +12,15 @@ extends Control
 ## roda a pesca normal e a do tutorial sem um `if tutorial` aqui dentro.
 ##
 ## ENTRADA SUBSTITUIVEL: `fonte_de_entrada` devolve Vector2(x_normalizado,
-## alvo_profundidade). O padrao le o mouse; um teste de integracao troca por uma
-## politica (a perfeita, a errada) e joga a cena real sem mexer no ponteiro.
+## alvo_profundidade). O padrao le o mouse OU as setas (o que mexeu por ultimo);
+## um teste de integracao troca por uma politica (a perfeita, a errada) e joga a
+## cena real sem mexer no ponteiro.
+##
+## SETAS / WASD / joystick (as acoes mover_*): cima e baixo mudam a altura,
+## esquerda acelera o recolhimento e direita desacelera ate PARAR. Seguram o valor
+## quando solta — a tecla e um ajuste, nao um gesto continuo como o mouse.
+## O lance comeca com a linha PARADA na altura inicial: nada acontece ate o
+## jogador decidir, e o mouse so assume quando se mexe de verdade.
 ##
 ## LEITURA DO MOUSE:
 ##   x  sobre o trilho de VELOCIDADE no rodape, que atravessa o quadro de ponta a
@@ -69,6 +76,11 @@ signal silhueta_surgiu(perfil: PerfilPesca)
 @export var cor_veu: Color = Color(TemaEncontro.NOITE_E, 0.82)
 ## Quanto tempo o aviso "Uma sombra segue a isca!" fica na tela.
 @export var duracao_aviso_silhueta: float = 2.2
+## Pelas setas: fracao da faixa de altura / do trilho de velocidade por segundo.
+@export var ritmo_teclas_altura: float = 0.8
+@export var ritmo_teclas_velocidade: float = 0.7
+## Quanto o mouse tem de andar (px) para tomar o controle das setas.
+@export var limiar_mouse: float = 3.0
 
 var simulacao: SimulacaoRecolhimento
 var mostrar_alvos: bool = false
@@ -80,6 +92,10 @@ var _rodando: bool = false
 var _relogio: float = 0.0
 ## Ultima entrada lida (o marcador "fantasma" do trilho mostra a intencao).
 var _entrada: Vector2 = Vector2(1.0, 0.0)
+## Entrada padrao: alvo mantido pelas setas, e se o mouse assumiu o controle.
+var _alvo_teclas: Vector2 = Vector2(1.0, 0.0)
+var _usa_mouse: bool = false
+var _ultimo_mouse: Vector2 = Vector2.ZERO
 
 ## Reacao visual ao desfecho: "" enquanto corre; FISGADO/FUGIU/RECOLHIDA depois.
 var _reacao: String = ""
@@ -116,7 +132,7 @@ const _LARGURA_MAXIMA_CORPO := 32.0
 
 
 func _init() -> void:
-	fonte_de_entrada = _entrada_do_mouse
+	fonte_de_entrada = _entrada_padrao
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	# STOP: o minigame e a superficie inteira da tela enquanto roda. O clique do
 	# mouse (que tambem e `usar_item`) nao vaza para o mundo atras dele.
@@ -169,7 +185,12 @@ func iniciar(sim: SimulacaoRecolhimento, catalogo_corpos: CatalogoCorpos, alvos:
 	_reacao_t = 0.0
 	_aviso_t = -1.0
 	_relogio = 0.0
-	_entrada = Vector2(1.0, 0.0)
+	# Linha parada na altura inicial: o lance comeca em repouso.
+	var inicio: float = sim.profundidade if sim != null else 0.0
+	_entrada = Vector2(1.0, inicio)
+	_alvo_teclas = _entrada
+	_usa_mouse = false
+	_ultimo_mouse = get_local_mouse_position()
 	_silhueta.esconder()
 	_medidor_interesse.visible = false
 	if simulacao != null:
@@ -219,6 +240,7 @@ func _desligar() -> void:
 func _process(delta: float) -> void:
 	_relogio += delta
 	if _rodando and simulacao != null and simulacao.correndo():
+		_avancar_teclas(delta)
 		_entrada = _ler_entrada()
 		simulacao.passo(delta, _entrada.y, _entrada.x)
 	if _reacao != "":
@@ -239,10 +261,37 @@ func _ler_entrada() -> Vector2:
 		if v is Vector2:
 			var e: Vector2 = v
 			return Vector2(clampf(e.x, 0.0, 1.0), clampf(e.y, 0.0, 1.0))
-	return _entrada_do_mouse()
+	return _entrada_padrao()
 
 
-## Entrada padrao: x sobre o trilho de velocidade, y sobre a agua.
+## Mouse ou setas, o que mexeu por ultimo. Ver o topo do arquivo.
+func _entrada_padrao() -> Vector2:
+	return _entrada_do_mouse() if _usa_mouse else _alvo_teclas
+
+
+## Move o alvo das setas e decide quem manda: a seta apertada toma o controle (a
+## partir de onde a linha esta), o mouse que anda mais que `limiar_mouse` o devolve.
+func _avancar_teclas(delta: float) -> void:
+	var m := get_local_mouse_position()
+	if m.distance_to(_ultimo_mouse) > limiar_mouse:
+		_ultimo_mouse = m
+		# No celular o dedo do joystick arrasta o mouse emulado junto: sobre os
+		# controles da tela, o mouse nao toma o controle (arrastar na agua, sim).
+		var toque: Node = get_node_or_null("/root/ControlesToque")
+		if toque == null or not toque.call("ocupa", get_viewport().get_mouse_position()):
+			_usa_mouse = true
+	var eixo := Input.get_vector("mover_esquerda", "mover_direita", "mover_cima", "mover_baixo")
+	if eixo == Vector2.ZERO:
+		return
+	if _usa_mouse:
+		_usa_mouse = false
+		_alvo_teclas = _entrada
+		_ultimo_mouse = m
+	_alvo_teclas.x = clampf(_alvo_teclas.x + eixo.x * ritmo_teclas_velocidade * delta, 0.0, 1.0)
+	_alvo_teclas.y = clampf(_alvo_teclas.y + eixo.y * ritmo_teclas_altura * delta, 0.0, 1.0)
+
+
+## Mouse: x sobre o trilho de velocidade, y sobre a agua.
 func _entrada_do_mouse() -> Vector2:
 	var m := get_local_mouse_position()
 	var x: float = 1.0

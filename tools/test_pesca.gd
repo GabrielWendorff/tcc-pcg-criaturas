@@ -664,8 +664,8 @@ func _testar_simulacao() -> void:
 	var media_fisgar: float = _media_simples(tempos)
 	print("   politica perfeita: silhueta -> fisgado em %.2f s (min %.2f, max %.2f)"
 			% [media_fisgar, tempos.min(), tempos.max()])
-	_ok(media_fisgar >= 3.0 and media_fisgar <= 6.0,
-			"calibragem: fisgar com a politica perfeita leva 3-6 s (%.2f)" % media_fisgar)
+	_ok(media_fisgar >= 1.5 and media_fisgar <= 4.0,
+			"calibragem: fisgar com a politica perfeita leva 1.5-4 s (%.2f)" % media_fisgar)
 
 	# a2) Fluxo natural na ribeira, 300 arremessos maximos: a politica perfeita nunca
 	#     deixa o monstro fugir; o que nao fisga e trajeto que acabou.
@@ -696,24 +696,28 @@ func _testar_simulacao() -> void:
 	_ok(int(desfechos.get(SimulacaoRecolhimento.FISGADO, 0)) >= 150,
 			"politica perfeita fisga na maioria dos arremessos maximos")
 
-	# Calibragem: "a silhueta costuma surgir 1-2 vezes num arremesso medio".
+	# Pesca tranquila: a linha nao volta sozinha. Parada, a isca fica onde caiu e a
+	# sombra aparece em media em atraso + intervalo/chance segundos.
 	var medio: float = _cfg.distancia_de_forca(0.5)
-	var janela: float = (medio - _cfg.distancia_minima_para_surgir) / _cfg.velocidade_min
-	var sorteios: int = 0
-	if janela >= _cfg.atraso_minimo_surgimento:
-		sorteios = int(floor((janela - _cfg.atraso_minimo_surgimento)
-				/ _cfg.intervalo_surgimento)) + 1
-	var esperadas: float = float(sorteios) * _cfg.chance_surgimento
-	var viram: int = 0
+	var parada := SimulacaoRecolhimento.new(_cfg, medio, [], _rng(SEED))
+	_rodar(parada, _politica_parada, 30.0)
+	_ok(parada.correndo() and is_equal_approx(parada.distancia, medio),
+			"linha parada nao volta sozinha (30 s, %.2f de %.2f celulas)"
+			% [parada.distancia, medio])
+	var esperada: float = _cfg.atraso_minimo_surgimento \
+			+ _cfg.intervalo_surgimento / maxf(_cfg.chance_surgimento, 0.001)
+	var esperas: Array = []
 	for i in 400:
 		var sim := SimulacaoRecolhimento.new(_cfg, medio, cands, _rng(SEED * 5 + i))
 		_rodar(sim, _politica_parada, 120.0)
 		if sim.tempo_surgimento >= 0.0:
-			viram += 1
-	print("   arremesso medio (%.2f celulas) recolhido devagar: %d sorteios, %.2f silhuetas esperadas, viu ao menos uma em %d%%"
-			% [medio, sorteios, esperadas, roundi(100.0 * viram / 400.0)])
-	_ok(esperadas >= 1.0 and esperadas <= 2.0,
-			"calibragem: 1-2 silhuetas esperadas num arremesso medio (%.2f)" % esperadas)
+			esperas.append(sim.tempo_surgimento)
+	var espera_media: float = _media_simples(esperas)
+	print("   arremesso medio (%.2f celulas), linha parada: sombra em %.2f s em media (esperado ~%.2f s), em %d de 400"
+			% [medio, espera_media, esperada, esperas.size()])
+	_ok(esperas.size() == 400, "com a linha parada, a sombra sempre acaba aparecendo")
+	_ok(espera_media >= 3.0 and espera_media <= 8.0,
+			"calibragem: com a linha parada a sombra surge em 3-8 s (%.2f)" % espera_media)
 
 	# b) Politica errada com silhueta forcada: o monstro foge em inicial/perda s.
 	var alvo := _perfil_sintetico(500, "agua", "peixe", 1.0, 0.75, 0.5, 0.12, 0.14)
@@ -724,6 +728,11 @@ func _testar_simulacao() -> void:
 	_ok(surgidas.size() == 1 and sim_b.perfil == alvo
 			and sim_b.interesse == _cfg.interesse_inicial,
 			"forcar_silhueta: surge na hora, emite o sinal e comeca no interesse inicial")
+	_ok(is_equal_approx(sim_b.tolerancia_profundidade(),
+			alvo.tolerancia_profundidade * _cfg.multiplicador_tolerancia)
+			and is_equal_approx(sim_b.tolerancia_velocidade(),
+			alvo.tolerancia_velocidade * _cfg.multiplicador_tolerancia),
+			"fora do tutorial as folgas sao as do perfil x multiplicador_tolerancia")
 	_rodar(sim_b, _politica_errada, 60.0)
 	var t_fuga: float = _cfg.interesse_inicial / _cfg.interesse_perda
 	print("   politica errada: fugiu em %.2f s (esperado %.2f s)" % [sim_b.tempo, t_fuga])
@@ -756,7 +765,7 @@ func _testar_simulacao() -> void:
 	var sim_c2 := SimulacaoRecolhimento.new(_cfg, _cfg.distancia_minima_para_surgir, cands,
 			_rng(SEED))
 	sim_c2.multiplicador_surgimento = mult_certo
-	_rodar(sim_c2, _politica_parada, 60.0)
+	_rodar(sim_c2, _politica_lenta, 60.0)
 	_ok(sim_c2.desfecho == SimulacaoRecolhimento.RECOLHIDA and sim_c2.tempo_surgimento < 0.0,
 			"silhueta nao nasce com a isca a menos de distancia_minima_para_surgir")
 
@@ -857,14 +866,14 @@ func _testar_simulacao() -> void:
 
 # ----------------------------------------------------------------- politicas
 
-## Antes da silhueta: recolhe devagar (x = 1) a meia agua. Depois: copia o monstro.
+## Antes da silhueta: linha parada (x = 1) a meia agua. Depois: copia o monstro.
 func _politica_perfeita(sim: SimulacaoRecolhimento) -> Vector2:
 	if sim.perfil == null:
 		return Vector2(1.0, 0.5)
 	return Vector2(1.0 - sim.velocidade_monstro, sim.profundidade_monstro)
 
 
-## Recolhe devagar na altura OPOSTA a do monstro: nunca as duas tolerancias juntas.
+## Linha parada na altura OPOSTA a do monstro: nunca as duas tolerancias juntas.
 func _politica_errada(sim: SimulacaoRecolhimento) -> Vector2:
 	if sim.perfil == null:
 		return Vector2(1.0, 0.5)
@@ -878,9 +887,14 @@ func _politica_rapida(_sim: SimulacaoRecolhimento) -> Vector2:
 	return Vector2(0.0, 0.5)
 
 
-## Recolhe o mais devagar possivel e ignora a silhueta: mede so o surgimento.
+## Linha parada, ignorando a silhueta: mede so o surgimento.
 func _politica_parada(_sim: SimulacaoRecolhimento) -> Vector2:
 	return Vector2(1.0, 0.5)
+
+
+## Recolhe devagar (20% da velocidade), ignorando a silhueta.
+func _politica_lenta(_sim: SimulacaoRecolhimento) -> Vector2:
+	return Vector2(0.8, 0.5)
 
 
 func _rodar(sim: SimulacaoRecolhimento, politica: Callable, limite_s: float) -> void:
